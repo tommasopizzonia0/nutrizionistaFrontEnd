@@ -1,55 +1,46 @@
-<nav 
-  class="navbar"
-  [class.expanded]="isExpanded"
-  [class.light-mode]="!isDarkMode"
-  (mouseenter)="setExpanded(true)"
-  (mouseleave)="setExpanded(false)">
-  
-  <!-- Menu Toggle Button -->
-  <div class="navbar-header">
-    <button 
-      class="menu-toggle"
-      (click)="toggleExpanded()">
-      <span class="material-icons">menu</span>
-    </button>
-  </div>
-
-  <!-- Navigation Items -->
-  <div class="navbar-items">
-    <button
-      *ngFor="let item of navItems"
-      class="nav-item"
-      [class.active]="isActive(item.id)"
-      (click)="setActiveItem(item.id)">
-      
-      <!-- Active Indicator -->
-      <div class="active-indicator" *ngIf="isActive(item.id)"></div>
-      
-      <!-- Icon -->
-      <div class="nav-icon">
-        <span class="material-icons">{{ item.icon }}</span>
-      </div>
-      
-      <!-- Label -->
-      <span class="nav-label">{{ item.label }}</span>
-    </button>
-  </div>
-
-  <!-- Theme Toggle & User Avatar -->
-  <div class="navbar-footer">
-    <!-- Theme Toggle Button -->
-    <button 
-      class="theme-toggle"
-      (click)="toggleTheme()"
-      [title]="isDarkMode ? 'Passa a tema chiaro' : 'Passa a tema scuro'">
-      <span class="material-icons">
-        {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
-      </span>
-    </button>
-
-    <!-- User Avatar -->
-    <div class="user-avatar">
-      <span>{{ isExpanded ? 'User' : 'U' }}</span>
+<div class="sidebar" [class.dark]="isDarkMode" [class.collapsed]="isCollapsed">
+  <!-- HEADER -->
+  <div class="sidebar-header">
+    <div class="avatar-wrapper">
+      <img class="avatar" src="https://i.pravatar.cc/100?img=5" alt="Usuario">
+    </div>
+    <div class="user-info">
+      <div class="user-name">Gabriel Spena</div>
+      <div class="user-role">Nutrizionista</div>
     </div>
   </div>
-</nav>
+
+  <!-- MENU -->
+  <div class="sidebar-menu">
+    <div 
+      class="menu-item" 
+      *ngFor="let item of menuItems" 
+      [class.active]="activeItem === item.id" 
+      (click)="setActiveItem(item.id)">
+      <fa-icon [icon]="item.icon"></fa-icon>
+      <span>{{item.label}}</span>
+    </div>
+  </div>
+
+  <!-- BOTTOM ACTIONS -->
+  <div class="sidebar-bottom">
+    <div class="menu-item" (click)="logout()">
+      <fa-icon [icon]="faSignOutAlt"></fa-icon>
+      <span>Log Out</span>
+    </div>
+
+    <div class="toggle-theme">
+      <fa-icon [icon]="getThemeIcon()"></fa-icon>
+      <span>{{isDarkMode ? 'Modalità Scura' : 'Modalità Chiara'}}</span>
+      <label class="switch">
+        <input type="checkbox" [checked]="isDarkMode" (change)="toggleTheme()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-collapse" (click)="toggleSidebar()">
+      <fa-icon [icon]="isCollapsed ? faAngleDoubleRight : faAngleDoubleLeft"></fa-icon>
+      <span>{{isCollapsed ? 'Espandi' : 'Restringi'}}</span>
+    </div>
+  </div>
+</div>
