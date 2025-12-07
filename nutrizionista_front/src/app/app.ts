@@ -1,12 +1,19 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { HomeComponent } from './components/home/home';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [HomeComponent],
+  template: `
+    <app-home></app-home>
+  `,
+  styles: []
 })
-export class App {
-  protected readonly title = signal('nutrizionista_front');
+export class AppComponent {
+  title = 'my-app';
+  
+  constructor() {
+    console.log('🚀 APP COMPONENT INITIALIZED');
+  }
 }
