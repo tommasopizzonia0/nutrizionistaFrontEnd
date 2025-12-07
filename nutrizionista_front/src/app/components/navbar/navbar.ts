@@ -1,68 +1,116 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { 
+  faHome, 
+  faChartLine, 
+  faBell, 
+  faChartBar, 
+  faHeart, 
+  faWallet, 
+  faSignOutAlt, 
+  faMoon, 
+  faSun,
+  faAngleDoubleLeft,
+  faAngleDoubleRight
+} from '@fortawesome/free-solid-svg-icons';
 
-interface NavItem {
+interface MenuItem {
   id: string;
-  icon: string;
+  icon: any;
   label: string;
 }
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css']
 })
 export class NavbarComponent implements OnInit {
-  isExpanded: boolean = false;
-  activeItem: string = 'home';
-  isDarkMode: boolean = true;
+
+  isCollapsed: boolean = false;
+  isDarkMode: boolean = false;
+  activeItem: string = 'dashboard';
+
+  // Icone FontAwesome
+  faHome = faHome;
+  faChartLine = faChartLine;
+  faBell = faBell;
+  faChartBar = faChartBar;
+  faHeart = faHeart;
+  faWallet = faWallet;
+  faSignOutAlt = faSignOutAlt;
+  faMoon = faMoon;
+  faSun = faSun;
+  faAngleDoubleLeft = faAngleDoubleLeft;
+  faAngleDoubleRight = faAngleDoubleRight;
 
   @Output() themeChange = new EventEmitter<boolean>();
 
-  navItems: NavItem[] = [
-    { id: 'home', icon: 'home', label: 'Home' },
-    { id: 'profile', icon: 'person', label: 'Profile' },
-    { id: 'settings', icon: 'settings', label: 'Settings' },
-    { id: 'gallery', icon: 'image', label: 'Gallery' },
-    { id: 'messages', icon: 'mail', label: 'Messages' }
+  menuItems: MenuItem[] = [
+    { id: 'dashboard',  icon: faHome,        label: 'Dashboard' },
+    { id: 'ricavi',     icon: faChartLine,   label: 'Ricavi' },
+    { id: 'notifiche',  icon: faBell,        label: 'Notifiche' },
+    { id: 'analitiche', icon: faChartBar,    label: 'Analitiche' },
+    { id: 'preferiti',  icon: faHeart,       label: 'Preferiti' },
+    { id: 'portafoglio',icon: faWallet,      label: 'Portafoglio' }
   ];
 
   ngOnInit(): void {
-    // Carica il tema salvato dal localStorage
+    // Controlla tema salvato
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'dark';
+    } else {
+      // Default al tema del sistema
+      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    // Emetti il tema corrente al componente padre
+    
+    this.applyTheme();
     this.themeChange.emit(this.isDarkMode);
-  }
 
-  toggleExpanded(): void {
-    this.isExpanded = !this.isExpanded;
-  }
-
-  setExpanded(value: boolean): void {
-    this.isExpanded = value;
-  }
-
-  setActiveItem(itemId: string): void {
-    this.activeItem = itemId;
-    console.log('Navigazione verso:', itemId);
-  }
-
-  isActive(itemId: string): boolean {
-    return this.activeItem === itemId;
+    // Item attivo
+    const savedActiveItem = localStorage.getItem('activeItem');
+    if (savedActiveItem) {
+      this.activeItem = savedActiveItem;
+    }
   }
 
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
-    
-    // Salva il tema nel localStorage
     localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    
+    this.applyTheme();
     this.themeChange.emit(this.isDarkMode);
-    console.log('Tema cambiato e salvato:', this.isDarkMode ? 'Dark' : 'Light');
+  }
+
+
+    applyTheme(): void {
+      if (this.isDarkMode) {
+        document.body.classList.add('dark');
+        document.body.style.backgroundColor = '#1e1e1e';
+      } else {
+        document.body.classList.remove('dark');
+        document.body.style.backgroundColor = '#f8faf9';
+      }
+    }
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
+  setActiveItem(itemId: string): void {
+    this.activeItem = itemId;
+    localStorage.setItem('activeItem', itemId);
+  }
+
+  logout(): void {
+    console.log('Disconnessione...');
+    // Aggiungi qui la logica di logout
+  }
+
+  getThemeIcon() {
+    return this.isDarkMode ? this.faSun : this.faMoon;
   }
 }

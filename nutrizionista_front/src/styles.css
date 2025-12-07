@@ -1,26 +1,21 @@
-/* Reset globale */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Rimuovi lo sfondo blu del body */
+/* Reset globale per tema */
 body {
+  transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: transparent !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-html, body {
-  height: 100%;
-  overflow-x: hidden;
+body.dark {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
 }
 
-/* Assicurati che app-root non abbia background */
-app-root {
-  display: block;
-  width: 100%;
-  height: 100%;
+/* Override per i componenti principali */
+body.dark .home-container {
+  background-color: #1e1e1e !important;
+}
+
+/* Rimuovi eventuali stili in conflitto */
+* {
+  box-sizing: border-box;
 }

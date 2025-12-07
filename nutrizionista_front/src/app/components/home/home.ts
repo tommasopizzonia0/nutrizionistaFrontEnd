@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../navbar/navbar';
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -10,32 +11,34 @@ import { NavbarComponent } from '../navbar/navbar';
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
-  isDarkMode: boolean = true;
+  isDarkMode: boolean = false; // Default a false (chiaro)
 
   ngOnInit(): void {
     console.log('🏠 HOME COMPONENT INITIALIZED');
-    // Carica il tema salvato all'avvio
+    // Carica il tema salvato all'avvio - sincronizzato con navbar
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'dark';
+    } else {
+      // Se non c'è tema salvato, controlla preferenze sistema
+      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     console.log('Home ngOnInit - isDarkMode:', this.isDarkMode);
-    // Applica il tema al body
+    // Applica il tema al body (solo per sicurezza)
     this.applyThemeToBody();
   }
 
   onThemeChange(isDark: boolean): void {
     console.log('🎨 THEME CHANGE RECEIVED IN HOME');
     this.isDarkMode = isDark;
-    this.applyThemeToBody();
+    // NON applicare più il tema al body - lascia che sia la navbar a gestirlo
+    // this.applyThemeToBody(); // <-- COMMENTA O RIMUOVI QUESTA RIGA
     console.log('Tema ricevuto nel componente home:', isDark ? 'Dark' : 'Light');
-    console.log('isDarkMode value:', this.isDarkMode);
   }
 
+  // Rimuovi completamente questo metodo o lascialo vuoto
   applyThemeToBody(): void {
-    const bodyColor = this.isDarkMode ? '#1e1e1e' : '#ffffff';
-    document.body.style.backgroundColor = bodyColor;
-    console.log('✅ Body background impostato a:', bodyColor);
-    console.log('✅ document.body.style:', document.body.style.backgroundColor);
+    // Non fare nulla qui - la navbar gestisce già il tema del body
+    console.log('✅ Tema gestito dalla navbar');
   }
 }
