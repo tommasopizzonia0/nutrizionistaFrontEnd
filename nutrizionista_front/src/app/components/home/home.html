@@ -1,0 +1,25 @@
+<div class="home-container" [class.light-mode]="!isDarkMode">
+  <!-- Navbar Component -->
+  <app-navbar (themeChange)="onThemeChange($event)"></app-navbar>
+  
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <h1>Benvenuto nella Home</h1>
+      
+      <div class="info-card">
+        <h2>Funzionalità della Navbar</h2>
+        <ul>
+          <li>🎨 Tema {{ isDarkMode ? 'Scuro' : 'Chiaro' }} attivo</li>
+        </ul>
+      </div>
+
+      <div class="theme-indicator">
+        <span class="material-icons">
+          {{ isDarkMode ? 'dark_mode' : 'light_mode' }}
+        </span>
+        <span>Modalità {{ isDarkMode ? 'Scura' : 'Chiara' }}</span>
+      </div>
+    </div>
+  </main>
+</div>
