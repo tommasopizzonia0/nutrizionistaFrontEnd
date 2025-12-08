@@ -12,6 +12,7 @@ import { NavbarComponent } from '../navbar/navbar';
 })
 export class HomeComponent implements OnInit {
   isDarkMode: boolean = false; // Default a false (chiaro)
+  isSidebarCollapsed: boolean = false;
 
   ngOnInit(): void {
     console.log('🏠 HOME COMPONENT INITIALIZED');
@@ -40,5 +41,9 @@ export class HomeComponent implements OnInit {
   applyThemeToBody(): void {
     // Non fare nulla qui - la navbar gestisce già il tema del body
     console.log('✅ Tema gestito dalla navbar');
+  }
+
+    onSidebarToggle(isCollapsed: boolean) {
+    this.isSidebarCollapsed = isCollapsed;
   }
 }

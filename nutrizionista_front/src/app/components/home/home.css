@@ -1,19 +1,36 @@
+/* Contenitore principale */
 .home-container {
+  display: flex; /* fa affiancare sidebar e main content */
   min-height: 100vh;
   transition: background-color 0.3s ease;
-  background-color: #f0f2f5; /* Default light mode */
+  background-color: transparent; /* Default light mode */
 }
 
 .home-container.dark-mode {
   background-color: #1e1e1e !important; /* Forza sfondo scuro */
 }
 
+/* Wrapper per il contenuto principale */
 .content-wrapper {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+/* Main content vero e proprio */
+.main-content {
+  flex: 1; /* occupa tutto lo spazio restante */
+  padding: 40px;
+  transition: margin-left 0.3s ease, background-color 0.3s ease;
+  margin-left: 280px; /* larghezza sidebar normale */
+}
+
+/* Quando la sidebar è collassata */
+.home-container.sidebar-collapsed .main-content {
+  margin-left: 85px; /* larghezza sidebar collassata */
+}
+
+/* Titoli */
 h1 {
   color: #333;
   margin-bottom: 20px;
@@ -23,6 +40,7 @@ h1.dark-text {
   color: #ffffff !important;
 }
 
+/* Schede info */
 .info-card {
   background: white;
   padding: 24px;
@@ -57,6 +75,7 @@ h1.dark-text {
   border-bottom: 1px solid #444;
 }
 
+/* Indicatore tema */
 .theme-indicator {
   display: flex;
   align-items: center;
@@ -75,10 +94,4 @@ h1.dark-text {
 
 .material-icons {
   font-size: 24px;
-}
-
-/* Assicurati che il main content abbia il colore giusto */
-.main-content {
-  min-height: calc(100vh - 60px);
-  padding-top: 20px;
 }

@@ -1,0 +1,113 @@
+<div class="container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
+
+  <app-navbar 
+    (themeChange)="onThemeChange($event)" 
+    (sidebarToggle)="onSidebarToggle($event)">
+  </app-navbar>
+  
+
+<main class="main-content">
+  <!-- Header -->
+  <div class="header">
+    <h1><fa-icon [icon]="faUserGroup" [style.color]="'var(--green-primary)'"></fa-icon> Gestione Clienti</h1>
+    <div>
+      <button class="btn btn-primary" (click)="apriModalCreazione()">
+        <fa-icon [icon]="faPlus"></fa-icon> Nuovo Cliente
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiche -->
+  <div class="stats">
+    <div class="stat-card">
+      <fa-icon [icon]="faUserGroup" class="stat-icon"></fa-icon>
+      <div class="stat-info">
+        <span class="stat-number">{{ totalElements }}</span>
+        <span class="stat-label">Clienti Totali</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista Clienti -->
+  <div class="clienti-grid">
+  <div class="cliente-card" *ngFor="let cliente of clienti; trackBy: clienteTrackBy">
+    <div class="cliente-header">
+      <div class="cliente-avatar">
+        <fa-icon [icon]="cliente.sesso === 'MASCHIO' ? faMale : faFemale"></fa-icon>
+      </div>
+      <div class="cliente-info">
+        <h3>{{ cliente.nome }} {{ cliente.cognome }}</h3>
+        <span class="badge">{{ cliente.sesso }}</span>
+      </div>
+    </div>
+    <div class="cliente-actions">
+      <button class="btn btn-sm btn-info" (click)="visualizzaDettaglio(cliente.id!)" title="Visualizza dettagli">
+        <fa-icon [icon]="faEye"></fa-icon>
+      </button>
+      <button class="btn btn-sm btn-warning" (click)="apriModalModifica(cliente)" title="Modifica">
+        <fa-icon [icon]="faEdit"></fa-icon>
+      </button>
+      <button class="btn btn-sm btn-danger" (click)="eliminaCliente(cliente.id!)" title="Elimina">
+        <fa-icon [icon]="faTrash"></fa-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Paginazione -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="btn-page" (click)="cambiapagina(currentPage - 1)" [disabled]="currentPage === 0">
+      <fa-icon [icon]="faChevronLeft"></fa-icon>
+    </button>
+    <span class="page-info">Pagina {{ paginaCorrente }} di {{ totalPages }}</span>
+    <button class="btn-page" (click)="cambiapagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+      <fa-icon [icon]="faChevronRight"></fa-icon>
+    </button>
+  </div>
+
+  <!-- Modal Creazione/Modifica -->
+  <div class="modal-overlay" *ngIf="modalAperta" (click)="chiudiModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <fa-icon [icon]="faUserPlus" [style.color]="'var(--green-primary)'"></fa-icon>
+          {{ isEdit ? 'Modifica Cliente' : 'Nuovo Cliente' }}
+        </h2>
+        <button class="btn-close" (click)="chiudiModal()">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+      </div>
+      <form class="modal-body" (ngSubmit)="salvaCliente()">
+        <!-- Qui rimane il form come nel tuo HTML originale -->
+        <!-- ... -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="chiudiModal()">
+            <fa-icon [icon]="faTimes"></fa-icon> Annulla
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <fa-icon [icon]="faSave"></fa-icon> {{ isEdit ? 'Salva' : 'Crea' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Dettaglio -->
+  <div class="modal-overlay" *ngIf="modalDettaglio && clienteSelezionato" (click)="chiudiModal()">
+    <div class="modal-content modal-dettaglio" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <fa-icon [icon]="faUser" [style.color]="'var(--green-primary)'"></fa-icon> Profilo Cliente
+        </h2>
+        <button class="btn-close" (click)="chiudiModal()">
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+      </div>
+      <div class="modal-body dettaglio-body">
+        <!-- Qui rimane la visualizzazione dettagliata -->
+      </div>
+    </div>
+  </div>
+</main>
+</div>

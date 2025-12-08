@@ -1,12 +1,17 @@
-<div class="home-container" [class.dark-mode]="isDarkMode">
+<div class="home-container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
   <!-- Navbar Component -->
-  <app-navbar (themeChange)="onThemeChange($event)"></app-navbar>
+  <app-navbar 
+    (themeChange)="onThemeChange($event)" 
+    (sidebarToggle)="onSidebarToggle($event)">
+  </app-navbar>
   
   <!-- Main Content Area -->
   <main class="main-content">
     <div class="content-wrapper">
       <h1 [class.dark-text]="isDarkMode">Benvenuto nella Home</h1>
-    
+      <p [class.dark-text]="isDarkMode">
+        Qui puoi vedere tutte le funzionalità principali.
+      </p>
 
       <div class="theme-indicator" [class.dark-indicator]="isDarkMode">
         <span class="material-icons">
