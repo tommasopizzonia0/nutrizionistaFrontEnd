@@ -16,7 +16,7 @@
       class="menu-item" 
       *ngFor="let item of menuItems" 
       [class.active]="activeItem === item.id" 
-      (click)="setActiveItem(item.id)">
+      (click)="setActiveItem(item.id, $event)">
       <fa-icon [icon]="item.icon"></fa-icon>
       <span>{{item.label}}</span>
     </div>
@@ -30,13 +30,18 @@
     </div>
 
     <div class="toggle-theme">
-      <fa-icon [icon]="getThemeIcon()"></fa-icon>
-      <span>{{isDarkMode ? 'Modalità Scura' : 'Modalità Chiara'}}</span>
-      <label class="switch">
+      <fa-icon [icon]="getThemeIcon()" (click)="toggleTheme()"></fa-icon>
+
+      <span *ngIf="!isCollapsed">
+        {{isDarkMode ? 'Modalità Scura' : 'Modalità Chiara'}}
+      </span>
+
+      <label class="switch" *ngIf="!isCollapsed">
         <input type="checkbox" [checked]="isDarkMode" (change)="toggleTheme()">
         <span class="slider"></span>
       </label>
     </div>
+
 
     <div class="toggle-collapse" (click)="toggleSidebar()">
       <fa-icon [icon]="isCollapsed ? faAngleDoubleRight : faAngleDoubleLeft"></fa-icon>

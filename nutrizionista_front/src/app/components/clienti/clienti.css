@@ -4,15 +4,20 @@
 
 /* Main content vero e proprio */
 .main-content {
-  flex: 1; /* occupa tutto lo spazio restante */
   padding: 40px;
-  transition: margin-left 0.3s ease, background-color 0.3s ease;
-  margin-left: 280px; /* larghezza sidebar normale */
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
+
+.container:not(.sidebar-collapsed) .main-content {
+  margin-left: 280px;
+}
+
+
 /* Quando la sidebar è collassata */
-.home-container.sidebar-collapsed .main-content {
-  margin-left: 85px; /* larghezza sidebar collassata */
+.container.sidebar-collapsed .main-content {
+    margin-left: 85px;
 }
 
 :root {
@@ -96,7 +101,7 @@ body.dark .header h1 {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
-  color: white;
+  color: rgb(0, 0, 0);
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
 }
 

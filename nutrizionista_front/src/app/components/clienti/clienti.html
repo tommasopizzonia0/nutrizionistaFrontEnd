@@ -1,20 +1,17 @@
 <div class="container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
-
+  
+  <main class="main-content">
   <app-navbar 
     (themeChange)="onThemeChange($event)" 
     (sidebarToggle)="onSidebarToggle($event)">
   </app-navbar>
   
-
-<main class="main-content">
   <!-- Header -->
   <div class="header">
-    <h1><fa-icon [icon]="faUserGroup" [style.color]="'var(--green-primary)'"></fa-icon> Gestione Clienti</h1>
-    <div>
-      <button class="btn btn-primary" (click)="apriModalCreazione()">
-        <fa-icon [icon]="faPlus"></fa-icon> Nuovo Cliente
-      </button>
-    </div>
+    <h1><fa-icon [icon]="faUserGroup"></fa-icon> Gestione Clienti</h1>
+    <button class="btn btn-primary" (click)="apriModalCreazione()">
+      <fa-icon [icon]="faPlus"></fa-icon> Nuovo Cliente
+    </button>
   </div>
 
   <!-- Statistiche -->
@@ -30,84 +27,376 @@
 
   <!-- Lista Clienti -->
   <div class="clienti-grid">
-  <div class="cliente-card" *ngFor="let cliente of clienti; trackBy: clienteTrackBy">
-    <div class="cliente-header">
-      <div class="cliente-avatar">
-        <fa-icon [icon]="cliente.sesso === 'MASCHIO' ? faMale : faFemale"></fa-icon>
-      </div>
-      <div class="cliente-info">
-        <h3>{{ cliente.nome }} {{ cliente.cognome }}</h3>
-        <span class="badge">{{ cliente.sesso }}</span>
-      </div>
-    </div>
-    <div class="cliente-actions">
-      <button class="btn btn-sm btn-info" (click)="visualizzaDettaglio(cliente.id!)" title="Visualizza dettagli">
-        <fa-icon [icon]="faEye"></fa-icon>
-      </button>
-      <button class="btn btn-sm btn-warning" (click)="apriModalModifica(cliente)" title="Modifica">
-        <fa-icon [icon]="faEdit"></fa-icon>
-      </button>
-      <button class="btn btn-sm btn-danger" (click)="eliminaCliente(cliente.id!)" title="Elimina">
-        <fa-icon [icon]="faTrash"></fa-icon>
-      </button>
-    </div>
-  </div>
-</div>
-
-
-  <!-- Paginazione -->
-  <div class="pagination" *ngIf="totalPages > 1">
-    <button class="btn-page" (click)="cambiapagina(currentPage - 1)" [disabled]="currentPage === 0">
-      <fa-icon [icon]="faChevronLeft"></fa-icon>
-    </button>
-    <span class="page-info">Pagina {{ paginaCorrente }} di {{ totalPages }}</span>
-    <button class="btn-page" (click)="cambiapagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
-      <fa-icon [icon]="faChevronRight"></fa-icon>
-    </button>
-  </div>
-
-  <!-- Modal Creazione/Modifica -->
-  <div class="modal-overlay" *ngIf="modalAperta" (click)="chiudiModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>
-          <fa-icon [icon]="faUserPlus" [style.color]="'var(--green-primary)'"></fa-icon>
-          {{ isEdit ? 'Modifica Cliente' : 'Nuovo Cliente' }}
-        </h2>
-        <button class="btn-close" (click)="chiudiModal()">
-          <fa-icon [icon]="faTimes"></fa-icon>
-        </button>
-      </div>
-      <form class="modal-body" (ngSubmit)="salvaCliente()">
-        <!-- Qui rimane il form come nel tuo HTML originale -->
-        <!-- ... -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="chiudiModal()">
-            <fa-icon [icon]="faTimes"></fa-icon> Annulla
+    @for (cliente of clienti; track cliente.id) {
+      <div class="cliente-card">
+        <div class="cliente-header">
+          <div class="cliente-avatar">
+            @if (cliente.sesso === 'MASCHIO') {
+              <fa-icon [icon]="faMale"></fa-icon>
+            } @else {
+              <fa-icon [icon]="faFemale"></fa-icon>
+            }
+          </div>
+          <div class="cliente-info">
+            <h3>{{ cliente.nome }} {{ cliente.cognome }}</h3>
+            <span class="badge">{{ cliente.sesso }}</span>
+          </div>
+        </div>
+        
+        <div class="cliente-actions">
+          <button class="btn btn-sm btn-info" (click)="visualizzaDettaglio(cliente.id!)" title="Visualizza dettagli">
+            <fa-icon [icon]="faEye"></fa-icon>
           </button>
-          <button type="submit" class="btn btn-primary">
-            <fa-icon [icon]="faSave"></fa-icon> {{ isEdit ? 'Salva' : 'Crea' }}
+          <button class="btn btn-sm btn-warning" (click)="apriModalModifica(cliente)" title="Modifica">
+            <fa-icon [icon]="faEdit"></fa-icon>
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="eliminaCliente(cliente.id!)" title="Elimina">
+            <fa-icon [icon]="faTrash"></fa-icon>
           </button>
         </div>
-      </form>
+      </div>
+    }
+  </div>
+
+  <!-- Paginazione -->
+  @if (totalPages > 1) {
+    <div class="pagination">
+      <button class="btn-page" (click)="cambiapagina(currentPage - 1)" [disabled]="currentPage === 0">
+        <fa-icon [icon]="faChevronLeft"></fa-icon>
+      </button>
+      <span class="page-info">Pagina {{ paginaCorrente }} di {{ totalPages }}</span>
+      <button class="btn-page" (click)="cambiapagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+        <fa-icon [icon]="faChevronRight"></fa-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Modal Creazione/Modifica -->
+  @if (modalAperta) {
+    <div class="modal-overlay" (click)="chiudiModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>
+            <fa-icon [icon]="faUserPlus"></fa-icon>
+            {{ isEdit ? 'Modifica Cliente' : 'Nuovo Cliente' }}
+          </h2>
+          <button class="btn-close" (click)="chiudiModal()">
+            <fa-icon [icon]="faTimes"></fa-icon>
+          </button>
+        </div>
+
+        <form class="modal-body" (ngSubmit)="salvaCliente()">
+  
+  <!-- SEZIONE: Dati Anagrafici -->
+  <div class="form-section">
+    <h3><fa-icon [icon]="faIdCard"></fa-icon> Dati Anagrafici</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nome">Nome *</label>
+        <input 
+          type="text" 
+          id="nome" 
+          name="nome" 
+          [(ngModel)]="nuovoCliente.nome" 
+          required 
+          placeholder="Inserisci il nome">
+      </div>
+      
+      <div class="form-group">
+        <label for="cognome">Cognome *</label>
+        <input 
+          type="text" 
+          id="cognome" 
+          name="cognome" 
+          [(ngModel)]="nuovoCliente.cognome" 
+          required 
+          placeholder="Inserisci il cognome">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sesso">Sesso *</label>
+        <select id="sesso" name="sesso" [(ngModel)]="nuovoCliente.sesso" required>
+          <option value="MASCHIO">Maschio</option>
+          <option value="FEMMINA">Femmina</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dataNascita">Data di Nascita *</label>
+        <input 
+          type="date" 
+          id="dataNascita" 
+          name="dataNascita" 
+          [(ngModel)]="nuovoCliente.dataNascita" 
+          required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="codiceFiscale">Codice Fiscale *</label>
+        <input 
+          type="text" 
+          id="codiceFiscale" 
+          name="codiceFiscale" 
+          [(ngModel)]="nuovoCliente.codiceFiscale" 
+          required 
+          placeholder="RSSMRA80A01H501U"
+          maxlength="16">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          [(ngModel)]="nuovoCliente.email" 
+          required 
+          placeholder="esempio@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Telefono *</label>
+        <input 
+          type="tel" 
+          id="telefono" 
+          name="telefono" 
+          [(ngModel)]="nuovoCliente.telefono" 
+          required 
+          placeholder="+39 333 1234567">
+      </div>
     </div>
   </div>
 
-  <!-- Modal Dettaglio -->
-  <div class="modal-overlay" *ngIf="modalDettaglio && clienteSelezionato" (click)="chiudiModal()">
-    <div class="modal-content modal-dettaglio" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>
-          <fa-icon [icon]="faUser" [style.color]="'var(--green-primary)'"></fa-icon> Profilo Cliente
-        </h2>
-        <button class="btn-close" (click)="chiudiModal()">
-          <fa-icon [icon]="faTimes"></fa-icon>
-        </button>
+  <!-- SEZIONE: Dati Fisici -->
+  <div class="form-section">
+    <h3><fa-icon [icon]="faHeartbeat"></fa-icon> Dati Fisici</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="peso">Peso (kg) *</label>
+        <input 
+          type="number" 
+          id="peso" 
+          name="peso" 
+          [(ngModel)]="nuovoCliente.peso" 
+          required 
+          min="0" 
+          step="0.1"
+          placeholder="70.5">
       </div>
-      <div class="modal-body dettaglio-body">
-        <!-- Qui rimane la visualizzazione dettagliata -->
+
+      <div class="form-group">
+        <label for="altezza">Altezza (cm) *</label>
+        <input 
+          type="number" 
+          id="altezza" 
+          name="altezza" 
+          [(ngModel)]="nuovoCliente.altezza" 
+          required 
+          min="0"
+          placeholder="175">
       </div>
     </div>
   </div>
+
+  <!-- SEZIONE: Attività Fisica -->
+  <div class="form-section">
+    <h3><fa-icon [icon]="faRunning"></fa-icon> Attività Fisica</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="numAllenamentiSett">Allenamenti Settimanali</label>
+        <input 
+          type="text" 
+          id="numAllenamentiSett" 
+          name="numAllenamentiSett" 
+          [(ngModel)]="nuovoCliente.numAllenamentiSett"
+          placeholder="3-4 volte">
+      </div>
+    </div>
+  </div>
+
+  <!-- SEZIONE: Informazioni Mediche -->
+  <div class="form-section">
+    <h3><fa-icon [icon]="faNotesMedical"></fa-icon> Informazioni Mediche</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="intolleranze">Intolleranze Alimentari</label>
+        <textarea 
+          id="intolleranze" 
+          name="intolleranze" 
+          [(ngModel)]="nuovoCliente.intolleranze"
+          placeholder="Lattosio, glutine, etc..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="funzioniIntestinali">Funzioni Intestinali</label>
+        <textarea 
+          id="funzioniIntestinali" 
+          name="funzioniIntestinali" 
+          [(ngModel)]="nuovoCliente.funzioniIntestinali"
+          placeholder="Regolari, irregolari, etc..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="problematicheSalutari">Problematiche Salutari</label>
+        <textarea 
+          id="problematicheSalutari" 
+          name="problematicheSalutari" 
+          [(ngModel)]="nuovoCliente.problematicheSalutari"
+          placeholder="Diabete, pressione alta, etc..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="assunzioneFarmaci">Assunzione Farmaci</label>
+        <textarea 
+          id="assunzioneFarmaci" 
+          name="assunzioneFarmaci" 
+          [(ngModel)]="nuovoCliente.assunzioneFarmaci"
+          placeholder="Farmaci assunti regolarmente..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEZIONE: Stile di Vita -->
+  <div class="form-section">
+    <h3><fa-icon [icon]="faUser"></fa-icon> Stile di Vita</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="quantitaEQualitaDelSonno">Qualità del Sonno</label>
+        <textarea 
+          id="quantitaEQualitaDelSonno" 
+          name="quantitaEQualitaDelSonno" 
+          [(ngModel)]="nuovoCliente.quantitaEQualitaDelSonno"
+          placeholder="Ore di sonno, qualità, etc..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            id="beveAlcol" 
+            name="beveAlcol" 
+            [(ngModel)]="nuovoCliente.beveAlcol">
+          Consuma Alcolici
+        </label>
+      </div>
+    </div>
+  </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="chiudiModal()">
+              <fa-icon [icon]="faTimes"></fa-icon> Annulla
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <fa-icon [icon]="faSave"></fa-icon> {{ isEdit ? 'Salva' : 'Crea' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal Dettaglio -->
+  @if (modalDettaglio && clienteSelezionato) {
+    <div class="modal-overlay" (click)="chiudiModal()">
+      <div class="modal-content modal-dettaglio" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>
+            <fa-icon [icon]="faUser"></fa-icon>
+            Profilo Cliente
+          </h2>
+          <button class="btn-close" (click)="chiudiModal()">
+            <fa-icon [icon]="faTimes"></fa-icon>
+          </button>
+        </div>
+
+        <div class="modal-body dettaglio-body">
+          <div class="dettaglio-avatar">
+            @if (clienteSelezionato.sesso === 'MASCHIO') {
+              <fa-icon [icon]="faMale"></fa-icon>
+            } @else {
+              <fa-icon [icon]="faFemale"></fa-icon>
+            }
+          </div>
+
+          <h2 class="dettaglio-nome">{{ clienteSelezionato.nome }} {{ clienteSelezionato.cognome }}</h2>
+          
+          <div class="dettaglio-grid">
+            <div class="dettaglio-section">
+              <h4><fa-icon [icon]="faIdCard"></fa-icon> Anagrafica</h4>
+              <p><strong>Sesso:</strong> {{ clienteSelezionato.sesso }}</p>
+              @if (clienteSelezionato.codiceFiscale) {
+                <p><strong>Codice Fiscale:</strong> {{ clienteSelezionato.codiceFiscale }}</p>
+              }
+              @if (clienteSelezionato.dataNascita) {
+                <p><strong>Data di Nascita:</strong> {{ clienteSelezionato.dataNascita }}</p>
+              }
+              @if (clienteSelezionato.email) {
+                <p><strong>Email:</strong> {{ clienteSelezionato.email }}</p>
+              }
+              @if (clienteSelezionato.telefono) {
+                <p><strong>Telefono:</strong> {{ clienteSelezionato.telefono }}</p>
+              }
+            </div>
+
+            <div class="dettaglio-section">
+              <h4><fa-icon [icon]="faHeartbeat"></fa-icon> Dati Fisici</h4>
+              @if (clienteSelezionato.peso) {
+                <p><strong>Peso:</strong> {{ clienteSelezionato.peso }} kg</p>
+              }
+              @if (clienteSelezionato.altezza) {
+                <p><strong>Altezza:</strong> {{ clienteSelezionato.altezza }} cm</p>
+              }
+            </div>
+
+            <div class="dettaglio-section">
+              <h4><fa-icon [icon]="faRunning"></fa-icon> Stile di Vita</h4>
+              @if (clienteSelezionato.numAllenamentiSett) {
+                <p><strong>Allenamenti:</strong> {{ clienteSelezionato.numAllenamentiSett }}</p>
+              }
+              @if (clienteSelezionato.quantitaEQualitaDelSonno) {
+                <p><strong>Sonno:</strong> {{ clienteSelezionato.quantitaEQualitaDelSonno }}</p>
+              }
+              <p><strong>Alcol:</strong> {{ clienteSelezionato.beveAlcol ? 'Sì' : 'No' }}</p>
+            </div>
+
+            <div class="dettaglio-section full-width">
+              <h4><fa-icon [icon]="faNotesMedical"></fa-icon> Informazioni Mediche</h4>
+              @if (clienteSelezionato.intolleranze) {
+                <p><strong>Intolleranze:</strong> {{ clienteSelezionato.intolleranze }}</p>
+              }
+              @if (clienteSelezionato.funzioniIntestinali) {
+                <p><strong>Funzioni Intestinali:</strong> {{ clienteSelezionato.funzioniIntestinali }}</p>
+              }
+              @if (clienteSelezionato.problematicheSalutari) {
+                <p><strong>Problematiche:</strong> {{ clienteSelezionato.problematicheSalutari }}</p>
+              }
+              @if (clienteSelezionato.assunzioneFarmaci) {
+                <p><strong>Farmaci:</strong> {{ clienteSelezionato.assunzioneFarmaci }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </main>
 </div>
