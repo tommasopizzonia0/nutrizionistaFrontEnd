@@ -15,7 +15,12 @@ import {
   faSun,
   faAngleDoubleLeft,
   faAngleDoubleRight,
-  faUserGroup
+  faUserGroup,
+  faFile,
+  faCalendar,
+  faUtensils,
+  faCog,
+  faChartPie
 } from '@fortawesome/free-solid-svg-icons';
 
 interface MenuItem {
@@ -57,10 +62,11 @@ export class NavbarComponent implements OnInit {
   menuItems: MenuItem[] = [
     { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/' },
     { id: 'clienti',    icon: faUserGroup,   label: 'Clienti',    route: '/clienti' },
-    { id: 'notifiche',  icon: faBell,        label: 'Notifiche',  route: '/notifiche' },
-    { id: 'analitiche', icon: faChartBar,    label: 'Analitiche', route: '/analitiche' },
-    { id: 'preferiti',  icon: faHeart,       label: 'Preferiti',  route: '/preferiti' },
-    { id: 'portafoglio',icon: faWallet,      label: 'Portafoglio',route: '/portafoglio' }
+    { id: 'modelli',  icon: faFile,          label: 'Modelli',  route: '/modelli' },
+    { id: 'alimenti', icon: faUtensils,    label: 'Alimenti', route: '/alimenti' },
+    { id: 'agenda',  icon: faCalendar,       label: 'Agenda',  route: '/agenda' },
+    { id: 'calcolo',icon: faChartPie,      label: 'Calcolo',route: '/calcolo' },
+    { id: 'impostazioni',icon: faCog,      label: 'Impostazioni',route: '/impostazioni' }
   ];
 
   constructor(private router: Router) {}
