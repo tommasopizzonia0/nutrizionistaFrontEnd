@@ -1,6 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { filter } from 'rxjs/operators';
 import { 
   faHome, 
   faChartLine, 
@@ -12,13 +14,15 @@ import {
   faMoon, 
   faSun,
   faAngleDoubleLeft,
-  faAngleDoubleRight
+  faAngleDoubleRight,
+  faUserGroup
 } from '@fortawesome/free-solid-svg-icons';
 
 interface MenuItem {
   id: string;
   icon: any;
   label: string;
+  route: string; // Aggiungi il campo route
 }
 
 @Component({
@@ -29,6 +33,8 @@ interface MenuItem {
   styleUrls: ['./navbar.css']
 })
 export class NavbarComponent implements OnInit {
+
+  @Output() sidebarToggle = new EventEmitter<boolean>();
 
   isCollapsed: boolean = false;
   isDarkMode: boolean = false;
@@ -50,13 +56,15 @@ export class NavbarComponent implements OnInit {
   @Output() themeChange = new EventEmitter<boolean>();
 
   menuItems: MenuItem[] = [
-    { id: 'dashboard',  icon: faHome,        label: 'Dashboard' },
-    { id: 'ricavi',     icon: faChartLine,   label: 'Ricavi' },
-    { id: 'notifiche',  icon: faBell,        label: 'Notifiche' },
-    { id: 'analitiche', icon: faChartBar,    label: 'Analitiche' },
-    { id: 'preferiti',  icon: faHeart,       label: 'Preferiti' },
-    { id: 'portafoglio',icon: faWallet,      label: 'Portafoglio' }
+    { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/' },
+    { id: 'clienti',    icon: faUserGroup,   label: 'Clienti',    route: '/clienti' },
+    { id: 'notifiche',  icon: faBell,        label: 'Notifiche',  route: '/notifiche' },
+    { id: 'analitiche', icon: faChartBar,    label: 'Analitiche', route: '/analitiche' },
+    { id: 'preferiti',  icon: faHeart,       label: 'Preferiti',  route: '/preferiti' },
+    { id: 'portafoglio',icon: faWallet,      label: 'Portafoglio',route: '/portafoglio' }
   ];
+
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     // Controlla tema salvato
@@ -71,11 +79,15 @@ export class NavbarComponent implements OnInit {
     this.applyTheme();
     this.themeChange.emit(this.isDarkMode);
 
-    // Item attivo
-    const savedActiveItem = localStorage.getItem('activeItem');
-    if (savedActiveItem) {
-      this.activeItem = savedActiveItem;
-    }
+    // Rileva il cambio di route e aggiorna l'item attivo
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.updateActiveItemFromUrl(event.url);
+    });
+    
+    // Imposta l'item attivo all'avvio in base alla URL corrente
+    this.updateActiveItemFromUrl(this.router.url);
   }
 
   toggleTheme(): void {
@@ -85,32 +97,62 @@ export class NavbarComponent implements OnInit {
     this.themeChange.emit(this.isDarkMode);
   }
 
-
-    applyTheme(): void {
-      if (this.isDarkMode) {
-        document.body.classList.add('dark');
-        document.body.style.backgroundColor = '#1e1e1e';
-      } else {
-        document.body.classList.remove('dark');
-        document.body.style.backgroundColor = '#f8faf9';
-      }
+  applyTheme(): void {
+    if (this.isDarkMode) {
+      document.body.classList.add('dark');
+      document.body.style.backgroundColor = '#1e1e1e';
+    } else {
+      document.body.classList.remove('dark');
+      document.body.style.backgroundColor = '#f8faf9';
     }
-
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
   }
+
+toggleSidebar(): void {
+  this.isCollapsed = !this.isCollapsed;
+  this.sidebarToggle.emit(this.isCollapsed);
+}
 
   setActiveItem(itemId: string): void {
     this.activeItem = itemId;
     localStorage.setItem('activeItem', itemId);
+    
+    // Naviga alla route corrispondente
+    const item = this.menuItems.find(m => m.id === itemId);
+    if (item) {
+      this.router.navigate([item.route]);
+    }
+  }
+
+  private updateActiveItemFromUrl(url: string): void {
+    // Trova l'item del menu che corrisponde alla URL corrente
+    const item = this.menuItems.find(m => {
+      // Se la route è '/', controlla che l'URL sia esattamente '/'
+      if (m.route === '/') {
+        return url === '/';
+      }
+      // Altrimenti controlla che l'URL inizi con la route
+      return url.startsWith(m.route);
+    });
+    
+    if (item) {
+      this.activeItem = item.id;
+      localStorage.setItem('activeItem', item.id);
+    }
   }
 
   logout(): void {
     console.log('Disconnessione...');
-    // Aggiungi qui la logica di logout
+    // Rimuovi token e dati dal localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('activeItem');
+    localStorage.removeItem('theme');
+    
+    // Naviga alla pagina di login (se esiste)
+    this.router.navigate(['/login']);
   }
 
   getThemeIcon() {
     return this.isDarkMode ? this.faSun : this.faMoon;
   }
+  
 }
