@@ -33,6 +33,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@primeuix/themes": "^2.0.2",
+    "jwt-decode": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.0.1",
     "rxjs": "~7.8.0",
