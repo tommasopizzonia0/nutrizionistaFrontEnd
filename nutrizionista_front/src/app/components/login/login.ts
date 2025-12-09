@@ -20,7 +20,7 @@ goToRegistration(){
 }
 
 goToHome(){
-  this.router.navigate(['/home']);
+  this.router.navigate(['/clienti']);
 }
   email!: string;
   password!: string;
@@ -81,7 +81,7 @@ startGif() {
       this.authService.token = localStorage.getItem("token")!;
     //  setTimeout(()=>{
     //  },100);
-      this.router.navigate(['/home']);
+      this.router.navigate(['/clienti']);
     
   }  }catch (error) {
     

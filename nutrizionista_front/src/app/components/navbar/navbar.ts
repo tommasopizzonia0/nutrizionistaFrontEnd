@@ -60,12 +60,12 @@ export class NavbarComponent implements OnInit {
   faAngleDoubleRight = faAngleDoubleRight;
 
   menuItems: MenuItem[] = [
-    { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/' },
+    { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/home' },
     { id: 'clienti',    icon: faUserGroup,   label: 'Clienti',    route: '/clienti' },
+    { id: 'agenda',  icon: faCalendar,       label: 'Agenda',  route: '/agenda' },
+    { id: 'calcolo',icon: faChartPie,      label: 'Calcolo TDEE',route: '/calcolo' },
     { id: 'modelli',  icon: faFile,          label: 'Modelli',  route: '/modelli' },
     { id: 'alimenti', icon: faUtensils,    label: 'Alimenti', route: '/alimenti' },
-    { id: 'agenda',  icon: faCalendar,       label: 'Agenda',  route: '/agenda' },
-    { id: 'calcolo',icon: faChartPie,      label: 'Calcolo',route: '/calcolo' },
     { id: 'impostazioni',icon: faCog,      label: 'Impostazioni',route: '/impostazioni' }
   ];
 
