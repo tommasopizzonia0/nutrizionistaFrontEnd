@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { NavbarComponent } from '../navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ClienteService } from '../../services/cliente.service';
 import { ClienteDto, ClienteFormDto } from '../../dto/cliente.dto';
 import { PageResponse } from '../../dto/page-response.dto';
+import { NavbarComponent } from '../navbar/navbar';
 import { FaIconComponent, FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { 
@@ -16,19 +16,16 @@ import {
 @Component({
   selector: 'app-cliente',
   standalone: true,
-  imports: [CommonModule, FormsModule, FaIconComponent, FontAwesomeModule, NavbarComponent  ],
+  imports: [CommonModule, FormsModule, FaIconComponent, FontAwesomeModule, NavbarComponent],
   templateUrl: './clienti.html',
-  styleUrls: ['./clienti.css'],
-    
+  styleUrls: ['./clienti.css']
 })
 export class ClienteComponent implements OnInit {
-  private apiUrl = 'http://localhost:8080/api/clienti';
 
   clienti: ClienteDto[] = [];
   clienteSelezionato: ClienteDto | null = null;
 
-  isDarkMode: boolean = false; 
-
+  isDarkMode = false;
   isSidebarCollapsed = true;
 
   modalAperta = false;
@@ -61,35 +58,25 @@ export class ClienteComponent implements OnInit {
   faRunning: IconProp = faRunning;
   faNotesMedical: IconProp = faNotesMedical;
 
-  constructor(private http: HttpClient) {}
+  constructor(private clienteService: ClienteService) {}
 
   ngOnInit(): void {
     this.caricaClienti();
   }
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
+  onSidebarToggle(isCollapsed: boolean) {
+    this.isSidebarCollapsed = isCollapsed;
   }
 
-  onSidebarToggle(isCollapsed: boolean) {
-  this.isSidebarCollapsed = isCollapsed;
-}
-
   caricaClienti(): void {
-    const url = `${this.apiUrl}?page=${this.currentPage}&size=${this.pageSize}`;
-    this.http.get<PageResponse<ClienteDto>>(url, { headers: this.getHeaders() })
-      .subscribe({
-        next: (response) => {
-          this.clienti = response.content;
-          this.totalPages = response.totalPages;
-          this.totalElements = response.totalElements;
-        },
-        error: (error) => console.error('Errore nel caricamento dei clienti:', error)
-      });
+    this.clienteService.allMyClienti(this.currentPage, this.pageSize).subscribe({
+      next: (response: PageResponse<ClienteDto>) => {
+        this.clienti = response.content;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
+      },
+      error: (err) => console.error('Errore nel caricamento dei clienti:', err)
+    });
   }
 
   apriModalCreazione(): void {
@@ -115,42 +102,36 @@ export class ClienteComponent implements OnInit {
 
   salvaCliente(): void {
     if (this.isEdit) {
-      this.http.put<ClienteDto>(this.apiUrl, this.nuovoCliente, { headers: this.getHeaders() })
-        .subscribe({
-          next: () => { this.caricaClienti(); this.chiudiModal(); },
-          error: (error) => console.error('Errore nella modifica del cliente:', error)
-        });
+      this.clienteService.update(this.nuovoCliente).subscribe({
+        next: () => { this.caricaClienti(); this.chiudiModal(); },
+        error: (err) => console.error('Errore nella modifica del cliente:', err)
+      });
     } else {
-      this.http.post<ClienteDto>(this.apiUrl, this.nuovoCliente, { headers: this.getHeaders() })
-        .subscribe({
-          next: () => { this.caricaClienti(); this.chiudiModal(); },
-          error: (error) => console.error('Errore nella creazione del cliente:', error)
-        });
+      this.clienteService.create(this.nuovoCliente).subscribe({
+        next: () => { this.caricaClienti(); this.chiudiModal(); },
+        error: (err) => console.error('Errore nella creazione del cliente:', err)
+      });
     }
   }
 
   visualizzaDettaglio(id: number): void {
-    const url = `${this.apiUrl}/dettaglio`;
-    this.http.get<ClienteDto>(url, { headers: this.getHeaders(), params: { id: id.toString() } })
-      .subscribe({
-        next: (cliente) => { 
-          this.clienteSelezionato = cliente; 
-          this.modalDettaglio = true; 
-          document.body.style.overflow = 'hidden';
-        },
-        error: (error) => console.error('Errore nel caricamento del dettaglio:', error)
-      });
+    this.clienteService.dettaglio(id).subscribe({
+      next: (cliente) => { 
+        this.clienteSelezionato = cliente; 
+        this.modalDettaglio = true; 
+        document.body.style.overflow = 'hidden';
+      },
+      error: (err) => console.error('Errore nel caricamento del dettaglio:', err)
+    });
   }
 
   eliminaCliente(id: number): void {
-    if (confirm('Sei sicuro di voler eliminare questo cliente?')) {
-      const url = `${this.apiUrl}/mio`;
-      this.http.delete(url, { headers: this.getHeaders(), body: { id } })
-        .subscribe({
-          next: () => this.caricaClienti(),
-          error: (error) => console.error('Errore nell\'eliminazione del cliente:', error)
-        });
-    }
+    if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;
+
+    this.clienteService.deleteMyCliente(id).subscribe({
+      next: () => this.caricaClienti(),
+      error: (err) => console.error('Errore nell\'eliminazione del cliente:', err)
+    });
   }
 
   cambiapagina(page: number): void {
@@ -164,29 +145,13 @@ export class ClienteComponent implements OnInit {
     return this.currentPage + 1;
   }
 
-
   clienteTrackBy(index: number, cliente: ClienteDto): number {
-  return cliente.id!;
-}
-
+    return cliente.id!;
+  }
 
   onThemeChange(isDark: boolean): void {
-    console.log('🎨 THEME CHANGE RECEIVED IN HOME');
     this.isDarkMode = isDark;
-    // NON applicare più il tema al body - lascia che sia la navbar a gestirlo
-    // this.applyThemeToBody(); // <-- COMMENTA O RIMUOVI QUESTA RIGA
-    console.log('Tema ricevuto nel componente home:', isDark ? 'Dark' : 'Light');
   }
-
-  // Rimuovi completamente questo metodo o lascialo vuoto
-  applyThemeToBody(): void {
-    // Non fare nulla qui - la navbar gestisce già il tema del body
-    console.log('✅ Tema gestito dalla navbar');
-  }
-
-
-
-
 
   private resetNuovoCliente(): ClienteFormDto {
     return {
