@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -22,7 +22,7 @@ interface MenuItem {
   id: string;
   icon: any;
   label: string;
-  route: string; // Aggiungi il campo route
+  route: string;
 }
 
 @Component({
@@ -35,9 +35,10 @@ interface MenuItem {
 export class NavbarComponent implements OnInit {
 
   @Output() sidebarToggle = new EventEmitter<boolean>();
+  @Output() themeChange = new EventEmitter<boolean>();
+  @Input() isCollapsed: boolean = true; // <- permette il binding
+  @Input() isDarkMode: boolean = false;
 
-  isCollapsed: boolean = false;
-  isDarkMode: boolean = false;
   activeItem: string = 'dashboard';
 
   // Icone FontAwesome
@@ -53,8 +54,6 @@ export class NavbarComponent implements OnInit {
   faAngleDoubleLeft = faAngleDoubleLeft;
   faAngleDoubleRight = faAngleDoubleRight;
 
-  @Output() themeChange = new EventEmitter<boolean>();
-
   menuItems: MenuItem[] = [
     { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/' },
     { id: 'clienti',    icon: faUserGroup,   label: 'Clienti',    route: '/clienti' },
@@ -67,6 +66,19 @@ export class NavbarComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    // Carica lo stato della sidebar dal localStorage
+    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsedState !== null) {
+      this.isCollapsed = savedCollapsedState === 'true';
+    } else {
+      // Default: sempre ristretta all'avvio
+      this.isCollapsed = true;
+      localStorage.setItem('sidebarCollapsed', 'true');
+    }
+    
+    // Emetti lo stato iniziale della sidebar
+    this.sidebarToggle.emit(this.isCollapsed);
+
     // Controlla tema salvato
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme !== null) {
@@ -106,17 +118,21 @@ export class NavbarComponent implements OnInit {
       document.body.style.backgroundColor = '#f8faf9';
     }
   }
-
-toggleSidebar(): void {
+  toggleSidebar() {
   this.isCollapsed = !this.isCollapsed;
   this.sidebarToggle.emit(this.isCollapsed);
 }
 
-  setActiveItem(itemId: string): void {
+  setActiveItem(itemId: string, event?: MouseEvent): void {
+    // Previeni la propagazione dell'evento
+    if (event) {
+      event.stopPropagation();
+    }
+    
     this.activeItem = itemId;
     localStorage.setItem('activeItem', itemId);
     
-    // Naviga alla route corrispondente
+    // Naviga alla route corrispondente SENZA modificare lo stato della sidebar
     const item = this.menuItems.find(m => m.id === itemId);
     if (item) {
       this.router.navigate([item.route]);
@@ -146,6 +162,7 @@ toggleSidebar(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('activeItem');
     localStorage.removeItem('theme');
+    localStorage.removeItem('sidebarCollapsed');
     
     // Naviga alla pagina di login (se esiste)
     this.router.navigate(['/login']);

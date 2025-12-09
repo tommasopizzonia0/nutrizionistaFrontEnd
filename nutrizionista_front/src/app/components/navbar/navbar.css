@@ -6,10 +6,10 @@
   --black: #000000;
   --green-primary: #10b981;
   --green-dark: #059669;
-  --green-darker: #047857; /* Aggiunto per hover più scuro */
+  --green-darker: #047857;
   --green-light: #34d399;
   --green-lighter: #d1fae5;
-  --green-ultralight: #ecfdf5; /* Aggiunto per hover chiaro */
+  --green-ultralight: #ecfdf5;
   --bg-light: #f8faf9;
   --text-dark: #1f2937;
   --text-light: #6b7280;
@@ -73,10 +73,15 @@ body.dark {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: center;
 }
 
 .sidebar.dark .sidebar-header {
   border-bottom: 1px solid rgba(16,185,129,0.3);
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding: 28px 12px;
 }
 
 .avatar {
@@ -143,19 +148,33 @@ body.dark {
   overflow: hidden;
 }
 
-.menu-item i {
+/*FIX: Centra le icone quando la sidebar è collassata */
+.sidebar.collapsed .menu-item {
+  justify-content: center;
+  padding: 14px 0;
+  gap: 0;
+}
+
+.menu-item i,
+.menu-item fa-icon {
   font-size: 20px;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-item span {
   flex: 1;
   opacity: 1;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .sidebar.collapsed .menu-item span {
   opacity: 0;
   width: 0;
+  display: none;
 }
 
 /* Effetto hover verde luminoso */
@@ -166,6 +185,10 @@ body.dark {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
+.sidebar.collapsed .menu-item:hover {
+  transform: translateX(0) scale(1.05);
+}
+
 /* Effetto click/pressione */
 .menu-item:active {
   background: var(--green-light) !important;
@@ -174,12 +197,20 @@ body.dark {
   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.sidebar.collapsed .menu-item:active {
+  transform: translateX(0) scale(0.95);
+}
+
 /* Item attivo - verde pieno */
 .menu-item.active {
   background: linear-gradient(135deg, var(--green-primary), var(--green-dark)) !important;
   color: var(--white) !important;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
   transform: translateX(4px);
+}
+
+.sidebar.collapsed .menu-item.active {
+  transform: translateX(0) scale(1.05);
 }
 
 /* Icone negli stati */
@@ -280,21 +311,39 @@ body.dark {
   font-size: 15px;
   font-weight: 500;
   transition: var(--transition);
+  color: var(--text-light);
 }
 
-.toggle-theme i, .toggle-collapse i {
+/* FIX: Centra le icone quando la sidebar è collassata */
+.sidebar.collapsed .toggle-theme,
+.sidebar.collapsed .toggle-collapse {
+  justify-content: center;
+  padding: 14px 0;
+  gap: 0;
+}
+
+.toggle-theme i, 
+.toggle-theme fa-icon,
+.toggle-collapse i,
+.toggle-collapse fa-icon {
   font-size: 18px;
+  min-width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toggle-theme span, .toggle-collapse span {
   flex: 1;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .sidebar.collapsed .toggle-theme span,
 .sidebar.collapsed .toggle-collapse span {
   opacity: 0;
   width: 0;
+  display: none;
 }
 
 /* Hover per toggle-theme e toggle-collapse */
@@ -303,6 +352,11 @@ body.dark {
   background: var(--green-lighter) !important;
   color: var(--green-dark) !important;
   transform: translateX(4px);
+}
+
+.sidebar.collapsed .toggle-theme:hover,
+.sidebar.collapsed .toggle-collapse:hover {
+  transform: translateX(0) scale(1.05);
 }
 
 .sidebar.dark .toggle-theme:hover,
@@ -318,6 +372,11 @@ body.dark {
   transform: translateX(4px) scale(0.98);
 }
 
+.sidebar.collapsed .toggle-theme:active,
+.sidebar.collapsed .toggle-collapse:active {
+  transform: translateX(0) scale(0.95);
+}
+
 .sidebar.dark .toggle-theme:active,
 .sidebar.dark .toggle-collapse:active {
   background: rgba(16, 185, 129, 0.4) !important;
@@ -331,6 +390,10 @@ body.dark {
   width: 48px;
   height: 24px;
   margin-left: auto;
+}
+
+.sidebar.collapsed .switch {
+  display: none;
 }
 
 .switch input {
@@ -371,13 +434,23 @@ input:checked + .slider:before {
 /* ====================== */
 /* MAIN CONTENT */
 /* ====================== */
+/* MAIN CONTENT */
 .main-content {
-  margin-left: 280px;
   padding: 40px;
   min-height: 100vh;
-  transition: var(--transition);
-  background: var(--bg-light);
+  transition: all 0.3s ease;
 }
+
+/* Sidebar aperta */
+.layout .main-content {
+  margin-left: 280px;
+}
+
+/* Sidebar chiusa */
+.layout.collapsed .main-content {
+  margin-left: 85px;
+}
+
 
 .main-content.dark {
   background: var(--black);
@@ -497,52 +570,29 @@ fa-icon {
 }
 
 /* ====================== */
-/* VERSIONI ALTERNATIVE OPZIONALI */
-/* ====================== */
-/* Versione alternativa con bordo verde */
-.menu-item.green-border {
-  border: 2px solid transparent;
-  transition: var(--transition);
-}
-
-.menu-item.green-border:hover {
-  border-color: var(--green-primary);
-  background: var(--green-ultralight) !important;
-}
-
-.menu-item.green-border.active {
-  border-color: var(--green-dark);
-  background: var(--green-lighter) !important;
-  color: var(--green-dark) !important;
-}
-
-/* Versione con sfondo verde sfumato */
-.menu-item.green-gradient {
-  background: linear-gradient(90deg, transparent, transparent);
-  transition: var(--transition);
-}
-
-.menu-item.green-gradient:hover {
-  background: linear-gradient(90deg, var(--green-lighter), transparent) !important;
-}
-
-.menu-item.green-gradient.active {
-  background: linear-gradient(90deg, var(--green-primary), var(--green-light)) !important;
-  color: var(--white) !important;
-}
-
-/* ====================== */
 /* RESPONSIVE */
 /* ====================== */
 @media (max-width: 768px) {
   .sidebar { width: 85px; }
+  .sidebar.collapsed { width: 85px; }
   .main-content { margin-left: 85px; }
+  .sidebar.collapsed ~ .main-content { margin-left: 85px; }
   .welcome-title { font-size: 32px; }
   .welcome-text { font-size: 16px; }
-  .menu-item:hover,
-  .menu-item:active,
-  .menu-item.active {
-    transform: translateX(2px);
+  
+  /* In mobile, le icone sono sempre centrate */
+  .menu-item,
+  .toggle-theme,
+  .toggle-collapse {
+    justify-content: center;
+    padding: 14px 0;
+    gap: 0;
+  }
+  
+  .menu-item span,
+  .toggle-theme span,
+  .toggle-collapse span {
+    display: none;
   }
 }
 
@@ -557,7 +607,6 @@ fa-icon {
     margin-left: 70px;
   }
   .menu-item {
-    padding: 12px 14px;
-    gap: 10px;
+    padding: 12px 0;
   }
 }

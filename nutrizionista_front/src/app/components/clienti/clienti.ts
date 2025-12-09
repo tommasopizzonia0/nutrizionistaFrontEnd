@@ -29,7 +29,7 @@ export class ClienteComponent implements OnInit {
 
   isDarkMode: boolean = false; 
 
-  isSidebarCollapsed: boolean = false;
+  isSidebarCollapsed = true;
 
   modalAperta = false;
   modalDettaglio = false;
