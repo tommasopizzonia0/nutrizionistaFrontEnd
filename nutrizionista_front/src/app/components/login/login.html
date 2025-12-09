@@ -1,0 +1,49 @@
+<div class="sfondo">
+    <div class="centro">
+        <div class="sinistra">  
+            <div class="logo">
+                <!-- <img class="animazione" [src]="gifVisible ? gifUrl : staticUrl" (click)="goToHome()" (mouseenter)="startGif()"  alt="logo"> -->
+            </div>
+        </div>
+        <div class="destra">
+            <div class="contenitore">
+                <div class="titolo">
+                    <p>Login</p>
+                </div>
+                <div class="dati">
+                    <div class="email">
+                            <span><i class="pi pi-user"></i></span>
+                            <input class="emailI" type="email" placeholder="Email"[(ngModel)]="email" required>
+                    </div>
+                    <div class="password">
+                            <span><i class="pi pi-lock"></i></span>
+                            <input class="passwordI" type="text" placeholder="Password" [(ngModel)]="password">
+                            <span><i class="pi pi-eye"></i></span> 
+                            <!-- pi-eye-slash -->
+                    </div>
+                    <div class="ricordami">
+                        <p-checkbox [(ngModel)]="checked" [binary]="true" size="small" />
+                        <div class="testo">
+                            <span>Ricordami</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tasti">
+                    <div class="login">
+                        <p-button label="Login" severity="help"  (click)="login()"></p-button>
+                      
+                    </div>
+                    <div class="dimenticato">
+                        <a routerLink="/dimenticato" class="dimenticatoA">Forgot password?</a>
+                    </div>
+                    <div class="linea">
+                        <hr>
+                    </div>
+                    <div class="register">
+                        <p-button label="Non hai un account? Registrati" severity="help"  (click)="goToRegistration()"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
