@@ -1,23 +1,45 @@
 <div class="home-container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
-  <!-- Navbar Component -->
+  
   <app-navbar 
     (themeChange)="onThemeChange($event)" 
     (sidebarToggle)="onSidebarToggle($event)">
   </app-navbar>
   
-  <!-- Main Content Area -->
+  
   <main class="main-content">
     <div class="content-wrapper">
-      <h1 [class.dark-text]="isDarkMode">Benvenuto nella Home</h1>
-      <p [class.dark-text]="isDarkMode">
-        Qui puoi vedere tutte le funzionalità principali.
-      </p>
+      <div class="header-section">
+        <h1 [class.dark-text]="isDarkMode">Benvenuto nella Home</h1>
+        <p [class.dark-text]="isDarkMode">
+          Qui puoi vedere tutte le funzionalità principali.
+        </p>
+      </div>
 
-      <div class="theme-indicator" [class.dark-indicator]="isDarkMode">
-        <span class="material-icons">
-          {{ isDarkMode ? 'dark_mode' : 'light_mode' }}
-        </span>
-        <span>Modalità {{ isDarkMode ? 'Scura' : 'Chiara' }}</span>
+      
+      <div class="containers-grid">
+        
+        <div class="content-box" [class.dark-box]="isDarkMode">
+          <h3>Calendario</h3>
+          <p>Spazio per il componente</p>
+        </div>
+
+        
+        <div class="content-box" [class.dark-box]="isDarkMode">
+          <h3>Clienti</h3>
+          <p>Spazio per il componente</p>
+        </div>
+
+        
+        <div class="content-box" [class.dark-box]="isDarkMode">
+          <h3>Statistiche</h3>
+          <p>Spazio per il componente</p>
+        </div>
+
+        
+        <div class="content-box" [class.dark-box]="isDarkMode">
+          <h3>Notifiche</h3>
+          <p>Spazio per il componente</p>
+        </div>
       </div>
     </div>
   </main>
