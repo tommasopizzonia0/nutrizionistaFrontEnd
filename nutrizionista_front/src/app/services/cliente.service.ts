@@ -20,7 +20,7 @@ export class ClienteService {
     });
   }
 
-  allMyClienti(page: number = 0, size: number = 10): Observable<PageResponse<ClienteDto>> {
+  allMyClienti(page: number = 0, size: number = 12): Observable<PageResponse<ClienteDto>> {
     return this.http.get<PageResponse<ClienteDto>>(
       `${this.apiUrl}?page=${page}&size=${size}`,
       { headers: this.getHeaders() }
@@ -42,11 +42,12 @@ export class ClienteService {
     });
   }
 
-  dettaglio(id: number): Observable<ClienteDto> {
-    return this.http.post<ClienteDto>(
-      `${this.apiUrl}/dettaglio`, 
-      { id }, 
-      { headers: this.getHeaders() }
-    );
-  }
+    dettaglio(id: number): Observable<ClienteDto> {
+      return this.http.post<ClienteDto>(
+        `${this.apiUrl}/dettaglio`, 
+        { id }, 
+        { headers: this.getHeaders() }
+      );
+    }
+  
 }

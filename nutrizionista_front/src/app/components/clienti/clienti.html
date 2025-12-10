@@ -27,7 +27,9 @@
 
     <!-- Lista Clienti -->
     <div class="clienti-grid">
-      <div *ngFor="let cliente of clienti; trackBy: clienteTrackBy" class="cliente-card">
+      <div *ngFor="let cliente of clienti; trackBy: clienteTrackBy" 
+          class="cliente-card cliente-card-clickable" 
+          (click)="visualizzaDettaglio(cliente.id!)">
         <div class="cliente-header">
           <div class="cliente-avatar">
             <fa-icon *ngIf="cliente.sesso === 'MASCHIO'" [icon]="faMale"></fa-icon>
@@ -39,10 +41,7 @@
           </div>
         </div>
         
-        <div class="cliente-actions">
-          <button class="btn btn-sm btn-info" (click)="visualizzaDettaglio(cliente.id!)" title="Visualizza dettagli">
-            <fa-icon [icon]="faEye"></fa-icon>
-          </button>
+        <div class="cliente-actions" (click)="$event.stopPropagation()">
           <button class="btn btn-sm btn-warning" (click)="apriModalModifica(cliente)" title="Modifica">
             <fa-icon [icon]="faEdit"></fa-icon>
           </button>

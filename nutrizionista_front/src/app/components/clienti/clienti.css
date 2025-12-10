@@ -377,6 +377,23 @@ body.dark .page-info {
   color: white;
 }
 
+/* Card cliccabile */
+.cliente-card-clickable {
+  cursor: pointer;
+  position: relative;
+}
+
+.cliente-card-clickable:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3);
+}
+
+/* Impedisce che il click sui pulsanti trigger il click sulla card */
+.cliente-actions {
+  position: relative;
+  z-index: 10;
+}
+
 /* ====================== */
 /* MODAL */
 /* ====================== */
