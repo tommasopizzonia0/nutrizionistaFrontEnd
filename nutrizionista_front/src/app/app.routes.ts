@@ -2,9 +2,10 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home';
 import { ClienteComponent } from './components/clienti/clienti';
 import { Login } from './components/login/login';
+import { ClienteDettaglioComponent } from './components/cliente-dettaglio/cliente-dettaglio';
 
 export const routes: Routes = [
-  {path: '', component: ClienteComponent},
+  {path: '', component: Login},
 
     {
     path: 'login',
@@ -19,5 +20,9 @@ export const routes: Routes = [
    { 
     path: 'clienti', 
     component: ClienteComponent 
-  }
+  },
+  
+  { path: 'clienti/:id', 
+    component: ClienteDettaglioComponent 
+  },
 ];

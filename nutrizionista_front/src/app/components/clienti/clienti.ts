@@ -12,6 +12,7 @@ import {
   faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave, faUser, 
   faIdCard, faHeartbeat, faRunning, faNotesMedical 
 } from '@fortawesome/free-solid-svg-icons';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cliente',
@@ -60,7 +61,8 @@ export class ClienteComponent implements OnInit {
 
   constructor(
     private clienteService: ClienteService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -84,7 +86,7 @@ export class ClienteComponent implements OnInit {
   }
 
   caricaClienti(): void {
-    this.clienteService.allMyClienti(this.currentPage, this.pageSize).subscribe({
+    this.clienteService.allMyClienti(this.currentPage, this.pageSize= 12).subscribe({
       next: (response: PageResponse<ClienteDto>) => {
         this.clienti = response.contenuto;
         this.totalPages = response.totalePagine;
@@ -136,16 +138,10 @@ export class ClienteComponent implements OnInit {
     }
   }
 
-  visualizzaDettaglio(id: number): void {
-    this.clienteService.dettaglio(id).subscribe({
-      next: (cliente) => { 
-        this.clienteSelezionato = cliente; 
-        this.modalDettaglio = true; 
-        document.body.style.overflow = 'hidden';
-      },
-      error: (err) => console.error('Errore nel caricamento del dettaglio:', err)
-    });
-  }
+    visualizzaDettaglio(id: number): void {
+      
+      this.router.navigate(['/clienti', id]);
+    }
 
   eliminaCliente(id: number): void {
     if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;
