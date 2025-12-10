@@ -32,12 +32,13 @@
           (click)="visualizzaDettaglio(cliente.id!)">
         <div class="cliente-header">
           <div class="cliente-avatar">
-            <fa-icon *ngIf="cliente.sesso === 'MASCHIO'" [icon]="faMale"></fa-icon>
-            <fa-icon *ngIf="cliente.sesso === 'FEMMINA'" [icon]="faFemale"></fa-icon>
+            {{ cliente.nome?.charAt(0) }}{{ cliente.cognome?.charAt(0) }}
           </div>
           <div class="cliente-info">
             <h3>{{ cliente.nome }} {{ cliente.cognome }}</h3>
-            <span class="badge">{{ cliente.sesso }}</span>
+            <span class="badge">
+              {{ cliente.sesso }}
+            </span>
           </div>
         </div>
         

@@ -1,89 +1,74 @@
-<app-navbar 
-  (sidebarToggle)="onSidebarToggle($event)" 
-  (themeChange)="onThemeChange($event)">
-</app-navbar>
+<div class="dettaglio-container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
 
-<div class="container" [class.sidebar-collapsed]="isSidebarCollapsed">
-  <div class="main-content">
+  <main class="main-content">
+  <app-navbar 
+    (themeChange)="onThemeChange($event)" 
+    (sidebarToggle)="onSidebarToggle($event)">
+  </app-navbar>
+
+ 
+  <div class="header">
+    <button class="btn btn-secondary" (click)="tornaIndietro()">
+      <fa-icon [icon]="faArrowLeft"></fa-icon>
+      Torna ai clienti
+    </button>
+
+    <button class="btn btn-warning" (click)="modificaCliente()">
+      <fa-icon [icon]="faEdit"></fa-icon>
+      Modifica
+    </button>
+  </div>
+
+  
+  <div class="cliente-hero" [ngClass]="sessoClass">
+    <div class="dettaglio-avatar">
+      {{ cliente?.nome?.[0] }}{{ cliente?.cognome?.[0] }}
+    </div>
+
+    <div class="hero-info">
+      <h1 class="dettaglio-nome">{{ cliente?.nome }} {{ cliente?.cognome }}</h1>
+      <p class="hero-email">{{ cliente?.email || 'Email non disponibile' }}</p>
+    </div>
+
+    <span class="badge-large">{{ cliente?.sesso }}</span>
+  </div>
+
+  
+  <div class="dettaglio-grid">
+
     
-    
-    <div *ngIf="isLoading" class="loading-container">
-      <div class="spinner"></div>
-      <p>Caricamento dettagli cliente...</p>
+    <div class="dettaglio-section">
+      <h4><fa-icon [icon]="faUser"></fa-icon> Informazioni Anagrafiche</h4>
+      <p><strong><fa-icon [icon]="faIdCard"></fa-icon> Codice Fiscale:</strong> {{ cliente?.codiceFiscale || 'Non disponibile' }}</p>
+      <p><strong><fa-icon [icon]="faEnvelope"></fa-icon> Email:</strong> {{ cliente?.email || 'Non disponibile' }}</p>
+      <p><strong><fa-icon [icon]="faPhone"></fa-icon> Telefono:</strong> {{ cliente?.telefono || 'Non disponibile' }}</p>
+      <p><strong><fa-icon [icon]="faCalendar"></fa-icon> Data di Nascita:</strong> {{ cliente?.dataNascita || 'Non disponibile' }}</p>
     </div>
 
     
-    <div *ngIf="!isLoading && cliente" class="dettaglio-container">
-      
-      
-      <div class="header">
-        <button class="btn btn-secondary" (click)="tornaIndietro()">
-          <fa-icon [icon]="faArrowLeft"></fa-icon>
-          Torna ai clienti
-        </button>
-        <button class="btn btn-warning" (click)="modificaCliente()">
-          <fa-icon [icon]="faEdit"></fa-icon>
-          Modifica
-        </button>
-      </div>
+    <div class="dettaglio-section">
+      <h4><fa-icon [icon]="faRunning"></fa-icon> Dati Fisici</h4>
+      <p><strong><fa-icon [icon]="faWeight"></fa-icon> Peso:</strong> {{ cliente?.peso ? cliente?.peso + ' kg' : 'Non disponibile' }}</p>
+      <p><strong><fa-icon [icon]="faRuler"></fa-icon> Altezza:</strong> {{ cliente?.altezza ? cliente?.altezza + ' cm' : 'Non disponibile' }}</p>
+      <p><strong><fa-icon [icon]="faDumbbell"></fa-icon> Allenamenti/Settimana:</strong> {{ cliente?.numAllenamentiSett || 'Non disponibile' }}</p>
+    </div>
 
-     
-      <div class="cliente-hero" [ngClass]="cliente.sesso === 'MASCHIO' ? 'maschio' : 'femmina'">
+    
+    <div class="dettaglio-section section-wide">
+      <h4><fa-icon [icon]="faHeartbeat"></fa-icon> Informazioni Sanitarie</h4>
+      <p><strong>Intolleranze:</strong> {{ cliente?.intolleranze || 'Nessuna' }}</p>
+      <p><strong>Funzioni Intestinali:</strong> {{ cliente?.funzioniIntestinali || 'Non specificato' }}</p>
+      <p><strong>Problematiche Salutari:</strong> {{ cliente?.problematicheSalutari || 'Nessuna' }}</p>
+    </div>
 
-        <h1 class="dettaglio-nome">{{ cliente.nome }} {{ cliente.cognome }}</h1>
-        <span class="badge-large">{{ cliente.sesso }}</span>
-      </div>
-
-      
-      <div class="dettaglio-grid">
-        
-        
-        <div class="dettaglio-section">
-          <h4>
-            <fa-icon [icon]="faUser"></fa-icon>
-            Informazioni Anagrafiche
-          </h4>
-          <p><strong><fa-icon [icon]="faIdCard"></fa-icon> Codice Fiscale:</strong> {{ cliente.codiceFiscale || 'Non disponibile' }}</p>
-          <p><strong><fa-icon [icon]="faEnvelope"></fa-icon> Email:</strong> {{ cliente.email || 'Non disponibile' }}</p>
-          <p><strong><fa-icon [icon]="faPhone"></fa-icon> Telefono:</strong> {{ cliente.telefono || 'Non disponibile' }}</p>
-          <p><strong><fa-icon [icon]="faCalendar"></fa-icon> Data di Nascita:</strong> {{ cliente.dataNascita || 'Non disponibile' }}</p>
-        </div>
-
-       
-        <div class="dettaglio-section">
-          <h4>
-            <fa-icon [icon]="faRunning"></fa-icon>
-            Dati Fisici
-          </h4>
-          <p><strong><fa-icon [icon]="faWeight"></fa-icon> Peso:</strong> {{ cliente.peso ? cliente.peso + ' kg' : 'Non disponibile' }}</p>
-          <p><strong><fa-icon [icon]="faRuler"></fa-icon> Altezza:</strong> {{ cliente.altezza ? cliente.altezza + ' cm' : 'Non disponibile' }}</p>
-          <p><strong><fa-icon [icon]="faDumbbell"></fa-icon> Allenamenti/Settimana:</strong> {{ cliente.numAllenamentiSett || 'Non disponibile' }}</p>
-        </div>
-
-        
-        <div class="dettaglio-section full-width">
-          <h4>
-            <fa-icon [icon]="faHeartbeat"></fa-icon>
-            Informazioni Sanitarie
-          </h4>
-          <p><strong>Intolleranze:</strong> {{ cliente.intolleranze || 'Nessuna' }}</p>
-          <p><strong>Funzioni Intestinali:</strong> {{ cliente.funzioniIntestinali || 'Non specificato' }}</p>
-          <p><strong>Problematiche Salutari:</strong> {{ cliente.problematicheSalutari || 'Nessuna' }}</p>
-        </div>
-
-        
-        <div class="dettaglio-section full-width">
-          <h4>
-            <fa-icon [icon]="faNotesMedical"></fa-icon>
-            Stile di Vita
-          </h4>
-          <p><strong>Qualità del Sonno:</strong> {{ cliente.quantitaEQualitaDelSonno || 'Non specificato' }}</p>
-          <p><strong>Assunzione Farmaci:</strong> {{ cliente.assunzioneFarmaci || 'No' }}</p>
-          <p><strong>Consumo Alcol:</strong> {{ cliente.beveAlcol ? 'Sì' : 'No' }}</p>
-        </div>
-
-      </div>
+    
+    <div class="dettaglio-section section-wide">
+      <h4><fa-icon [icon]="faNotesMedical"></fa-icon> Stile di Vita</h4>
+      <p><strong>Qualità del Sonno:</strong> {{ cliente?.quantitaEQualitaDelSonno || 'Non specificato' }}</p>
+      <p><strong>Assunzione Farmaci:</strong> {{ cliente?.assunzioneFarmaci || 'No' }}</p>
+      <p><strong>Consumo Alcol:</strong> {{ cliente?.beveAlcol ? 'Sì' : 'No' }}</p>
     </div>
 
   </div>
+</main>
 </div>
