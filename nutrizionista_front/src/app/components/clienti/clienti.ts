@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../services/cliente.service';
@@ -58,22 +58,38 @@ export class ClienteComponent implements OnInit {
   faRunning: IconProp = faRunning;
   faNotesMedical: IconProp = faNotesMedical;
 
-  constructor(private clienteService: ClienteService) {}
+  constructor(
+    private clienteService: ClienteService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.caricaClienti();
+    setTimeout(() => {
+      this.caricaClienti();
+    }, 0);
   }
 
-  onSidebarToggle(isCollapsed: boolean) {
-    this.isSidebarCollapsed = isCollapsed;
+  onSidebarToggle(isCollapsed: boolean): void {
+    setTimeout(() => {
+      this.isSidebarCollapsed = isCollapsed;
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+  onThemeChange(isDark: boolean): void {
+    setTimeout(() => {
+      this.isDarkMode = isDark;
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   caricaClienti(): void {
     this.clienteService.allMyClienti(this.currentPage, this.pageSize).subscribe({
       next: (response: PageResponse<ClienteDto>) => {
-        this.clienti = response.content;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
+        this.clienti = response.contenuto;
+        this.totalPages = response.totalePagine;
+        this.totalElements = response.totaleElementi;
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('Errore nel caricamento dei clienti:', err)
     });
@@ -103,12 +119,18 @@ export class ClienteComponent implements OnInit {
   salvaCliente(): void {
     if (this.isEdit) {
       this.clienteService.update(this.nuovoCliente).subscribe({
-        next: () => { this.caricaClienti(); this.chiudiModal(); },
+        next: () => { 
+          this.caricaClienti(); 
+          this.chiudiModal(); 
+        },
         error: (err) => console.error('Errore nella modifica del cliente:', err)
       });
     } else {
       this.clienteService.create(this.nuovoCliente).subscribe({
-        next: () => { this.caricaClienti(); this.chiudiModal(); },
+        next: () => { 
+          this.caricaClienti(); 
+          this.chiudiModal(); 
+        },
         error: (err) => console.error('Errore nella creazione del cliente:', err)
       });
     }
@@ -147,10 +169,6 @@ export class ClienteComponent implements OnInit {
 
   clienteTrackBy(index: number, cliente: ClienteDto): number {
     return cliente.id!;
-  }
-
-  onThemeChange(isDark: boolean): void {
-    this.isDarkMode = isDark;
   }
 
   private resetNuovoCliente(): ClienteFormDto {
