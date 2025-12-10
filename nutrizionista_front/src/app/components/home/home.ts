@@ -12,7 +12,7 @@ import { NavbarComponent } from '../navbar/navbar';
 })
 export class HomeComponent implements OnInit {
   isDarkMode: boolean = false; // Default a false (chiaro)
-  isSidebarCollapsed: boolean = false;
+  isSidebarCollapsed: boolean = true;
 
   ngOnInit(): void {
     console.log('🏠 HOME COMPONENT INITIALIZED');
