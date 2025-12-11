@@ -43,6 +43,11 @@ export class ClienteDettaglioComponent implements OnInit {
   faFemale: IconProp = faFemale;
   faEdit: IconProp = faEdit;
 
+    get sessoClass(): string {
+    if (!this.cliente) return 'maschio';
+    return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -57,7 +62,10 @@ export class ClienteDettaglioComponent implements OnInit {
     } else {
       this.router.navigate(['/clienti']);
     }
+    
   }
+
+
 
   onSidebarToggle(isCollapsed: boolean): void {
     setTimeout(() => {
@@ -77,7 +85,8 @@ export class ClienteDettaglioComponent implements OnInit {
     this.isLoading = true;
     this.clienteService.dettaglio(id).subscribe({
       next: (cliente) => {
-        console.log('Cliente caricato:', cliente); // Debug log
+        console.log('Cliente caricato:', cliente); 
+        console.log('Sesso:', cliente.sesso);
         this.cliente = cliente;
         this.isLoading = false;
         this.cdr.detectChanges(); 
