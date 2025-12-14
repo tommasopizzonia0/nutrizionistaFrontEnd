@@ -1,9 +1,12 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  console.log('🔐 INTERCEPTOR CHIAMATO PER:', req.url);
+
   
   const token = localStorage.getItem('token');
+
+
+  //lo stampo per prova poi si rimuove
   console.log('🎫 Token:', token ? `SI (${token.substring(0, 30)}...)` : 'NO');
   
   if (token) {
@@ -13,6 +16,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
     
+    //lo stampo per prova poi si rimuove
     console.log('✅ Header Authorization aggiunto');
     return next(clonedRequest);
   }

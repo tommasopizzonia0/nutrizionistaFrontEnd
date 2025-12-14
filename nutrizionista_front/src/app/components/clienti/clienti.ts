@@ -7,10 +7,10 @@ import { PageResponse } from '../../dto/page-response.dto';
 import { NavbarComponent } from '../navbar/navbar';
 import { FaIconComponent, FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { 
-  faUserGroup, faPlus, faMale, faFemale, faEye, faEdit, faTrash, 
-  faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave, faUser, 
-  faIdCard, faHeartbeat, faRunning, faNotesMedical 
+import {
+  faUserGroup, faPlus, faMale, faFemale, faEye, faEdit, faTrash,
+  faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave, faUser,
+  faIdCard, faHeartbeat, faRunning, faNotesMedical
 } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
@@ -63,7 +63,7 @@ export class ClienteComponent implements OnInit {
     private clienteService: ClienteService,
     private cdr: ChangeDetectorRef,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -86,7 +86,7 @@ export class ClienteComponent implements OnInit {
   }
 
   caricaClienti(): void {
-    this.clienteService.allMyClienti(this.currentPage, this.pageSize= 12).subscribe({
+    this.clienteService.allMyClienti(this.currentPage, this.pageSize = 12).subscribe({
       next: (response: PageResponse<ClienteDto>) => {
         this.clienti = response.contenuto;
         this.totalPages = response.totalePagine;
@@ -121,27 +121,27 @@ export class ClienteComponent implements OnInit {
   salvaCliente(): void {
     if (this.isEdit) {
       this.clienteService.update(this.nuovoCliente).subscribe({
-        next: () => { 
-          this.caricaClienti(); 
-          this.chiudiModal(); 
+        next: () => {
+          this.caricaClienti();
+          this.chiudiModal();
         },
         error: (err) => console.error('Errore nella modifica del cliente:', err)
       });
     } else {
       this.clienteService.create(this.nuovoCliente).subscribe({
-        next: () => { 
-          this.caricaClienti(); 
-          this.chiudiModal(); 
+        next: () => {
+          this.caricaClienti();
+          this.chiudiModal();
         },
         error: (err) => console.error('Errore nella creazione del cliente:', err)
       });
     }
   }
 
-    visualizzaDettaglio(id: number): void {
-      
-      this.router.navigate(['/clienti', id]);
-    }
+  visualizzaDettaglio(id: number): void {
+
+    this.router.navigate(['/clienti', id]);
+  }
 
   eliminaCliente(id: number): void {
     if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;

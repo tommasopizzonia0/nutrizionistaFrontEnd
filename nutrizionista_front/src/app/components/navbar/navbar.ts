@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { filter } from 'rxjs/operators';
-import { 
-  faHome, 
-  faChartLine, 
-  faBell, 
-  faChartBar, 
-  faHeart, 
-  faWallet, 
-  faSignOutAlt, 
-  faMoon, 
+import {
+  faHome,
+  faChartLine,
+  faBell,
+  faChartBar,
+  faHeart,
+  faWallet,
+  faSignOutAlt,
+  faMoon,
   faSun,
   faAngleDoubleLeft,
   faAngleDoubleRight,
@@ -60,16 +60,16 @@ export class NavbarComponent implements OnInit {
   faAngleDoubleRight = faAngleDoubleRight;
 
   menuItems: MenuItem[] = [
-    { id: 'dashboard',  icon: faHome,        label: 'Dashboard',  route: '/home' },
-    { id: 'clienti',    icon: faUserGroup,   label: 'Clienti',    route: '/clienti' },
-    { id: 'agenda',  icon: faCalendar,       label: 'Agenda',  route: '/agenda' },
-    { id: 'calcolo',icon: faChartPie,      label: 'Calcolo TDEE',route: '/calcolo' },
-    { id: 'modelli',  icon: faFile,          label: 'Modelli',  route: '/modelli' },
-    { id: 'alimenti', icon: faUtensils,    label: 'Alimenti', route: '/alimenti' },
-    { id: 'impostazioni',icon: faCog,      label: 'Impostazioni',route: '/impostazioni' }
+    { id: 'dashboard', icon: faHome, label: 'Dashboard', route: '/home' },
+    { id: 'clienti', icon: faUserGroup, label: 'Clienti', route: '/clienti' },
+    { id: 'agenda', icon: faCalendar, label: 'Agenda', route: '/agenda' },
+    { id: 'calcolo', icon: faChartPie, label: 'Calcolo TDEE', route: '/calcolo' },
+    { id: 'modelli', icon: faFile, label: 'Modelli', route: '/modelli' },
+    { id: 'alimenti', icon: faUtensils, label: 'Alimenti', route: '/alimenti' },
+    { id: 'impostazioni', icon: faCog, label: 'Impostazioni', route: '/impostazioni' }
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     // Carica lo stato della sidebar dal localStorage
@@ -81,7 +81,7 @@ export class NavbarComponent implements OnInit {
       this.isCollapsed = true;
       localStorage.setItem('sidebarCollapsed', 'true');
     }
-    
+
     // Emetti lo stato iniziale della sidebar
     this.sidebarToggle.emit(this.isCollapsed);
 
@@ -93,7 +93,7 @@ export class NavbarComponent implements OnInit {
       // Default al tema del sistema
       this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    
+
     this.applyTheme();
     this.themeChange.emit(this.isDarkMode);
 
@@ -103,7 +103,7 @@ export class NavbarComponent implements OnInit {
     ).subscribe((event: any) => {
       this.updateActiveItemFromUrl(event.url);
     });
-    
+
     // Imposta l'item attivo all'avvio in base alla URL corrente
     this.updateActiveItemFromUrl(this.router.url);
   }
@@ -125,19 +125,19 @@ export class NavbarComponent implements OnInit {
     }
   }
   toggleSidebar() {
-  this.isCollapsed = !this.isCollapsed;
-  this.sidebarToggle.emit(this.isCollapsed);
-}
+    this.isCollapsed = !this.isCollapsed;
+    this.sidebarToggle.emit(this.isCollapsed);
+  }
 
   setActiveItem(itemId: string, event?: MouseEvent): void {
     // Previeni la propagazione dell'evento
     if (event) {
       event.stopPropagation();
     }
-    
+
     this.activeItem = itemId;
     localStorage.setItem('activeItem', itemId);
-    
+
     // Naviga alla route corrispondente SENZA modificare lo stato della sidebar
     const item = this.menuItems.find(m => m.id === itemId);
     if (item) {
@@ -155,7 +155,7 @@ export class NavbarComponent implements OnInit {
       // Altrimenti controlla che l'URL inizi con la route
       return url.startsWith(m.route);
     });
-    
+
     if (item) {
       this.activeItem = item.id;
       localStorage.setItem('activeItem', item.id);
@@ -169,7 +169,7 @@ export class NavbarComponent implements OnInit {
     localStorage.removeItem('activeItem');
     localStorage.removeItem('theme');
     localStorage.removeItem('sidebarCollapsed');
-    
+
     // Naviga alla pagina di login (se esiste)
     this.router.navigate(['/login']);
   }
@@ -177,5 +177,5 @@ export class NavbarComponent implements OnInit {
   getThemeIcon() {
     return this.isDarkMode ? this.faSun : this.faMoon;
   }
-  
+
 }

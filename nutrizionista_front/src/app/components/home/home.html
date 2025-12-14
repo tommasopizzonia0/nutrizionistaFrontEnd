@@ -1,11 +1,9 @@
 <div class="home-container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
-  
-  <app-navbar 
-    (themeChange)="onThemeChange($event)" 
-    (sidebarToggle)="onSidebarToggle($event)">
+
+  <app-navbar (themeChange)="onThemeChange($event)" (sidebarToggle)="onSidebarToggle($event)">
   </app-navbar>
-  
-  
+
+
   <main class="main-content">
     <div class="content-wrapper">
       <div class="header-section">
@@ -15,27 +13,27 @@
         </p>
       </div>
 
-      
+
       <div class="containers-grid">
-        
+
         <div class="content-box" [class.dark-box]="isDarkMode">
           <h3>Calendario</h3>
           <p>Spazio per il componente</p>
         </div>
 
-        
+
         <div class="content-box" [class.dark-box]="isDarkMode">
           <h3>Clienti</h3>
           <p>Spazio per il componente</p>
         </div>
 
-        
+
         <div class="content-box" [class.dark-box]="isDarkMode">
           <h3>Statistiche</h3>
           <p>Spazio per il componente</p>
         </div>
 
-        
+
         <div class="content-box" [class.dark-box]="isDarkMode">
           <h3>Notifiche</h3>
           <p>Spazio per il componente</p>

@@ -283,7 +283,7 @@ app-navbar {
   height: 60px;
   border-radius: 50%;
   background: white;
-  border: 3px solid green;
+  border: 5px solid green;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,7 +302,7 @@ app-navbar {
 
 .cliente-info h3 {
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: green;
   font-size: 1.2rem;
   font-weight: 700;
 }

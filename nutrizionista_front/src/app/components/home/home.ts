@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit {
     console.log('🎨 THEME CHANGE RECEIVED IN HOME');
     this.isDarkMode = isDark;
     // NON applicare più il tema al body - lascia che sia la navbar a gestirlo
-    // this.applyThemeToBody(); // <-- COMMENTA O RIMUOVI QUESTA RIGA
     console.log('Tema ricevuto nel componente home:', isDark ? 'Dark' : 'Light');
   }
 
@@ -43,7 +42,7 @@ export class HomeComponent implements OnInit {
     console.log('✅ Tema gestito dalla navbar');
   }
 
-    onSidebarToggle(isCollapsed: boolean) {
+  onSidebarToggle(isCollapsed: boolean) {
     this.isSidebarCollapsed = isCollapsed;
   }
 }

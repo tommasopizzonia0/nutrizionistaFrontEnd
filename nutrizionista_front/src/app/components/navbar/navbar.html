@@ -12,10 +12,7 @@
 
   <!-- MENU -->
   <div class="sidebar-menu">
-    <div 
-      class="menu-item" 
-      *ngFor="let item of menuItems" 
-      [class.active]="activeItem === item.id" 
+    <div class="menu-item" *ngFor="let item of menuItems" [class.active]="activeItem === item.id"
       (click)="setActiveItem(item.id, $event)">
       <fa-icon [icon]="item.icon"></fa-icon>
       <span>{{item.label}}</span>
