@@ -6,8 +6,8 @@ import { ClienteDto } from '../../dto/cliente.dto';
 import { NavbarComponent } from '../navbar/navbar';
 import { FaIconComponent, FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { 
-  faArrowLeft, faUser, faIdCard, faEnvelope, faPhone, 
+import {
+  faArrowLeft, faUser, faIdCard, faEnvelope, faPhone,
   faCalendar, faWeight, faRuler, faDumbbell, faHeartbeat,
   faRunning, faNotesMedical, faMale, faFemale, faEdit
 } from '@fortawesome/free-solid-svg-icons';
@@ -20,7 +20,7 @@ import {
   styleUrls: ['./cliente-dettaglio.css']
 })
 export class ClienteDettaglioComponent implements OnInit {
-  
+
   cliente: ClienteDto | null = null;
   isLoading = true;
   isDarkMode = false;
@@ -43,7 +43,7 @@ export class ClienteDettaglioComponent implements OnInit {
   faFemale: IconProp = faFemale;
   faEdit: IconProp = faEdit;
 
-    get sessoClass(): string {
+  get sessoClass(): string {
     if (!this.cliente) return 'maschio';
     return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
   }
@@ -52,8 +52,8 @@ export class ClienteDettaglioComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private clienteService: ClienteService,
-    private cdr: ChangeDetectorRef 
-  ) {}
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -62,7 +62,7 @@ export class ClienteDettaglioComponent implements OnInit {
     } else {
       this.router.navigate(['/clienti']);
     }
-    
+
   }
 
 
@@ -85,16 +85,16 @@ export class ClienteDettaglioComponent implements OnInit {
     this.isLoading = true;
     this.clienteService.dettaglio(id).subscribe({
       next: (cliente) => {
-        console.log('Cliente caricato:', cliente); 
+        console.log('Cliente caricato:', cliente);
         console.log('Sesso:', cliente.sesso);
         this.cliente = cliente;
         this.isLoading = false;
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Errore nel caricamento del cliente:', err);
         this.isLoading = false;
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
         this.router.navigate(['/clienti']);
       }
     });
@@ -106,11 +106,11 @@ export class ClienteDettaglioComponent implements OnInit {
 
   modificaCliente(): void {
     if (this.cliente?.id) {
-      this.router.navigate(['/clienti'], { 
-        queryParams: { edit: this.cliente.id } 
+      this.router.navigate(['/clienti'], {
+        queryParams: { edit: this.cliente.id }
       });
     }
   }
 
-  
+
 }

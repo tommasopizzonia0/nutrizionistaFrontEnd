@@ -10,7 +10,7 @@ import { PageResponse } from '../dto/page-response.dto';
 export class ClienteService {
   private apiUrl = 'http://localhost:8080/api/clienti';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -42,12 +42,12 @@ export class ClienteService {
     });
   }
 
-    dettaglio(id: number): Observable<ClienteDto> {
-      return this.http.post<ClienteDto>(
-        `${this.apiUrl}/dettaglio`, 
-        { id }, 
-        { headers: this.getHeaders() }
-      );
-    }
-  
+  dettaglio(id: number): Observable<ClienteDto> {
+    return this.http.post<ClienteDto>(
+      `${this.apiUrl}/dettaglio`,
+      { id },
+      { headers: this.getHeaders() }
+    );
+  }
+
 }
