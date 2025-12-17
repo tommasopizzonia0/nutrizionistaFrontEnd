@@ -108,6 +108,10 @@ export class NavbarComponent implements OnInit {
     this.updateActiveItemFromUrl(this.router.url);
   }
 
+  navigateToProfile(): void{
+    this.router.navigate(['/profilo'])
+  }
+
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
