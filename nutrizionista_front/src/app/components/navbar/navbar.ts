@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -22,6 +22,8 @@ import {
   faCog,
   faChartPie
 } from '@fortawesome/free-solid-svg-icons';
+import { UtenteDto } from '../../dto/utente.dto';
+import { UserService } from '../../services/user.service';
 
 interface MenuItem {
   id: string;
@@ -45,6 +47,10 @@ export class NavbarComponent implements OnInit {
   @Input() isDarkMode: boolean = false;
 
   activeItem: string = 'dashboard';
+  loading = false;
+  utente!: UtenteDto;
+  previewUrl: string | null = null;
+  errorMessage = '';
 
   // Icone FontAwesome
   faHome = faHome;
@@ -69,9 +75,13 @@ export class NavbarComponent implements OnInit {
     { id: 'impostazioni', icon: faCog, label: 'Impostazioni', route: '/impostazioni' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private serviceUtente: UserService, private cdr: ChangeDetectorRef) { 
+  }
 
   ngOnInit(): void {
+  
+    this.loadUserProfile();
+
     // Carica lo stato della sidebar dal localStorage
     const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
     if (savedCollapsedState !== null) {
@@ -107,6 +117,32 @@ export class NavbarComponent implements OnInit {
     // Imposta l'item attivo all'avvio in base alla URL corrente
     this.updateActiveItemFromUrl(this.router.url);
   }
+
+
+
+    loadUserProfile(): void {
+    this.loading = true;
+    
+    this.serviceUtente.getProfile().subscribe({
+      next: (data) => {
+        this.utente = data;
+        
+        if (data.filePathLogo) {
+          this.previewUrl = `http://localhost:8080/${data.filePathLogo}`;
+        }
+        
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Errore nel caricamento:', err);
+        this.errorMessage = 'Errore nel caricamento del profilo';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
 
   navigateToProfile(): void{
     this.router.navigate(['/profilo'])

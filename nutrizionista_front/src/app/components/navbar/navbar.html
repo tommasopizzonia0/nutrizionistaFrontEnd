@@ -2,11 +2,11 @@
   <!-- HEADER -->
   <div class="sidebar-header">
     <div class="avatar-wrapper" (click)="navigateToProfile()" style="cursor: pointer;">
-      <img class="avatar" src="https://i.pravatar.cc/100?img=5" alt="Usuario">
+      <img class="avatar" [src]="utente.filePathLogo" alt="Usuario">
     </div>
     <div class="user-info" (click)="navigateToProfile()" style="cursor: pointer;">
-      <div class="user-name">Gabriel Spena</div>
-      <div class="user-role">Nutrizionista</div>
+      <div class="user-name">{{utente.nome}} {{utente.cognome}}</div>
+      <div class="user-role">{{utente.ruolo.nome}}</div>
     </div>
   </div>
 
