@@ -2,7 +2,7 @@
     <div class="centro">
         <div class="sinistra">  
             <div class="logo">
-                <!-- <img class="animazione" [src]="gifVisible ? gifUrl : staticUrl" (click)="goToHome()" (mouseenter)="startGif()"  alt="logo"> -->
+                <img class="animazione" src="assets/img/logo.gif" (click)="goToHome()"  alt="logo">
             </div>
         </div>
         <div class="destra">
@@ -12,14 +12,19 @@
                 </div>
                 <div class="dati">
                     <div class="email">
-                            <span><i class="pi pi-user"></i></span>
-                            <input class="emailI" type="email" placeholder="Email"[(ngModel)]="email" required>
+                            <span><i class="pi pi-at"></i></span>
+                            <p-iftalabel class="emailI">
+                                <input pInputText  class="emailI" type="email" [(ngModel)]="email" required  [invalid]="!email" fluid="true">
+                                <label for="email">Email</label>
+                            </p-iftalabel>
+
                     </div>
                     <div class="password">
-                            <span><i class="pi pi-lock"></i></span>
-                            <input class="passwordI" type="text" placeholder="Password" [(ngModel)]="password">
-                            <span><i class="pi pi-eye"></i></span> 
-                            <!-- pi-eye-slash -->
+                        <span><i class="pi pi-lock"></i></span>
+                        <p-iftalabel class="passwordI">
+                            <p-password  styleClass="w-full" inputStyleClass="password-custom-input" [(ngModel)]="password" [toggleMask]="true" [feedback]="false" fluid  />
+                            <label for="password">Password</label>
+                        </p-iftalabel>
                     </div>
                     <div class="ricordami">
                         <p-checkbox [(ngModel)]="checked" [binary]="true" size="small" />
@@ -30,7 +35,7 @@
                 </div>
                 <div class="tasti">
                     <div class="login">
-                        <p-button label="Login" severity="help"  (click)="login()"></p-button>
+                        <p-button label="Login" severity="success"  (click)="login()" [text]="true"></p-button>
                       
                     </div>
                     <div class="dimenticato">
@@ -40,7 +45,7 @@
                         <hr>
                     </div>
                     <div class="register">
-                        <p-button label="Non hai un account? Registrati" severity="help"  (click)="goToRegistration()"></p-button>
+                        <p-button label="Non hai un account? Registrati" severity="success"  (click)="goToRegistration()" [text]="true"></p-button>
                     </div>
                 </div>
             </div>
