@@ -6,11 +6,13 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth-service';
+import { PasswordModule } from 'primeng/password';
+import { IftaLabelModule } from 'primeng/iftalabel';
 
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, ButtonModule, CheckboxModule, InputTextModule, RouterLink],
+  imports: [FormsModule, ButtonModule, CheckboxModule, PasswordModule, InputTextModule, IftaLabelModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })

@@ -1,10 +1,7 @@
 .sfondo{
-    background-color: #24002a; 
-    color: #ffffff;            
-    background-image:  url('/assets/img/background.png');
-    background-size: cover;       /* adatta allo schermo */
-    background-position: center;  /* centrato */
-    background-repeat: no-repeat; /* evita ripetizioni */
+    color: #10b981;            
+    background-image: url("/assets/img/sfondo-login.png");
+    background-size: cover;
     width: 100vw;  /* 100% della larghezza viewport */
     height: 100vh; /* 100% dell’altezza viewport */
   
@@ -39,9 +36,9 @@
     box-shadow: 0px 0px 16px rgba(211, 211, 211, 0.744);
     max-width: 500px;
     height: auto;
-    height: 400px;
+    height: 500px;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 16px;
 }
 .dati{
     display: flex;
@@ -58,18 +55,21 @@
     font-weight: 500;
 
 }
-.email{
-    border: 1px solid gray;
+.email, .password{
+    border-bottom: 1px solid rgb(255, 255, 255);
     width: 100%;
-    margin: 10px;
-        margin-top: 0px;
     border-radius: 6px;
-    height: 35px;
+    height: 54px;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
-.email span{
+.email{
+    margin: 10px;
+        margin-top: 0px;
+
+}
+.email span, .password span{
     padding: 5px;
 
 
@@ -79,25 +79,26 @@
     border: none;
     background-color: transparent;
     outline: none;
+     box-shadow: none
 }
-.password{
-    border: 1px solid gray;
+/* Per il componente p-password */
+:host ::ng-deep .password-custom-input {
+    width: 100% !important;
+    border: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Rimuovere il bordo anche dal contenitore di p-password se necessario */
+:host ::ng-deep .p-password {
     width: 100%;
-    border-radius: 6px;
-    height: 35px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
 }
-.password span{
-    padding: 5px;
+.passwordI {
+    width: 100%;
+    display: block;
 }
-.passwordI{
-    background-color: transparent;
-    width: 90%;
-    border: none;
-    outline: none;
-}
+
 .ricordami{
     width: 100%;
     padding: 10px;
