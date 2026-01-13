@@ -1,16 +1,15 @@
 <div class="container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
-
   <main class="main-content">
     <app-navbar (themeChange)="onThemeChange($event)" (sidebarToggle)="onSidebarToggle($event)">
     </app-navbar>
 
-    <!-- Header -->
-    <div class="header">
-      <h1><fa-icon [icon]="faUserGroup"></fa-icon> Gestione Clienti</h1>
-      <button class="btn btn-primary" (click)="apriModalCreazione()">
-        <fa-icon [icon]="faPlus"></fa-icon> Nuovo Cliente
-      </button>
-    </div>
+  <!-- Header -->
+  <div class="header">
+    <h1><fa-icon [icon]="faUserGroup"></fa-icon> Gestione Clienti</h1>
+    <button class="btn btn-primary" (click)="apriModalCreazione()">
+      <fa-icon [icon]="faPlus"></fa-icon> Nuovo Cliente
+    </button>
+  </div>
 
     <!-- Statistiche -->
     <div class="stats">
@@ -224,7 +223,5 @@
         </form>
       </div>
     </div>
-
-
   </main>
 </div>

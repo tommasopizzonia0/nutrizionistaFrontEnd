@@ -20,7 +20,7 @@ export class ClienteService {
     });
   }
 
-  allMyClienti(page: number = 0, size: number = 8): Observable<PageResponse<ClienteDto>> {
+  allMyClienti(page: number = 0, size: number = 12): Observable<PageResponse<ClienteDto>> {
     return this.http.get<PageResponse<ClienteDto>>(
       `${this.apiUrl}?page=${page}&size=${size}`,
       { headers: this.getHeaders() }

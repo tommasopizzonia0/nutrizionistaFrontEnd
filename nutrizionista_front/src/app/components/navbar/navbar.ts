@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -37,7 +37,8 @@ interface MenuItem {
   standalone: true,
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.css']
+  styleUrls: ['./navbar.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class NavbarComponent implements OnInit {
 
@@ -127,10 +128,6 @@ export class NavbarComponent implements OnInit {
       next: (data) => {
         this.utente = data;
         
-        if (data.filePathLogo) {
-          this.previewUrl = `http://localhost:8080/${data.filePathLogo}`;
-        }
-        
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -157,6 +154,7 @@ export class NavbarComponent implements OnInit {
 
   applyTheme(): void {
     if (this.isDarkMode) {
+      document.body.classList.toggle('dark', this.isDarkMode);
       document.body.classList.add('dark');
       document.body.style.backgroundColor = '#1e1e1e';
     } else {

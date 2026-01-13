@@ -5,12 +5,16 @@ import { Login } from './components/login/login';
 import { ClienteDettaglioComponent } from './components/cliente-dettaglio/cliente-dettaglio';
 import { UserProfileComponent } from './components/user-profile/user-profile';
 
+//usiamo il data routing, soluzione che mi hanno consigliato
+
+
 export const routes: Routes = [
   {path: '', component: Login},
 
-    {
+  {
     path: 'login',
-    component: Login
+    loadComponent: () => import('./components/login/login').then(m => m.Login),
+    data: { showNavbar: false }
   },
 
 
