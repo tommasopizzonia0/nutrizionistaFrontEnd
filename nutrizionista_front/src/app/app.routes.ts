@@ -5,6 +5,8 @@ import { Login } from './screens/login/login';
 import { ClienteDettaglioComponent } from './components/cliente-dettaglio/cliente-dettaglio';
 import { UserProfileComponent } from './components/user-profile/user-profile';
 import { RegisterScreen } from './screens/register-screen/register-screen';
+import { Misurazione } from './components/misurazione/misurazione';
+
 
 //usiamo il data routing, soluzione che mi hanno consigliato
 
@@ -31,6 +33,11 @@ export const routes: Routes = [
   {
     path: 'clienti/:id',
     component: ClienteDettaglioComponent
+  },
+
+  {
+    path: 'misurazione/:clienteId',
+    component: Misurazione
   },
 
   {

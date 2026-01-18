@@ -1,0 +1,125 @@
+.container-misurazione {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.form-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.svg-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.svg-container {
+  width: 100%;
+  max-width: 400px;
+  height: 60%;
+}
+
+.misurazione-item {
+  margin-bottom: 1rem;
+}
+
+.misurazione-item label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.unita {
+  color: #666;
+  font-weight: 500;
+}
+
+.errore {
+  color: #f44336;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.pulsanti {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.btn-primary:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #da190b;
+}
+
+/* Stili SVG - SENZA trasformazioni */
+svg path {
+  cursor: pointer;
+  transition: fill 0.3s ease, opacity 0.3s ease;
+}
+
+svg path:hover {
+  opacity: 0.7;
+}
+
+.evidenziato {
+  fill: #ffff00 !important;
+  opacity: 0.9 !important;
+}
+
+@media (max-width: 768px) {
+  .container-misurazione {
+    flex-direction: column;
+  }
+}

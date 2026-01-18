@@ -6,16 +6,25 @@ import { ClienteDto } from '../../dto/cliente.dto';
 import { NavbarComponent } from '../navbar/navbar';
 import { FaIconComponent, FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { Misurazione } from '../misurazione/misurazione';
 import {
   faArrowLeft, faUser, faIdCard, faEnvelope, faPhone,
   faCalendar, faWeight, faRuler, faDumbbell, faHeartbeat,
-  faRunning, faNotesMedical, faMale, faFemale, faEdit
+  faRunning, faNotesMedical, faMale, faFemale, faEdit, faInfoCircle, faRulerVertical, faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
+
+
+interface NavItem {
+  id: string;
+  icon: IconProp;
+  label: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-cliente-dettaglio',
   standalone: true,
-  imports: [CommonModule, FaIconComponent, FontAwesomeModule, NavbarComponent],
+  imports: [CommonModule, FaIconComponent, FontAwesomeModule, NavbarComponent, Misurazione],
   templateUrl: './cliente-dettaglio.html',
   styleUrls: ['./cliente-dettaglio.css']
 })
@@ -25,8 +34,14 @@ export class ClienteDettaglioComponent implements OnInit {
   isLoading = true;
   isDarkMode = false;
   isSidebarCollapsed = true;
+  clienteId!: number;
+  navItems: NavItem[] = [];
+  vistaCorrente: string = 'info'; // <-- RIAGGIUNGI QUESTA RIGA
 
   // Icone
+  faInfoCircle = faInfoCircle;
+  faRulerVertical = faRulerVertical;
+  faClipboardList = faClipboardList;
   faArrowLeft: IconProp = faArrowLeft;
   faUser: IconProp = faUser;
   faIdCard: IconProp = faIdCard;
@@ -58,14 +73,50 @@ export class ClienteDettaglioComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
+      this.clienteId = id;
+      this.inizializzaNavItems();
       this.caricaDettaglio(id);
     } else {
       this.router.navigate(['/clienti']);
     }
-
   }
 
+  inizializzaNavItems(): void {
+    this.navItems = [
+      { 
+        id: 'info', 
+        icon: faInfoCircle, 
+        label: 'Info', 
+        route: 'info' 
+      },
+      { 
+        id: 'nuova-misurazione', 
+        icon: faRulerVertical, 
+        label: 'Nuova Misurazione', 
+        route: 'nuova-misurazione' 
+      },
+      { 
+        id: 'misurazioni', 
+        icon: faRulerVertical, 
+        label: 'Misurazioni', 
+        route: 'misurazioni' 
+      },
+      { 
+        id: 'piano', 
+        icon: faClipboardList, 
+        label: 'Piano Alimentare', 
+        route: 'piano-alimentare' 
+      }
+    ];
+  }
 
+  navigaTo(route: string): void {
+    this.vistaCorrente = route;
+  }
+
+  isActiveRoute(route: string): boolean {
+    return this.vistaCorrente === route;
+  }
 
   onSidebarToggle(isCollapsed: boolean): void {
     setTimeout(() => {
@@ -111,6 +162,4 @@ export class ClienteDettaglioComponent implements OnInit {
       });
     }
   }
-
-
 }
