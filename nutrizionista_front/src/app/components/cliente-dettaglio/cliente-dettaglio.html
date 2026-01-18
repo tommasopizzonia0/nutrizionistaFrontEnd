@@ -4,7 +4,6 @@
     <app-navbar (themeChange)="onThemeChange($event)" (sidebarToggle)="onSidebarToggle($event)">
     </app-navbar>
 
-
     <div class="header">
       <button class="btn btn-secondary" (click)="tornaIndietro()">
         <fa-icon [icon]="faArrowLeft"></fa-icon>
@@ -16,7 +15,6 @@
         Modifica
       </button>
     </div>
-
 
     <div class="cliente-hero" [ngClass]="sessoClass">
       <div class="dettaglio-avatar">
@@ -31,32 +29,34 @@
       <span class="badge-large">{{ cliente?.sesso }}</span>
     </div>
 
+    <!-- Navbar di navigazione dettagli cliente -->
+    <nav class="dettaglio-nav">
+      <button 
+        *ngFor="let item of navItems"
+        class="nav-item" 
+        [class.active]="isActiveRoute(item.route)"
+        (click)="navigaTo(item.route)">
+        <fa-icon [icon]="item.icon"></fa-icon>
+        <span>{{ item.label }}</span>
+      </button>
+    </nav>
 
-    <div class="dettaglio-grid">
-
-
+    <!-- Info Cliente - visualizzato solo quando vistaCorrente === 'info' -->
+    <div class="dettaglio-grid" *ngIf="vistaCorrente === 'info'">
       <div class="dettaglio-section">
         <h4><fa-icon [icon]="faUser"></fa-icon> Informazioni Anagrafiche</h4>
-        <p><strong><fa-icon [icon]="faIdCard"></fa-icon> Codice Fiscale:</strong> {{ cliente?.codiceFiscale || 'Non
-          disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faIdCard"></fa-icon> Codice Fiscale:</strong> {{ cliente?.codiceFiscale || 'Non disponibile' }}</p>
         <p><strong><fa-icon [icon]="faEnvelope"></fa-icon> Email:</strong> {{ cliente?.email || 'Non disponibile' }}</p>
-        <p><strong><fa-icon [icon]="faPhone"></fa-icon> Telefono:</strong> {{ cliente?.telefono || 'Non disponibile' }}
-        </p>
-        <p><strong><fa-icon [icon]="faCalendar"></fa-icon> Data di Nascita:</strong> {{ cliente?.dataNascita || 'Non
-          disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faPhone"></fa-icon> Telefono:</strong> {{ cliente?.telefono || 'Non disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faCalendar"></fa-icon> Data di Nascita:</strong> {{ cliente?.dataNascita || 'Non disponibile' }}</p>
       </div>
-
 
       <div class="dettaglio-section">
         <h4><fa-icon [icon]="faRunning"></fa-icon> Dati Fisici</h4>
-        <p><strong><fa-icon [icon]="faWeight"></fa-icon> Peso:</strong> {{ cliente?.peso ? cliente?.peso + ' kg' : 'Non
-          disponibile' }}</p>
-        <p><strong><fa-icon [icon]="faRuler"></fa-icon> Altezza:</strong> {{ cliente?.altezza ? cliente?.altezza + ' cm'
-          : 'Non disponibile' }}</p>
-        <p><strong><fa-icon [icon]="faDumbbell"></fa-icon> Allenamenti/Settimana:</strong> {{
-          cliente?.numAllenamentiSett || 'Non disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faWeight"></fa-icon> Peso:</strong> {{ cliente?.peso ? cliente?.peso + ' kg' : 'Non disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faRuler"></fa-icon> Altezza:</strong> {{ cliente?.altezza ? cliente?.altezza + ' cm' : 'Non disponibile' }}</p>
+        <p><strong><fa-icon [icon]="faDumbbell"></fa-icon> Allenamenti/Settimana:</strong> {{ cliente?.numAllenamentiSett || 'Non disponibile' }}</p>
       </div>
-
 
       <div class="dettaglio-section section-wide">
         <h4><fa-icon [icon]="faHeartbeat"></fa-icon> Informazioni Sanitarie</h4>
@@ -65,14 +65,26 @@
         <p><strong>Problematiche Salutari:</strong> {{ cliente?.problematicheSalutari || 'Nessuna' }}</p>
       </div>
 
-
       <div class="dettaglio-section section-wide">
         <h4><fa-icon [icon]="faNotesMedical"></fa-icon> Stile di Vita</h4>
         <p><strong>Qualità del Sonno:</strong> {{ cliente?.quantitaEQualitaDelSonno || 'Non specificato' }}</p>
         <p><strong>Assunzione Farmaci:</strong> {{ cliente?.assunzioneFarmaci || 'No' }}</p>
         <p><strong>Consumo Alcol:</strong> {{ cliente?.beveAlcol ? 'Sì' : 'No' }}</p>
       </div>
-
     </div>
+
+    <!-- Nuova Misurazione -->
+    <app-misurazione *ngIf="vistaCorrente === 'nuova-misurazione'" [clienteId]="clienteId"></app-misurazione>
+
+    <!-- Elenco Misurazioni -->
+    <div *ngIf="vistaCorrente === 'misurazioni'">
+      <p>Elenco misurazioni del cliente {{ clienteId }}</p>
+    </div>
+
+    <!-- Piano Alimentare -->
+    <div *ngIf="vistaCorrente === 'piano-alimentare'">
+      <p>Piano alimentare del cliente {{ clienteId }}</p>
+    </div>
+
   </main>
 </div>
