@@ -1,0 +1,167 @@
+.sfondo {
+    color: #10b981;
+    background-image: url("/assets/img/sfondo-login.png");
+    background-size: cover;
+    width: 100vw;
+    /* 100% della larghezza viewport */
+    height: 100vh;
+    /* 100% dell’altezza viewport */
+
+}
+
+.centro {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100vw;
+    /* 100% della larghezza viewport */
+    height: 100vh;
+    /* 100% dell’altezza viewport */
+}
+
+.sinistra,
+.destra {
+    display: flex;
+    width: 50%;
+    justify-content: center;
+}
+
+.sinistra {
+    padding-left: 10%;
+}
+
+.animazione {
+    max-width: 360px;
+    width: 100%;
+}
+
+.destra {
+    padding-right: 10%;
+}
+
+.contenitore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 0px 16px rgba(211, 211, 211, 0.744);
+    max-width: 500px;
+    height: auto;
+    height: 630px;
+    width: 100%;
+    border-radius: 16px;
+}
+
+.dati {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 23px;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.colonna {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.titolo {
+    font-size: xx-large;
+    font-weight: 500;
+}
+
+.email,
+.password,
+.inputDati {
+    border-bottom: 1px solid rgb(255, 255, 255);
+    width: 100%;
+    border-radius: 6px;
+    height: 54px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.email,
+.inputDati {
+    margin: 10px;
+    margin-top: 0px;
+
+}
+
+.email span,
+.password span {
+    padding: 5px;
+
+
+}
+
+.emailI,
+.inputDatiI {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    outline: none;
+    box-shadow: none
+}
+
+/* Per il componente p-password */
+:host ::ng-deep .password-custom-input {
+    width: 100% !important;
+    border: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Rimuovere il bordo anche dal contenitore di p-password se necessario */
+:host ::ng-deep .p-password {
+    width: 100%;
+}
+
+.passwordI {
+    width: 100%;
+    display: block;
+}
+
+.testo {
+    padding-left: 5px;
+}
+
+
+.tasti {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+}
+
+.dimenticato {
+    margin-top: 10px;
+}
+
+.dimenticatoA {
+    text-decoration: none;
+    color: rgb(255, 255, 255)
+}
+
+.register {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.linea {
+    width: 100%;
+}
+
+.linea hr {
+    width: 80%;
+    margin: 20px auto;
+    height: 2px;
+    background: #fff;
+}
