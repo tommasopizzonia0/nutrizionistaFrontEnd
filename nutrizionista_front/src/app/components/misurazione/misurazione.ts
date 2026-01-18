@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MisurazioneDto } from '../../dto/misurazione.dto'; // <-- IMPORTA IL DTO
@@ -12,6 +12,7 @@ import { MisurazioneDto } from '../../dto/misurazione.dto'; // <-- IMPORTA IL DT
 })
 export class Misurazione implements OnInit {
   @Input() clienteId!: number;
+  @Output() misurazioneSalvata = new EventEmitter<void>();
   
   misurazioniForm: FormGroup;
   parteCorporeaAttiva: string | null = null;
@@ -61,13 +62,19 @@ export class Misurazione implements OnInit {
     }
   }
 
-  salva(): void {
-    if (this.misurazioniForm.valid) {
-      const valori = this.misurazioniForm.value;
-      console.log('Misurazioni salvate per cliente:', this.clienteId, valori);
-      alert('Misurazioni salvate con successo!');
+    salva(): void {
+      if (this.misurazioniForm.valid) {
+
+        
+        this.misurazioneSalvata.emit();
+
+        
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
     }
-  }
 
   reset(): void {
     this.misurazioniForm.reset();
