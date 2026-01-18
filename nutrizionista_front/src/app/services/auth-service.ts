@@ -27,6 +27,10 @@ export class AuthService implements OnDestroy {
     return this.http.post<any>(this.apiUrl + "/login", send)
   }
 
+  register(userData: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl + "/register", userData);
+  }
+
   // public invioEmailRecuperoPassword(username: any): Observable<any> {
   //   return this.http.post(config.baseUrl + 'api/recupero-password?username=' + username, null, { responseType: 'text' });
   // }
