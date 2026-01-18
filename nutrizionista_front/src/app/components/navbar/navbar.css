@@ -48,7 +48,7 @@ body.dark {
   height: 100vh;
   width: 280px;
   background: var(--white);
-  box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
   transition: var(--transition);
   display: flex;
   flex-direction: column;
@@ -58,7 +58,7 @@ body.dark {
 
 .sidebar.dark {
   background: #000000;
-  box-shadow: 4px 0 30px rgba(0,0,0,0.6);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
 }
 
 .sidebar.collapsed {
@@ -70,7 +70,7 @@ body.dark {
 /* ====================== */
 .sidebar-header {
   padding: 28px 24px;
-  border-bottom: 1px solid rgba(16,185,129,0.1);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -78,7 +78,7 @@ body.dark {
 }
 
 .sidebar.dark .sidebar-header {
-  border-bottom: 1px solid rgba(16,185,129,0.3);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .sidebar.collapsed .sidebar-header {
@@ -92,6 +92,11 @@ body.dark {
   border: 3px solid var(--green-primary);
   object-fit: cover;
   transition: var(--transition);
+}
+
+.avatar img {
+  width: 48px;
+  height: 48px;
 }
 
 .sidebar.collapsed .avatar {
@@ -153,8 +158,13 @@ body.dark {
 }
 
 @keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .sidebar.dark .skeleton-avatar,
@@ -312,6 +322,7 @@ body.dark {
     transform: scale(0, 0);
     opacity: 0.5;
   }
+
   100% {
     transform: scale(40, 40);
     opacity: 0;
@@ -351,14 +362,15 @@ body.dark {
 /* ====================== */
 .sidebar-bottom {
   padding: 16px 12px;
-  border-top: 1px solid rgba(16,185,129,0.1);
+  border-top: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 .sidebar.dark .sidebar-bottom {
-  border-top: 1px solid rgba(16,185,129,0.3);
+  border-top: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.toggle-theme, .toggle-collapse {
+.toggle-theme,
+.toggle-collapse {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -405,7 +417,8 @@ body.dark {
   justify-content: center;
 }
 
-.toggle-theme span, .toggle-collapse span {
+.toggle-theme span,
+.toggle-collapse span {
   flex: 1;
   transition: var(--transition);
   white-space: nowrap;
@@ -497,7 +510,10 @@ body.dark {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #cbd5e1;
   transition: var(--transition);
   border-radius: 24px;
@@ -515,11 +531,11 @@ body.dark {
   transition: var(--transition);
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: var(--green-primary);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
 }
 
@@ -545,7 +561,7 @@ input:checked + .slider:before {
   background: var(--black);
 }
 
-.sidebar.collapsed ~ .main-content {
+.sidebar.collapsed~.main-content {
   margin-left: 85px;
 }
 
@@ -643,8 +659,11 @@ input:checked + .slider:before {
 }
 
 /* Transizioni fluide per testo */
-.menu-item span, .toggle-theme span, .toggle-collapse span, .user-info {
-  transition: 
+.menu-item span,
+.toggle-theme span,
+.toggle-collapse span,
+.user-info {
+  transition:
     opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -653,13 +672,30 @@ input:checked + .slider:before {
 /* RESPONSIVE */
 /* ====================== */
 @media (max-width: 768px) {
-  .sidebar { width: 85px; }
-  .sidebar.collapsed { width: 85px; }
-  .main-content { margin-left: 85px; }
-  .sidebar.collapsed ~ .main-content { margin-left: 85px; }
-  .welcome-title { font-size: 32px; }
-  .welcome-text { font-size: 16px; }
-  
+  .sidebar {
+    width: 85px;
+  }
+
+  .sidebar.collapsed {
+    width: 85px;
+  }
+
+  .main-content {
+    margin-left: 85px;
+  }
+
+  .sidebar.collapsed~.main-content {
+    margin-left: 85px;
+  }
+
+  .welcome-title {
+    font-size: 32px;
+  }
+
+  .welcome-text {
+    font-size: 16px;
+  }
+
   /* In mobile, le icone sono sempre centrate */
   .menu-item,
   .toggle-theme,
@@ -668,7 +704,7 @@ input:checked + .slider:before {
     padding: 14px 0;
     gap: 0;
   }
-  
+
   .menu-item span,
   .toggle-theme span,
   .toggle-collapse span {
@@ -677,15 +713,23 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 480px) {
-  .sidebar { width: 70px; }
-  .sidebar.collapsed { width: 70px; }
-  .main-content { 
+  .sidebar {
+    width: 70px;
+  }
+
+  .sidebar.collapsed {
+    width: 70px;
+  }
+
+  .main-content {
     margin-left: 70px;
     padding: 20px;
   }
-  .sidebar.collapsed ~ .main-content {
+
+  .sidebar.collapsed~.main-content {
     margin-left: 70px;
   }
+
   .menu-item {
     padding: 12px 0;
   }

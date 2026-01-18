@@ -2,29 +2,28 @@
   <!-- HEADER -->
   <div class="sidebar-header">
     @if (utente) {
-      <div class="avatar-wrapper" (click)="navigateToProfile()" style="cursor: pointer;">
-        <img class="avatar" [src]="utente.filePathLogo || 'assets/default-avatar.png'" alt="Usuario">
-      </div>
-      <div class="user-info" (click)="navigateToProfile()" style="cursor: pointer;">
-        <div class="user-name">{{utente.nome}} {{utente.cognome}}</div>
-        <div class="user-role">{{utente.ruolo.nome}}</div>
-      </div>
+    <div class="avatar-wrapper" (click)="navigateToProfile()" style="cursor: pointer;">
+      <img class="avatar" [src]="`http://localhost:8080/${utente.filePathLogo}` || 'assets/default-avatar.png'" alt="">
+    </div>
+    <div class="user-info" (click)="navigateToProfile()" style="cursor: pointer;">
+      <div class="user-name">{{utente.nome}} {{utente.cognome}}</div>
+      <div class="user-role">{{utente.ruolo.nome}}</div>
+    </div>
     } @else {
-      <div class="loading-placeholder">
-        <div class="skeleton-avatar"></div>
-        <div class="skeleton-text"></div>
-      </div>
+    <div class="loading-placeholder">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-text"></div>
+    </div>
     }
   </div>
 
   <!-- MENU -->
   <div class="sidebar-menu">
     @for (item of menuItems; track item.id) {
-      <div class="menu-item" [class.active]="activeItem === item.id"
-        (click)="setActiveItem(item.id, $event)">
-        <fa-icon [icon]="item.icon"></fa-icon>
-        <span>{{item.label}}</span>
-      </div>
+    <div class="menu-item" [class.active]="activeItem === item.id" (click)="setActiveItem(item.id, $event)">
+      <fa-icon [icon]="item.icon"></fa-icon>
+      <span>{{item.label}}</span>
+    </div>
     }
   </div>
 
