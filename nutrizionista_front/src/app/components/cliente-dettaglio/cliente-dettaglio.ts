@@ -10,7 +10,8 @@ import { Misurazione } from '../misurazione/misurazione';
 import {
   faArrowLeft, faUser, faIdCard, faEnvelope, faPhone,
   faCalendar, faWeight, faRuler, faDumbbell, faHeartbeat,
-  faRunning, faNotesMedical, faMale, faFemale, faEdit, faInfoCircle, faRulerVertical, faClipboardList
+  faRunning, faNotesMedical, faMale, faFemale, faEdit, faInfoCircle, faRulerVertical, faClipboardList,
+  faPenRuler
 } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -36,7 +37,9 @@ export class ClienteDettaglioComponent implements OnInit {
   isSidebarCollapsed = true;
   clienteId!: number;
   navItems: NavItem[] = [];
-  vistaCorrente: string = 'info'; // <-- RIAGGIUNGI QUESTA RIGA
+  vistaCorrente: string = 'info'; 
+  haNuoveMisurazioni = false;
+
 
   // Icone
   faInfoCircle = faInfoCircle;
@@ -91,7 +94,7 @@ export class ClienteDettaglioComponent implements OnInit {
       },
       { 
         id: 'nuova-misurazione', 
-        icon: faRulerVertical, 
+        icon: faPenRuler, 
         label: 'Nuova Misurazione', 
         route: 'nuova-misurazione' 
       },
@@ -110,9 +113,14 @@ export class ClienteDettaglioComponent implements OnInit {
     ];
   }
 
-  navigaTo(route: string): void {
-    this.vistaCorrente = route;
-  }
+    navigaTo(route: string): void {
+      this.vistaCorrente = route;
+
+      if (route === 'misurazioni') {
+        this.haNuoveMisurazioni = false;
+      }
+    }
+
 
   isActiveRoute(route: string): boolean {
     return this.vistaCorrente === route;
@@ -150,6 +158,11 @@ export class ClienteDettaglioComponent implements OnInit {
       }
     });
   }
+
+  onMisurazioneSalvata(): void {
+  this.haNuoveMisurazioni = true;
+}
+
 
   tornaIndietro(): void {
     this.router.navigate(['/clienti']);
