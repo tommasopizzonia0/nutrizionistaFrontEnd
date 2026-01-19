@@ -98,6 +98,7 @@
     @if (vistaCorrente === 'nuova-misurazione') {
       <app-misurazione
         [clienteId]="clienteId"
+        [isDarkMode]="isDarkMode"
         (misurazioneSalvata)="onMisurazioneSalvata()">
       </app-misurazione>
     }

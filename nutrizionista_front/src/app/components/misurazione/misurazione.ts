@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MisurazioneDto } from '../../dto/misurazione.dto'; // <-- IMPORTA IL DTO
+import { MisurazioneDto } from '../../dto/misurazione.dto';
 
 @Component({
   selector: 'app-misurazione',
@@ -12,6 +12,7 @@ import { MisurazioneDto } from '../../dto/misurazione.dto'; // <-- IMPORTA IL DT
 })
 export class Misurazione implements OnInit {
   @Input() clienteId!: number;
+  @Input() isDarkMode = false; 
   @Output() misurazioneSalvata = new EventEmitter<void>();
   
   misurazioniForm: FormGroup;
@@ -29,12 +30,16 @@ export class Misurazione implements OnInit {
     { nome: 'Gamba Sinistra', valore: null, unita: 'cm', pathId: 'gambaSx' }
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
+  ) {
     this.misurazioniForm = this.fb.group({});
   }
 
   ngOnInit(): void {
     console.log('Cliente ID ricevuto nel componente misurazione:', this.clienteId);
+    console.log('🌙 isDarkMode ricevuto:', this.isDarkMode);
     this.inizializzaForm();
   }
 
@@ -62,22 +67,38 @@ export class Misurazione implements OnInit {
     }
   }
 
-    salva(): void {
-      if (this.misurazioniForm.valid) {
-
-        
-        this.misurazioneSalvata.emit();
-
-        
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      }
+  salva(): void {
+    if (this.misurazioniForm.valid) {
+      this.misurazioneSalvata.emit();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
+  }
 
   reset(): void {
     this.misurazioniForm.reset();
     this.parteCorporeaAttiva = null;
   }
+  
+
+  focusNextInput(currentIndex: number, event: Event): void {
+  event.preventDefault(); 
+  
+  const nextIndex = currentIndex + 1;
+  
+  // Se c'è un campo successivo, metti il focus
+  if (nextIndex < this.misurazioni.length) {
+    const nextPathId = this.misurazioni[nextIndex].pathId;
+    const nextInput = document.getElementById(`input-${nextPathId}`) as HTMLInputElement;
+    
+    if (nextInput) {
+      nextInput.focus();
+    }
+  } else {
+    // Se è l'ultimo campo, togli il focus 
+    (event.target as HTMLInputElement).blur();
+  }
+}
 }
