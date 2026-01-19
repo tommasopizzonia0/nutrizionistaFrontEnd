@@ -1,39 +1,157 @@
+/* ====================== */
+/* VARIABILI TEMA VERDE */
+/* ====================== */
+:root {
+  --green-primary: #10b981;
+  --green-dark: #059669;
+  --green-darker: #047857;
+  --green-light: #34d399;
+  --green-lighter: #d1fae5;
+  --green-ultralight: #ecfdf5;
+}
+
+/* ====================== */
+/* CONTAINER PRINCIPALE */
+/* ====================== */
 .container-misurazione {
   display: flex;
   gap: 2rem;
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
+  transition: all 0.3s ease;
+  background: transparent;
 }
 
-.form-section {
-  flex: 1;
-  min-width: 300px;
-}
-
+/* ====================== */
+/* SEZIONE SVG */
+/* ====================== */
 .svg-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* 🌙 DARK MODE - SVG SECTION */
+.dark-mode .svg-section {
+  background: #2d2d2d;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.svg-section h3 {
+  color: #1f2937;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  transition: color 0.3s ease;
+}
+
+/* 🌙 DARK MODE - H3 */
+.dark-mode .svg-section h3 {
+  color: white;
 }
 
 .svg-container {
   width: 100%;
   max-width: 400px;
-  height: 60%;
+  height: auto;
+  background: var(--green-ultralight);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid var(--green-lighter);
+  transition: all 0.3s ease;
 }
 
+/* 🌙 DARK MODE - SVG CONTAINER */
+.dark-mode .svg-container {
+  background: #374151;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ====================== */
+/* SEZIONE FORM */
+/* ====================== */
+.form-section {
+  flex: 1;
+  min-width: 300px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* 🌙 DARK MODE - FORM SECTION */
+.dark-mode .form-section {
+  background: #2d2d2d;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.form-section h2 {
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--green-lighter);
+  transition: all 0.3s ease;
+}
+
+/* 🌙 DARK MODE - H2 */
+.dark-mode .form-section h2 {
+  color: white;
+  border-bottom-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ====================== */
+/* MISURAZIONE ITEM */
+/* ====================== */
 .misurazione-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--green-ultralight);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+/* 🌙 DARK MODE - MISURAZIONE ITEM */
+.dark-mode .misurazione-item {
+  background: #374151;
+  border-color: transparent;
+}
+
+.misurazione-item:hover {
+  border-color: var(--green-primary);
+  transform: translateX(4px);
 }
 
 .misurazione-item label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  margin: 0;
+  font-weight: 600;
+  color: var(--green-dark);
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
 }
 
+/* 🌙 DARK MODE - LABEL */
+.dark-mode .misurazione-item label {
+  color: var(--green-light);
+}
+
+/* ====================== */
+/* INPUT GROUP */
+/* ====================== */
 .input-group {
   display: flex;
   align-items: center;
@@ -42,29 +160,83 @@
 
 .input-group input {
   flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* 🌙 DARK MODE - INPUT */
+.dark-mode .input-group input {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: white;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+/* 🌙 DARK MODE - PLACEHOLDER */
+.dark-mode .input-group input::placeholder {
+  color: #6b7280;
+}
+
+/* Rimuovi le frecce dagli input number */
+.input-group input[type="number"]::-webkit-inner-spin-button,
+.input-group input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-group input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .unita {
-  color: #666;
-  font-weight: 500;
+  color: var(--green-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 30px;
+  transition: color 0.3s ease;
 }
 
+/* 🌙 DARK MODE - UNITÀ */
+.dark-mode .unita {
+  color: var(--green-light);
+}
+
+/* ====================== */
+/* ERRORE */
+/* ====================== */
 .errore {
-  color: #f44336;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  grid-column: 2;
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
+/* 🌙 DARK MODE - ERRORE */
+.dark-mode .errore {
+  color: #fca5a5;
+}
+
+/* ====================== */
+/* PULSANTI */
+/* ====================== */
 .pulsanti {
   display: flex;
   gap: 1rem;
@@ -74,39 +246,75 @@
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
   color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-primary:disabled {
-  background-color: #cccccc;
+  background: #9ca3af;
   cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* 🌙 DARK MODE - BTN PRIMARY DISABLED */
+.dark-mode .btn-primary:disabled {
+  background: #4b5563;
 }
 
 .btn-secondary {
-  background-color: #f44336;
+  background: #6b7280;
   color: white;
+  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+}
+
+/* 🌙 DARK MODE - BTN SECONDARY */
+.dark-mode .btn-secondary {
+  background: #4b5563;
 }
 
 .btn-secondary:hover {
-  background-color: #da190b;
+  background: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
-/* Stili SVG - SENZA trasformazioni */
+/* 🌙 DARK MODE - BTN SECONDARY HOVER */
+.dark-mode .btn-secondary:hover {
+  background: #374151;
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ====================== */
+/* STILI SVG */
+/* ====================== */
 svg path {
   cursor: pointer;
-  transition: fill 0.3s ease, opacity 0.3s ease;
+  transition: fill 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
 }
 
 svg path:hover {
@@ -114,12 +322,57 @@ svg path:hover {
 }
 
 .evidenziato {
-  fill: #ffff00 !important;
-  opacity: 0.9 !important;
+  fill: #fbbf24 !important;
+  opacity: 1 !important;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 🌙 DARK MODE - SVG */
+.dark-mode svg path {
+  filter: brightness(0.9);
+}
+
+.dark-mode .evidenziato {
+  filter: brightness(1.2) !important;
+}
+
+/* ====================== */
+/* RESPONSIVE */
+/* ====================== */
 @media (max-width: 768px) {
   .container-misurazione {
     flex-direction: column;
+    padding: 1rem;
+  }
+
+  .misurazione-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .errore {
+    grid-column: 1;
+  }
+
+  .pulsanti {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+  
+  .svg-section,
+  .form-section {
+    padding: 1.5rem;
   }
 }

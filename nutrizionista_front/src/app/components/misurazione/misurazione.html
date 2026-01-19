@@ -1,4 +1,4 @@
-<div class="container-misurazione">
+<div class="container-misurazione" [class.dark-mode]="isDarkMode">
   <div class="svg-section">
     <h3>Seleziona la parte del corpo</h3>
     <div class="svg-container">
@@ -81,7 +81,7 @@
     <h2>Misurazioni Antropometriche</h2>
     
     <form [formGroup]="misurazioniForm">
-      @for (mis of misurazioni; track mis.pathId) {
+      @for (mis of misurazioni; track mis.pathId; let i = $index) {
         <div class="misurazione-item">
           <label [for]="'input-' + mis.pathId">{{ mis.nome }}</label>
           <div class="input-group">
@@ -91,6 +91,7 @@
               [formControlName]="mis.pathId"
               (focus)="onFocusInput(mis.pathId)"
               (blur)="onBlurInput()"
+              (keydown.enter)="focusNextInput(i, $event)"
               placeholder="0"
               min="0"
               max="300"
