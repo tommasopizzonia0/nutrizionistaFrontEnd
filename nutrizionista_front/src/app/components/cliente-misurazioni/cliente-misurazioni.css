@@ -1,0 +1,45 @@
+/* src/app/components/cliente-misurazioni/cliente-misurazioni.component.css */
+
+.cliente-misurazioni-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-divider {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #007bff,
+    transparent
+  );
+  margin: 20px 0;
+  position: relative;
+}
+
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .cliente-misurazioni-wrapper {
+    padding: 10px;
+    gap: 30px;
+  }
+}

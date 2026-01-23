@@ -1,0 +1,10 @@
+<div class="layout"
+     [class.collapsed]="sidebarService.value"
+     [class.dark-mode]="themeService.isDarkMode$ | async">
+
+  <app-navbar></app-navbar>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

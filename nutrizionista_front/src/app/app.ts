@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +16,13 @@ export class AppComponent {
 
   isCollapsed: boolean = false;
 
-  constructor() {
+  constructor(private themeService: ThemeService) {
     console.log('🚀 APP COMPONENT INITIALIZED');
+    
+
+    this.themeService.isDarkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
   }
 
   onThemeChange(isDark: boolean): void {

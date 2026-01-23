@@ -1,7 +1,8 @@
-<div class="container" [class.sidebar-collapsed]="isSidebarCollapsed">
-  
+<div class="container"
+     [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
+     [class.sidebar-collapsed]="sidebarService.value">
+
   <main class="main-content">
-    <app-navbar (themeChange)="onThemeChange($event)" (sidebarToggle)="onSidebarToggle($event)"></app-navbar>
 
     <div class="profile-container">
       <!-- Header -->
@@ -10,173 +11,189 @@
       </div>
 
       <!-- Messages -->
-      <div *ngIf="message" class="alert alert-success">
-        <i class="fas fa-check-circle"></i> {{ message }}
-      </div>
-      <div *ngIf="errorMessage" class="alert alert-error">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-      </div>
+      @if (message) {
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle"></i> {{ message }}
+        </div>
+      }
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        </div>
+      }
 
       <!-- Loading -->
-      <div *ngIf="loading && !userData" class="loading-container">
-        <i class="fas fa-spinner fa-spin fa-3x"></i>
-        <p>Caricamento profilo...</p>
-      </div>
+      @if (loading && !userData) {
+        <div class="loading-container">
+          <i class="fas fa-spinner fa-spin fa-3x"></i>
+          <p>Caricamento profilo...</p>
+        </div>
+      }
 
       <!-- Profile Content -->
-      <div class="profile-content" *ngIf="!loading && userData">
+      @if (!loading && userData) {
+        <div class="profile-content">
 
-        <!-- Logo Section -->
-        <div class="profile-section logo-section">
-          <h2><i class="fas fa-image"></i> Logo / Immagine Profilo</h2>
-          <div class="logo-container">
-            <div class="logo-preview">
-              <img *ngIf="previewUrl" [src]="previewUrl" alt="Logo profilo">
-              <div *ngIf="!previewUrl" class="no-logo">
-                <i class="fas fa-user fa-5x"></i>
+          <!-- Logo Section -->
+          <div class="profile-section logo-section">
+            <h2><i class="fas fa-image"></i> Logo / Immagine Profilo</h2>
+            <div class="logo-container">
+              <div class="logo-preview">
+                @if (previewUrl) {
+                  <img [src]="previewUrl" alt="Logo profilo">
+                } @else {
+                  <div class="no-logo">
+                    <i class="fas fa-user fa-5x"></i>
+                  </div>
+                }
+              </div>
+              <div class="logo-upload">
+                <label for="fileInput" class="file-label">
+                  <i class="fas fa-upload"></i> Scegli immagine
+                </label>
+                <input 
+                  type="file" 
+                  id="fileInput" 
+                  accept="image/jpeg,image/jpg,image/png" 
+                  (change)="onFileSelected($event)" hidden>
+                <p class="file-info">Formati supportati: JPG, JPEG, PNG</p>
+                @if (selectedFile) {
+                  <button 
+                    class="btn btn-primary" 
+                    (click)="uploadLogo()" 
+                    [disabled]="loading">
+                    <i class="fas fa-save"></i> Carica Logo
+                  </button>
+                }
               </div>
             </div>
-            <div class="logo-upload">
-              <label for="fileInput" class="file-label">
-                <i class="fas fa-upload"></i> Scegli immagine
-              </label>
-              <input 
-                type="file" 
-                id="fileInput" 
-                accept="image/jpeg,image/jpg,image/png" 
-                (change)="onFileSelected($event)" hidden>
-              <p class="file-info">Formati supportati: JPG, JPEG, PNG</p>
+          </div>
+
+          <!-- Personal Info Section -->
+          <div class="profile-section info-section">
+            <div class="section-header">
+              <h2><i class="fas fa-id-card"></i> Informazioni Personali</h2>
               <button 
-                *ngIf="selectedFile" 
-                class="btn btn-primary" 
-                (click)="uploadLogo()" 
+                class="btn btn-secondary" 
+                (click)="toggleEditMode()" 
                 [disabled]="loading">
-                <i class="fas fa-save"></i> Carica Logo
+                <i [class]="isEditMode ? 'fas fa-times' : 'fas fa-edit'"></i>
+                {{ isEditMode ? 'Annulla' : 'Modifica' }}
+              </button>
+            </div>
+
+            <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label><i class="fas fa-user"></i> Nome *</label>
+                  <input type="text" formControlName="nome" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                  @if (profileForm.get('nome')?.invalid && profileForm.get('nome')?.touched) {
+                    <span class="error">Il nome è obbligatorio</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label><i class="fas fa-user"></i> Cognome *</label>
+                  <input type="text" formControlName="cognome" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                  @if (profileForm.get('cognome')?.invalid && profileForm.get('cognome')?.touched) {
+                    <span class="error">Il cognome è obbligatorio</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label><i class="fas fa-id-card"></i> Codice Fiscale *</label>
+                  <input type="text" formControlName="codiceFiscale" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                  @if (profileForm.get('codiceFiscale')?.invalid && profileForm.get('codiceFiscale')?.touched) {
+                    <span class="error">Il codice fiscale è obbligatorio</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label><i class="fas fa-envelope"></i> Email *</label>
+                  <input type="email" formControlName="email" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                  @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+                    <span class="error">Inserisci un'email valida</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label><i class="fas fa-calendar"></i> Data di Nascita</label>
+                  <input type="date" formControlName="dataNascita" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                </div>
+
+                <div class="form-group">
+                  <label><i class="fas fa-phone"></i> Telefono</label>
+                  <input type="tel" formControlName="telefono" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                </div>
+
+                <div class="form-group full-width">
+                  <label><i class="fas fa-home"></i> Indirizzo</label>
+                  <input type="text" formControlName="indirizzo" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
+                </div>
+              </div>
+
+              @if (isEditMode) {
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || loading">
+                    <i class="fas fa-save"></i> Salva Modifiche
+                  </button>
+                </div>
+              }
+            </form>
+          </div>
+
+          <!-- Password Section -->
+          <div class="profile-section password-section">
+            <div class="section-header">
+              <h2><i class="fas fa-lock"></i> Sicurezza</h2>
+              <button class="btn btn-secondary" (click)="togglePasswordChange()" [disabled]="loading">
+                <i [class]="isChangingPassword ? 'fas fa-times' : 'fas fa-key'"></i>
+                {{ isChangingPassword ? 'Annulla' : 'Cambia Password' }}
+              </button>
+            </div>
+
+            @if (isChangingPassword) {
+              <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Nuova Password *</label>
+                    <input type="password" formControlName="password" placeholder="Minimo 8 caratteri">
+                    @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                      <span class="error">La password deve essere di almeno 8 caratteri</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Conferma Password *</label>
+                    <input type="password" formControlName="confermaPassword" placeholder="Ripeti la password">
+                    @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confermaPassword')?.touched) {
+                      <span class="error">Le password non coincidono</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || loading">
+                    <i class="fas fa-save"></i> Aggiorna Password
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="profile-section danger-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Zona Pericolosa</h2>
+            <div class="danger-content">
+              <p>L'eliminazione dell'account è irreversibile. Tutti i tuoi dati verranno cancellati definitivamente.</p>
+              <button class="btn btn-danger" (click)="deleteProfile()" [disabled]="loading">
+                <i class="fas fa-trash"></i> Elimina Account
               </button>
             </div>
           </div>
+
         </div>
-
-        <!-- Personal Info Section -->
-        <div class="profile-section info-section">
-          <div class="section-header">
-            <h2><i class="fas fa-id-card"></i> Informazioni Personali</h2>
-            <button 
-              class="btn btn-secondary" 
-              (click)="toggleEditMode()" 
-              [disabled]="loading">
-              <i [class]="isEditMode ? 'fas fa-times' : 'fas fa-edit'"></i>
-              {{ isEditMode ? 'Annulla' : 'Modifica' }}
-            </button>
-          </div>
-
-          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
-            <div class="form-grid">
-              <div class="form-group">
-                <label><i class="fas fa-user"></i> Nome *</label>
-                <input type="text" formControlName="nome" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-                <span class="error" *ngIf="profileForm.get('nome')?.invalid && profileForm.get('nome')?.touched">
-                  Il nome è obbligatorio
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-user"></i> Cognome *</label>
-                <input type="text" formControlName="cognome" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-                <span class="error" *ngIf="profileForm.get('cognome')?.invalid && profileForm.get('cognome')?.touched">
-                  Il cognome è obbligatorio
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-id-card"></i> Codice Fiscale *</label>
-                <input type="text" formControlName="codiceFiscale" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-                <span class="error" *ngIf="profileForm.get('codiceFiscale')?.invalid && profileForm.get('codiceFiscale')?.touched">
-                  Il codice fiscale è obbligatorio
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email *</label>
-                <input type="email" formControlName="email" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-                <span class="error" *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
-                  Inserisci un'email valida
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-calendar"></i> Data di Nascita</label>
-                <input type="date" formControlName="dataNascita" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-phone"></i> Telefono</label>
-                <input type="tel" formControlName="telefono" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-              </div>
-
-              <div class="form-group full-width">
-                <label><i class="fas fa-home"></i> Indirizzo</label>
-                <input type="text" formControlName="indirizzo" [readonly]="!isEditMode" [class.readonly]="!isEditMode">
-              </div>
-            </div>
-
-            <div class="form-actions" *ngIf="isEditMode">
-              <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || loading">
-                <i class="fas fa-save"></i> Salva Modifiche
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Password Section -->
-        <div class="profile-section password-section">
-          <div class="section-header">
-            <h2><i class="fas fa-lock"></i> Sicurezza</h2>
-            <button class="btn btn-secondary" (click)="togglePasswordChange()" [disabled]="loading">
-              <i [class]="isChangingPassword ? 'fas fa-times' : 'fas fa-key'"></i>
-              {{ isChangingPassword ? 'Annulla' : 'Cambia Password' }}
-            </button>
-          </div>
-
-          <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" *ngIf="isChangingPassword">
-            <div class="form-grid">
-              <div class="form-group">
-                <label><i class="fas fa-lock"></i> Nuova Password *</label>
-                <input type="password" formControlName="password" placeholder="Minimo 8 caratteri">
-                <span class="error" *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched">
-                  La password deve essere di almeno 8 caratteri
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label><i class="fas fa-lock"></i> Conferma Password *</label>
-                <input type="password" formControlName="confermaPassword" placeholder="Ripeti la password">
-                <span class="error" *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confermaPassword')?.touched">
-                  Le password non coincidono
-                </span>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || loading">
-                <i class="fas fa-save"></i> Aggiorna Password
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Danger Zone -->
-        <div class="profile-section danger-section">
-          <h2><i class="fas fa-exclamation-triangle"></i> Zona Pericolosa</h2>
-          <div class="danger-content">
-            <p>L'eliminazione dell'account è irreversibile. Tutti i tuoi dati verranno cancellati definitivamente.</p>
-            <button class="btn btn-danger" (click)="deleteProfile()" [disabled]="loading">
-              <i class="fas fa-trash"></i> Elimina Account
-            </button>
-          </div>
-        </div>
-
-      </div>
+      }
     </div>
   </main>
 </div>

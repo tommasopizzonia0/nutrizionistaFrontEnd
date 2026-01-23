@@ -1,3 +1,4 @@
+/* Light Mode (Default) */
 .container {
   padding: 0;
   max-width: 100%;
@@ -21,7 +22,7 @@ app-navbar {
 }
 
 .container:not(.sidebar-collapsed) .main-content {
-  margin-left: 280px;
+  margin-left: 0px;
 }
 
 /* Quando la sidebar è collassata */
@@ -42,11 +43,13 @@ app-navbar {
 .loading-container i {
   color: #3b82f6;
   margin-bottom: 1rem;
+  transition: color 0.3s ease;
 }
 
 .loading-container p {
   font-size: 1.1rem;
   color: #64748b;
+  transition: color 0.3s ease;
 }
 
 .profile-container {
@@ -60,6 +63,7 @@ app-navbar {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 3px solid #4CAF50;
+  transition: border-color 0.3s ease;
 }
 
 .profile-header h1 {
@@ -68,10 +72,12 @@ app-navbar {
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: color 0.3s ease;
 }
 
 .profile-header h1 i {
   color: #4CAF50;
+  transition: color 0.3s ease;
 }
 
 /* Messages */
@@ -83,6 +89,7 @@ app-navbar {
   align-items: center;
   gap: 0.5rem;
   animation: slideIn 0.3s ease-out;
+  transition: all 0.3s ease;
 }
 
 .alert-success {
@@ -115,7 +122,7 @@ app-navbar {
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .profile-section:hover {
@@ -129,6 +136,7 @@ app-navbar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .section-header {
@@ -172,6 +180,7 @@ app-navbar {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .logo-preview img {
@@ -185,6 +194,7 @@ app-navbar {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.3s ease;
 }
 
 .logo-upload {
@@ -240,10 +250,12 @@ app-navbar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .form-group label i {
   color: #4CAF50;
+  transition: color 0.3s ease;
 }
 
 .form-group input {
@@ -252,6 +264,8 @@ app-navbar {
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  background-color: white;
+  color: #333;
 }
 
 .form-group input:focus {
@@ -353,6 +367,155 @@ app-navbar {
   min-width: 250px;
   color: #666;
   margin: 0;
+  transition: color 0.3s ease;
+}
+
+/* ==================== DARK MODE ==================== */
+.container.dark-mode {
+  background-color: #000000;
+}
+
+/* Loading - Dark Mode */
+.dark-mode .loading-container i {
+  color: #60a5fa;
+}
+
+.dark-mode .loading-container p {
+  color: #94a3b8;
+}
+
+/* Header - Dark Mode */
+.dark-mode .profile-header {
+  border-bottom-color: #4ade80;
+}
+
+.dark-mode .profile-header h1 {
+  color: #e2e8f0;
+}
+
+.dark-mode .profile-header h1 i {
+  color: #4ade80;
+}
+
+/* Messages - Dark Mode */
+.dark-mode .alert-success {
+  background-color: #064e3b;
+  color: #6ee7b7;
+  border-color: #065f46;
+}
+
+.dark-mode .alert-error {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+  border-color: #991b1b;
+}
+
+/* Profile Sections - Dark Mode */
+.dark-mode .profile-section {
+  background: #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .profile-section:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.dark-mode .profile-section h2 {
+  color: #e2e8f0;
+}
+
+/* Logo Section - Dark Mode */
+.dark-mode .logo-section {
+  background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+}
+
+.dark-mode .logo-preview {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+.dark-mode .no-logo {
+  color: #475569;
+}
+
+.dark-mode .file-label {
+  background: #334155;
+  color: #a78bfa;
+}
+
+.dark-mode .file-label:hover {
+  background: #475569;
+}
+
+/* Form - Dark Mode */
+.dark-mode .form-group label {
+  color: #cbd5e1;
+}
+
+.dark-mode .form-group label i {
+  color: #4ade80;
+}
+
+.dark-mode .form-group input {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+.dark-mode .form-group input:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+}
+
+.dark-mode .form-group input.readonly {
+  background-color: #1e293b;
+  color: #94a3b8;
+}
+
+.dark-mode .form-group .error {
+  color: #f87171;
+}
+
+/* Buttons - Dark Mode */
+.dark-mode .btn-primary {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4);
+}
+
+.dark-mode .btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.5);
+}
+
+.dark-mode .btn-secondary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+}
+
+.dark-mode .btn-secondary:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.5);
+}
+
+.dark-mode .btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+}
+
+.dark-mode .btn-danger:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+}
+
+/* Danger Zone - Dark Mode */
+.dark-mode .danger-section {
+  border-color: #dc2626;
+  background: #450a0a;
+}
+
+.dark-mode .danger-section h2 {
+  color: #f87171;
+}
+
+.dark-mode .danger-content p {
+  color: #cbd5e1;
 }
 
 /* Responsive */

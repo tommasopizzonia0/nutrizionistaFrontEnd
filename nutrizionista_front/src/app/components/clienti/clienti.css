@@ -6,16 +6,15 @@
 .main-content {
   padding: 40px;
   min-height: 100vh;
-  transition: all 0.3s ease;
 }
 
 .container:not(.sidebar-collapsed) .main-content {
-  margin-left: 280px;
+  margin-left: 0px;
 }
 
 /* Quando la sidebar è collassata */
 .container.sidebar-collapsed .main-content {
-    margin-left: 85px;
+    margin-left: 30px;
 }
 
 :root {
@@ -26,12 +25,12 @@
   --green-lighter: #d1fae5;
   --green-ultralight: #ecfdf5;
 }
-
 .container {
-  padding: 0;
-  max-width: 100%;
-  background: transparent;
-  min-height: 100vh;
+  background-color: #f9fafb; 
+}
+
+.container.dark-mode {
+  background-color: #030303; 
 }
 
 app-navbar {
@@ -39,8 +38,7 @@ app-navbar {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
-  transition: all 0.3s ease;
+
 }
 
 /* ====================== */
@@ -51,11 +49,9 @@ app-navbar {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  background: white;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
 }
 
 .dark-mode .header {
@@ -94,7 +90,6 @@ app-navbar {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
@@ -187,53 +182,97 @@ app-navbar {
 }
 
 .stat-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  padding: 1.75rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(30%, -30%);
 }
 
 .dark-mode .stat-card {
-  background: #2d2d2d;
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark-mode .stat-card:hover {
+  box-shadow: 0 12px 24px rgba(4, 120, 87, 0.5);
 }
 
 .stat-icon {
-  font-size: 2.5rem;
-  color: var(--green-primary);
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 800;
-  color: #1f2937;
+  color: white;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .dark-mode .stat-number {
   color: white;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.9rem;
-  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dark-mode .stat-label {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ====================== */
@@ -251,8 +290,9 @@ app-navbar {
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .dark-mode .cliente-card {
@@ -327,10 +367,66 @@ app-navbar {
 
 .cliente-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   justify-content: flex-end;
+  margin-top: 1rem;
 }
 
+.cliente-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.cliente-actions button:first-child {
+  background: #ff9800;
+  color: white;
+}
+
+.cliente-actions button:first-child:hover {
+  background: #f57c00;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.cliente-actions button:last-child {
+  background: #f44336;
+  color: white;
+}
+
+.cliente-actions button:last-child:hover {
+  background: #d32f2f;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.dark-mode .cliente-actions button:first-child {
+  background: #fb8c00;
+}
+
+.dark-mode .cliente-actions button:first-child:hover {
+  background: #ff9800;
+}
+
+.dark-mode .cliente-actions button:last-child {
+  background: #e53935;
+}
+
+.dark-mode .cliente-actions button:last-child:hover {
+  background: #f44336;
+}
+
+.cliente-actions button fa-icon {
+  font-size: 1.1rem;
+}
 /* ====================== */
 /* PAGINATION */
 /* ====================== */

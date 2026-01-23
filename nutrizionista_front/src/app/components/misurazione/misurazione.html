@@ -77,8 +77,26 @@
       </svg>
     </div>
   </div>
-  <div class="form-section">
+  <!-- src/app/components/misurazione/misurazione.html -->
+
+<div class="form-section">
     <h2>Misurazioni Antropometriche</h2>
+    
+    <!-- Messaggio di successo -->
+    @if (messaggioSuccesso) {
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ messaggioSuccesso }}
+      </div>
+    }
+
+    <!-- Messaggio di errore -->
+    @if (messaggioErrore) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {{ messaggioErrore }}
+      </div>
+    }
     
     <form [formGroup]="misurazioniForm">
       @for (mis of misurazioni; track mis.pathId; let i = $index) {
@@ -96,6 +114,7 @@
               min="0"
               max="300"
               step="0.1"
+              [disabled]="salvataggioInCorso"
             />
             <span class="unita">{{ mis.unita }}</span>
           </div>
@@ -106,14 +125,29 @@
       }
 
       <div class="pulsanti">
-        <button type="button" class="btn btn-primary" (click)="salva()" [disabled]="misurazioniForm.invalid">
-          Salva Misurazioni
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="salva()" 
+          [disabled]="misurazioniForm.invalid || salvataggioInCorso">
+          @if (salvataggioInCorso) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Salvataggio...
+          } @else {
+            <i class="bi bi-save"></i>
+            Salva Misurazioni
+          }
         </button>
-        <button type="button" class="btn btn-secondary" (click)="reset()">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="reset()"
+          [disabled]="salvataggioInCorso">
+          <i class="bi bi-arrow-counterclockwise"></i>
           Reset
         </button>
       </div>
     </form>
   </div>
-
+  
 </div>

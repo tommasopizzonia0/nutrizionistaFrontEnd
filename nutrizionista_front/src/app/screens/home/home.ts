@@ -1,49 +1,57 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarService } from '../../services/navbar.service';
+import { ThemeService } from '../../services/theme.service';
 import { NavbarComponent } from '../../components/navbar/navbar';
-
-
+import { UtenteDto } from '../../dto/utente.dto';
+import { UserService } from '../../services/user.service';
+import { Observable } from 'rxjs';
+import { faSun, faCloudSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
-  isDarkMode: boolean = false; // Default a false (chiaro)
-  isSidebarCollapsed: boolean = true;
+  loading = false;
+  utente$!: Observable <UtenteDto>;
+  errorMessage = '';
+  saluto = '';
+  iconaSaluto: any;
+
+  constructor(
+    public themeService: ThemeService,   // pubblico per poter usare | async in HTML
+    public sidebarService: SidebarService,
+    private serviceUtente: UserService,
+    private library : FaIconLibrary
+  ) {library.addIcons(faSun, faCloudSun, faMoon);}
 
   ngOnInit(): void {
     console.log('🏠 HOME COMPONENT INITIALIZED');
-    // Carica il tema salvato all'avvio - sincronizzato con navbar
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme !== null) {
-      this.isDarkMode = savedTheme === 'dark';
-    } else {
-      // Se non c'è tema salvato, controlla preferenze sistema
-      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.utente$ = this.serviceUtente.getProfile();
+    this.calcolaSaluto();
+  
+  }
+
+  calcolaSaluto(): void{
+    const ora = new Date().getHours();
+
+    if (ora >= 5 && ora < 12){
+      this.saluto = 'Buongiorno'
+      this.iconaSaluto = faSun;
+    }else if(ora >= 12 && ora < 18){
+      this.saluto = 'Buon pomeriggio'
+      this.iconaSaluto = faCloudSun;
+    }else{
+      this.saluto = 'Buona sera'
+      this.iconaSaluto = faMoon;
     }
-    console.log('Home ngOnInit - isDarkMode:', this.isDarkMode);
-    // Applica il tema al body (solo per sicurezza)
-    this.applyThemeToBody();
+
+
   }
 
-  onThemeChange(isDark: boolean): void {
-    console.log('🎨 THEME CHANGE RECEIVED IN HOME');
-    this.isDarkMode = isDark;
-    // NON applicare più il tema al body - lascia che sia la navbar a gestirlo
-    console.log('Tema ricevuto nel componente home:', isDark ? 'Dark' : 'Light');
-  }
-
-  // Rimuovi completamente questo metodo o lascialo vuoto
-  applyThemeToBody(): void {
-    // Non fare nulla qui - la navbar gestisce già il tema del body
-    console.log('✅ Tema gestito dalla navbar');
-  }
-
-  onSidebarToggle(isCollapsed: boolean) {
-    this.isSidebarCollapsed = isCollapsed;
-  }
 }

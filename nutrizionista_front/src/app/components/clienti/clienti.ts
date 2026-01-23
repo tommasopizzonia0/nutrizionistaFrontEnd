@@ -5,19 +5,21 @@ import { ClienteService } from '../../services/cliente.service';
 import { ClienteDto, ClienteFormDto } from '../../dto/cliente.dto';
 import { PageResponse } from '../../dto/page-response.dto';
 import { NavbarComponent } from '../navbar/navbar';
-import { FaIconComponent, FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
   faUserGroup, faPlus, faMale, faFemale, faEye, faEdit, faTrash,
-  faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave, faUser,
-  faIdCard, faHeartbeat, faRunning, faNotesMedical
+  faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave,
+  faIdCard, faHeartbeat, faRunning, faNotesMedical, 
 } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
+import { ThemeService } from '../../services/theme.service';
+import { SidebarService } from '../../services/navbar.service';
 
 @Component({
   selector: 'app-cliente',
   standalone: true,
-  imports: [CommonModule, FormsModule, FaIconComponent, FontAwesomeModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './clienti.html',
   styleUrls: ['./clienti.css']
 })
@@ -26,15 +28,12 @@ export class ClienteComponent implements OnInit {
   clienti: ClienteDto[] = [];
   clienteSelezionato: ClienteDto | null = null;
 
-  isDarkMode = false;
-  isSidebarCollapsed = true;
-
   modalAperta = false;
   modalDettaglio = false;
   isEdit = false;
 
   currentPage = 0;
-  pageSize = 10;
+  pageSize = 12;
   totalPages = 0;
   totalElements = 0;
 
@@ -53,7 +52,6 @@ export class ClienteComponent implements OnInit {
   faUserPlus: IconProp = faUserPlus;
   faTimes: IconProp = faTimes;
   faSave: IconProp = faSave;
-  faUser: IconProp = faUser;
   faIdCard: IconProp = faIdCard;
   faHeartbeat: IconProp = faHeartbeat;
   faRunning: IconProp = faRunning;
@@ -62,38 +60,23 @@ export class ClienteComponent implements OnInit {
   constructor(
     private clienteService: ClienteService,
     private cdr: ChangeDetectorRef,
-    private router: Router
-  ) { }
+    private router: Router,
+    public themeService: ThemeService,
+    public sidebarService: SidebarService
+  ) {}
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.caricaClienti();
-    }, 0);
-  }
-
-  onSidebarToggle(isCollapsed: boolean): void {
-    setTimeout(() => {
-      this.isSidebarCollapsed = isCollapsed;
-      this.cdr.detectChanges();
-    }, 0);
-  }
-
-  onThemeChange(isDark: boolean): void {
-    setTimeout(() => {
-      this.isDarkMode = isDark;
-      this.cdr.detectChanges();
-    }, 0);
+    this.caricaClienti();
   }
 
   caricaClienti(): void {
-    this.clienteService.allMyClienti(this.currentPage, this.pageSize = 12).subscribe({
+    this.clienteService.allMyClienti(this.currentPage, this.pageSize).subscribe({
       next: (response: PageResponse<ClienteDto>) => {
         this.clienti = response.contenuto;
         this.totalPages = response.totalePagine;
         this.totalElements = response.totaleElementi;
         this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Errore nel caricamento dei clienti:', err)
+      }
     });
   }
 
@@ -119,36 +102,25 @@ export class ClienteComponent implements OnInit {
   }
 
   salvaCliente(): void {
-    if (this.isEdit) {
-      this.clienteService.update(this.nuovoCliente).subscribe({
-        next: () => {
-          this.caricaClienti();
-          this.chiudiModal();
-        },
-        error: (err) => console.error('Errore nella modifica del cliente:', err)
-      });
-    } else {
-      this.clienteService.create(this.nuovoCliente).subscribe({
-        next: () => {
-          this.caricaClienti();
-          this.chiudiModal();
-        },
-        error: (err) => console.error('Errore nella creazione del cliente:', err)
-      });
-    }
+    const call = this.isEdit
+      ? this.clienteService.update(this.nuovoCliente)
+      : this.clienteService.create(this.nuovoCliente);
+
+    call.subscribe(() => {
+      this.caricaClienti();
+      this.chiudiModal();
+    });
   }
 
   visualizzaDettaglio(id: number): void {
-
     this.router.navigate(['/clienti', id]);
   }
 
   eliminaCliente(id: number): void {
     if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;
 
-    this.clienteService.deleteMyCliente(id).subscribe({
-      next: () => this.caricaClienti(),
-      error: (err) => console.error('Errore nell\'eliminazione del cliente:', err)
+    this.clienteService.deleteMyCliente(id).subscribe(() => {
+      this.caricaClienti();
     });
   }
 
@@ -163,13 +135,9 @@ export class ClienteComponent implements OnInit {
     return this.currentPage + 1;
   }
 
-  clienteTrackBy(index: number, cliente: ClienteDto): number {
-    return cliente.id!;
-  }
-
   private resetNuovoCliente(): ClienteFormDto {
     return {
-      sesso: 'Maschio',
+      sesso: 'MASCHIO',
       nome: '',
       cognome: '',
       codiceFiscale: '',
