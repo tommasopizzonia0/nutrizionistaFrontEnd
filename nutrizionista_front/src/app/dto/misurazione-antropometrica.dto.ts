@@ -1,7 +1,7 @@
 
 
 export interface MisurazioneAntropometricaDto {
-  id?: number;
+  id: number;
   spalle?: number;
   vita?: number;
   fianchi?: number;
