@@ -1,12 +1,8 @@
 <div class="dettaglio-container"
-     [class.dark-mode]="isDarkMode"
-     [class.sidebar-collapsed]="isSidebarCollapsed">
+     [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
+     [class.sidebar-collapsed]="sidebarService.value">
 
   <main class="main-content">
-    <app-navbar
-      (themeChange)="onThemeChange($event)"
-      (sidebarToggle)="onSidebarToggle($event)">
-    </app-navbar>
 
     <div class="header">
       <button class="btn btn-secondary" (click)="tornaIndietro()">
@@ -20,97 +16,82 @@
       </button>
     </div>
 
-    <div class="cliente-hero" [ngClass]="sessoClass">
-      <div class="dettaglio-avatar">
-        {{ cliente?.nome?.[0] }}{{ cliente?.cognome?.[0] }}
+    @if (cliente) {
+
+      <div class="cliente-hero" [ngClass]="sessoClass">
+        <div class="dettaglio-avatar">
+          {{ cliente.nome[0] }}{{ cliente.cognome[0] }}
+        </div>
+
+        <div class="hero-info">
+          <h1 class="dettaglio-nome">
+            {{ cliente.nome }} {{ cliente.cognome }}
+          </h1>
+          <p class="hero-email">
+            {{ cliente.email || 'Email non disponibile' }}
+          </p>
+        </div>
+
+        <span class="badge-large">{{ cliente.sesso }}</span>
       </div>
 
-      <div class="hero-info">
-        <h1 class="dettaglio-nome">
-          {{ cliente?.nome }} {{ cliente?.cognome }}
-        </h1>
-        <p class="hero-email">
-          {{ cliente?.email || 'Email non disponibile' }}
-        </p>
-      </div>
+      <nav class="dettaglio-nav">
+        @for (item of navItems; track item.id) {
+          <button
+            class="nav-item"
+            [class.active]="isActiveRoute(item.route)"
+            (click)="navigaTo(item.route)">
 
-      <span class="badge-large">{{ cliente?.sesso }}</span>
-    </div>
+            <fa-icon [icon]="item.icon"></fa-icon>
 
-    <!-- Navbar di navigazione dettagli cliente -->
-    <nav class="dettaglio-nav">
-      @for (item of navItems; track item.id) {
-        <button
-          class="nav-item"
-          [class.active]="isActiveRoute(item.route)"
-          (click)="navigaTo(item.route)">
+            <span class="label">
+              {{ item.label }}
 
-          <fa-icon [icon]="item.icon"></fa-icon>
+              @if (item.route === 'misurazioni' && haNuoveMisurazioni) {
+                <span class="notification-dot"></span>
+              }
+            </span>
+          </button>
+        }
+      </nav>
 
-          <span class="label">
-            {{ item.label }}
+      @if (vistaCorrente === 'info') {
+        <div class="dettaglio-grid">
 
-            @if (item.route === 'misurazioni' && haNuoveMisurazioni) {
-              <span class="notification-dot"></span>
-            }
-          </span>
-        </button>
+          <div class="dettaglio-section">
+            <h4><fa-icon [icon]="faUser"></fa-icon> Informazioni Anagrafiche</h4>
+            <p><strong>Email:</strong> {{ cliente.email || 'Non disponibile' }}</p>
+            <p><strong>Telefono:</strong> {{ cliente.telefono || 'Non disponibile' }}</p>
+            <p><strong>Data di nascita:</strong> {{ cliente.dataNascita || 'Non disponibile' }}</p>
+          </div>
+
+          <div class="dettaglio-section">
+            <h4><fa-icon [icon]="faRunning"></fa-icon> Dati Fisici</h4>
+            <p><strong>Peso:</strong> {{ cliente.peso ? cliente.peso + ' kg' : 'Non disponibile' }}</p>
+            <p><strong>Altezza:</strong> {{ cliente.altezza ? cliente.altezza + ' cm' : 'Non disponibile' }}</p>
+          </div>
+
+          <div class="dettaglio-section section-wide">
+            <h4><fa-icon [icon]="faHeartbeat"></fa-icon> Informazioni Sanitarie</h4>
+            <p>{{ cliente.problematicheSalutari || 'Nessuna' }}</p>
+          </div>
+
+        </div>
       }
-    </nav>
 
-    <!-- Info Cliente -->
-    @if (vistaCorrente === 'info') {
-      <div class="dettaglio-grid">
-
-        <div class="dettaglio-section">
-          <h4><fa-icon [icon]="faUser"></fa-icon> Informazioni Anagrafiche</h4>
-          <p><strong>Codice Fiscale:</strong> {{ cliente?.codiceFiscale || 'Non disponibile' }}</p>
-          <p><strong>Email:</strong> {{ cliente?.email || 'Non disponibile' }}</p>
-          <p><strong>Telefono:</strong> {{ cliente?.telefono || 'Non disponibile' }}</p>
-          <p><strong>Data di Nascita:</strong> {{ cliente?.dataNascita || 'Non disponibile' }}</p>
-        </div>
-
-        <div class="dettaglio-section">
-          <h4><fa-icon [icon]="faRunning"></fa-icon> Dati Fisici</h4>
-          <p><strong>Peso:</strong> {{ cliente?.peso ? cliente!.peso + ' kg' : 'Non disponibile' }}</p>
-          <p><strong>Altezza:</strong> {{ cliente?.altezza ? cliente!.altezza + ' cm' : 'Non disponibile' }}</p>
-          <p><strong>Allenamenti/Settimana:</strong> {{ cliente?.numAllenamentiSett || 'Non disponibile' }}</p>
-        </div>
-
-        <div class="dettaglio-section section-wide">
-          <h4><fa-icon [icon]="faHeartbeat"></fa-icon> Informazioni Sanitarie</h4>
-          <p><strong>Intolleranze:</strong> {{ cliente?.intolleranze || 'Nessuna' }}</p>
-          <p><strong>Funzioni Intestinali:</strong> {{ cliente?.funzioniIntestinali || 'Non specificato' }}</p>
-          <p><strong>Problematiche Salutari:</strong> {{ cliente?.problematicheSalutari || 'Nessuna' }}</p>
-        </div>
-
-        <div class="dettaglio-section section-wide">
-          <h4><fa-icon [icon]="faNotesMedical"></fa-icon> Stile di Vita</h4>
-          <p><strong>Qualità del Sonno:</strong> {{ cliente?.quantitaEQualitaDelSonno || 'Non specificato' }}</p>
-          <p><strong>Assunzione Farmaci:</strong> {{ cliente?.assunzioneFarmaci || 'No' }}</p>
-          <p><strong>Consumo Alcol:</strong> {{ cliente?.beveAlcol ? 'Sì' : 'No' }}</p>
-        </div>
-
-      </div>
+      @if (vistaCorrente === 'nuova-misurazione') {
+        <app-misurazione
+          [clienteId]="clienteId"
+          [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"
+          (misurazioneSalvata)="onMisurazioneSalvata()">
+        </app-misurazione>
+      }
     }
-
-    <!-- Nuova Misurazione -->
-    @if (vistaCorrente === 'nuova-misurazione') {
-      <app-misurazione
-        [clienteId]="clienteId"
-        [isDarkMode]="isDarkMode"
-        (misurazioneSalvata)="onMisurazioneSalvata()">
-      </app-misurazione>
-    }
-
-    <!-- Elenco Misurazioni -->
     @if (vistaCorrente === 'misurazioni') {
-      <p>Elenco misurazioni del cliente {{ clienteId }}</p>
-    }
-
-    <!-- Piano Alimentare -->
-    @if (vistaCorrente === 'piano-alimentare') {
-      <p>Piano alimentare del cliente {{ clienteId }}</p>
+      <app-lista-misurazioni
+        [clienteId]="clienteId"
+        [isDarkMode]="(themeService.isDarkMode$ | async) ?? false">
+      </app-lista-misurazioni>
     }
 
   </main>

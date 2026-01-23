@@ -1,0 +1,19 @@
+<!-- src/app/components/cliente-misurazioni/cliente-misurazioni.component.html -->
+
+<div class="cliente-misurazioni-wrapper">
+  <!-- Form per nuova misurazione -->
+  <app-misurazione 
+    [clienteId]="clienteId"
+    [isDarkMode]="isDarkMode"
+    (misurazioneSalvata)="onMisurazioneSalvata()">
+  </app-misurazione>
+
+  <!-- Separatore -->
+  <div class="section-divider"></div>
+
+  <!-- Lista misurazioni salvate -->
+  <app-lista-misurazioni 
+    [clienteId]="clienteId"
+    [isDarkMode]="isDarkMode">
+  </app-lista-misurazioni>
+</div>

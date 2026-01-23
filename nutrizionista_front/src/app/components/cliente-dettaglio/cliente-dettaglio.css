@@ -28,15 +28,19 @@
 .main-content {
   padding: 40px;
   min-height: 100vh;
-  transition: all 0.3s ease;
+
+}
+
+.dark-mode .main-content{
+  background-color: #000000;
 }
 
 .dettaglio-container:not(.sidebar-collapsed) .main-content {
-  margin-left: 280px;
+  margin-left: 0px;
 }
 
 .dettaglio-container.sidebar-collapsed .main-content {
-  margin-left: 85px;
+  margin-left: 30px;
 }
 
 app-navbar {
@@ -44,8 +48,6 @@ app-navbar {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
-  transition: all 0.3s ease;
 }
 
 .dettaglio-nav {
@@ -56,7 +58,6 @@ app-navbar {
   background: white;
   border-radius: 12px;
   box-shadow: var(--card-shadow);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark-mode .dettaglio-nav {
@@ -74,7 +75,6 @@ app-navbar {
   border: 2px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
   font-size: 1rem;
   color: #6b7280;

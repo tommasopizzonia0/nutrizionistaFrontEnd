@@ -24,6 +24,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { UtenteDto } from '../../dto/utente.dto';
 import { UserService } from '../../services/user.service';
+import { SidebarService } from '../../services/navbar.service';
+import { ThemeService } from '../../services/theme.service'; 
+import { Observable } from 'rxjs';
 
 interface MenuItem {
   id: string;
@@ -42,14 +45,10 @@ interface MenuItem {
 })
 export class NavbarComponent implements OnInit {
 
-  @Output() sidebarToggle = new EventEmitter<boolean>();
-  @Output() themeChange = new EventEmitter<boolean>();
-  @Input() isCollapsed: boolean = true; // <- permette il binding
-  @Input() isDarkMode: boolean = false;
-
+  
   activeItem: string = 'dashboard';
   loading = false;
-  utente!: UtenteDto;
+  utente$!: Observable <UtenteDto>;
   previewUrl: string | null = null;
   errorMessage = '';
 
@@ -76,37 +75,16 @@ export class NavbarComponent implements OnInit {
     { id: 'impostazioni', icon: faCog, label: 'Impostazioni', route: '/impostazioni' }
   ];
 
-  constructor(private router: Router, private serviceUtente: UserService, private cdr: ChangeDetectorRef) { 
-  }
+  constructor(
+    private router: Router, 
+    private serviceUtente: UserService,  
+    public sidebarService: SidebarService,
+    public themeService: ThemeService 
+  ) { }
 
   ngOnInit(): void {
-  
     this.loadUserProfile();
 
-    // Carica lo stato della sidebar dal localStorage
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState !== null) {
-      this.isCollapsed = savedCollapsedState === 'true';
-    } else {
-      // Default: sempre ristretta all'avvio
-      this.isCollapsed = true;
-      localStorage.setItem('sidebarCollapsed', 'true');
-    }
-
-    // Emetti lo stato iniziale della sidebar
-    this.sidebarToggle.emit(this.isCollapsed);
-
-    // Controlla tema salvato
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme !== null) {
-      this.isDarkMode = savedTheme === 'dark';
-    } else {
-      // Default al tema del sistema
-      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-
-    this.applyTheme();
-    this.themeChange.emit(this.isDarkMode);
 
     // Rileva il cambio di route e aggiorna l'item attivo
     this.router.events.pipe(
@@ -119,56 +97,24 @@ export class NavbarComponent implements OnInit {
     this.updateActiveItemFromUrl(this.router.url);
   }
 
-
-
-    loadUserProfile(): void {
+  loadUserProfile(): void {
     this.loading = true;
-    
-    this.serviceUtente.getProfile().subscribe({
-      next: (data) => {
-        this.utente = data;
-        
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Errore nel caricamento:', err);
-        this.errorMessage = 'Errore nel caricamento del profilo';
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
+    this.utente$ = this.serviceUtente.getProfile();
   }
 
-
-  navigateToProfile(): void{
-    this.router.navigate(['/profilo'])
+  navigateToProfile(): void {
+    this.router.navigate(['/profilo']);
   }
 
   toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    this.applyTheme();
-    this.themeChange.emit(this.isDarkMode);
+    this.themeService.toggleTheme();
   }
 
-  applyTheme(): void {
-    if (this.isDarkMode) {
-      document.body.classList.toggle('dark', this.isDarkMode);
-      document.body.classList.add('dark');
-      document.body.style.backgroundColor = '#1e1e1e';
-    } else {
-      document.body.classList.remove('dark');
-      document.body.style.backgroundColor = '#f8faf9';
-    }
-  }
-  toggleSidebar() {
-    this.isCollapsed = !this.isCollapsed;
-    this.sidebarToggle.emit(this.isCollapsed);
+  toggleSidebar(): void {
+    this.sidebarService.toggle();
   }
 
   setActiveItem(itemId: string, event?: MouseEvent): void {
-    // Previeni la propagazione dell'evento
     if (event) {
       event.stopPropagation();
     }
@@ -176,7 +122,6 @@ export class NavbarComponent implements OnInit {
     this.activeItem = itemId;
     localStorage.setItem('activeItem', itemId);
 
-    // Naviga alla route corrispondente SENZA modificare lo stato della sidebar
     const item = this.menuItems.find(m => m.id === itemId);
     if (item) {
       this.router.navigate([item.route]);
@@ -184,13 +129,10 @@ export class NavbarComponent implements OnInit {
   }
 
   private updateActiveItemFromUrl(url: string): void {
-    // Trova l'item del menu che corrisponde alla URL corrente
     const item = this.menuItems.find(m => {
-      // Se la route è '/', controlla che l'URL sia esattamente '/'
       if (m.route === '/') {
         return url === '/';
       }
-      // Altrimenti controlla che l'URL inizi con la route
       return url.startsWith(m.route);
     });
 
@@ -202,18 +144,15 @@ export class NavbarComponent implements OnInit {
 
   logout(): void {
     console.log('Disconnessione...');
-    // Rimuovi token e dati dal localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('activeItem');
     localStorage.removeItem('theme');
     localStorage.removeItem('sidebarCollapsed');
-
-    // Naviga alla pagina di login (se esiste)
     this.router.navigate(['/login']);
   }
 
-  getThemeIcon() {
-    return this.isDarkMode ? this.faSun : this.faMoon;
-  }
+    getThemeIcon() {
+      return this.themeService.value ? this.faSun : this.faMoon;
+    }
 
 }

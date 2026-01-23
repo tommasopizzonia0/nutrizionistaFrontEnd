@@ -1,0 +1,231 @@
+<div class="misurazioni-container" [class.dark-mode]="isDarkMode">
+  <div class="header-section">
+    <h2>
+      <i class="bi bi-clock-history"></i>
+      Storico Misurazioni
+    </h2>
+  </div>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <div class="content-layout">
+    <div class="list-section">
+
+      @if (loading) {
+        <div class="text-center p-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Caricamento...</span>
+          </div>
+        </div>
+      }
+
+      @if (page$ | async; as page) {
+
+        @if (!loading && page.contenuto.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-clipboard2-data"></i>
+            </div>
+            <div class="empty-text">
+              <h4>Nessuna misurazione</h4>
+              <p>Compila il form sopra per aggiungerne una.</p>
+            </div>
+          </div>
+        }
+
+        @if (!loading && page.contenuto.length > 0) {
+          <div class="misurazioni-list">
+            @for (misurazione of page.contenuto; track misurazione.id) {
+              <div
+                class="misurazione-card"
+                [class.selected]="misurazioneSelezionata?.id === misurazione.id"
+                (click)="onSelezionaMisurazione(misurazione)">
+
+                <div class="card-top">
+                  <div class="date-badge">
+                    <i class="bi bi-calendar3"></i>
+                    <span>{{ formatData(misurazione.dataMisurazione) }}</span>
+                  </div>
+
+                  <div class="card-actions" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn btn-sm btn-icon btn-outline-danger"
+                      (click)="onEliminaMisurazione(misurazione, $event)"
+                      title="Elimina">
+                      <i class="bi bi-trash"></i>
+                    </button>
+
+                    <button
+                      class="btn btn-sm btn-icon btn-outline-secondary"
+                      type="button"
+                      [attr.aria-expanded]="misurazioneSelezionata?.id === misurazione.id"
+                      title="Apri/Chiudi">
+                      <i class="bi"
+                        [class.bi-chevron-down]="misurazioneSelezionata?.id !== misurazione.id"
+                        [class.bi-chevron-up]="misurazioneSelezionata?.id === misurazione.id"></i>
+                    </button>
+                  </div>
+                </div>
+
+
+                <!-- DETTAGLIO SOTTO (accordion) -->
+                @if (misurazioneSelezionata?.id === misurazione.id) {
+                  <div class="detail-inline" (click)="$event.stopPropagation()">
+                    <div class="detail-inline-header">
+                      <h3>
+                        <i class="bi bi-rulers"></i>
+                        Dettaglio
+                      </h3>
+                      <button
+                        class="btn btn-sm btn-icon btn-ghost"
+                        (click)="onChiudiDettaglio()"
+                        title="Chiudi">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+
+                    <div class="detail-inline-body">
+                      
+                    @if (misurazioneSelezionata; as sel) {
+                      <div class="info-row highlight">
+                        <span class="label">
+                          <i class="bi bi-calendar-check"></i>
+                          Data
+                        </span>
+                        <span class="value">{{ formatData(sel.dataMisurazione) }}</span>
+                      </div>
+                      <div class="section-title">
+                        <i class="bi bi-person-bounding-box"></i>
+                        Circonferenze Torso
+                      </div>
+
+                        @if (sel.spalle) {
+                          <div class="info-row">
+                            <span class="label">Spalle</span>
+                            <span class="value">{{ sel.spalle }} cm</span>
+                          </div>
+                        }
+
+                        @if (sel.torace) {
+                          <div class="info-row">
+                            <span class="label">Torace</span>
+                            <span class="value">{{ sel.torace }} cm</span>
+                          </div>
+                        }
+
+                        @if (sel.vita) {
+                          <div class="info-row">
+                            <span class="label">Vita (Addome)</span>
+                            <span class="value">{{ sel.vita }} cm</span>
+                          </div>
+                        }
+
+                        @if (sel.fianchi) {
+                          <div class="info-row">
+                            <span class="label">Fianchi</span>
+                            <span class="value">{{ sel.fianchi }} cm</span>
+                          </div>
+                        }
+
+                        <div class="section-title">
+                          <i class="bi bi-activity"></i>
+                          Gambe
+                        </div>
+
+                        <div class="two-col">
+                          @if (sel.gambaS) {
+                            <div class="info-row">
+                              <span class="label">Sinistra</span>
+                              <span class="value">{{ sel.gambaS }} cm</span>
+                            </div>
+                          }
+
+                          @if (sel.gambaD) {
+                            <div class="info-row">
+                              <span class="label">Destra</span>
+                              <span class="value">{{ sel.gambaD }} cm</span>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="section-title">
+                          <i class="bi bi-bezier"></i>
+                          Bicipiti
+                        </div>
+
+                        <div class="two-col">
+                          @if (sel.bicipiteS) {
+                            <div class="info-row">
+                              <span class="label">Sinistro</span>
+                              <span class="value">{{ sel.bicipiteS }} cm</span>
+                            </div>
+                          }
+
+                          @if (sel.bicipiteD) {
+                            <div class="info-row">
+                              <span class="label">Destro</span>
+                              <span class="value">{{ sel.bicipiteD }} cm</span>
+                            </div>
+                          }
+                        </div>
+
+                        @if (!hasValues(sel)) {
+                          <div class="alert alert-warning mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Nessun valore registrato per questa misurazione
+                          </div>
+                        }
+                      }
+
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (page.totalePagine > 1) {
+            <div class="pagination-section">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                [disabled]="currentPage === 0"
+                (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i> Precedente
+              </button>
+
+              <span class="page-info">
+                Pagina {{ currentPage + 1 }} di {{ page.totalePagine }}
+              </span>
+
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                [disabled]="currentPage >= page.totalePagine - 1"
+                (click)="goToPage(currentPage + 1)">
+                Successiva <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          }
+        }
+
+      } @else {
+        @if (!loading) {
+          <div class="alert alert-info">
+            Caricamento dati...
+          </div>
+        }
+      }
+
+    </div>
+
+
+    <div class="right-placeholder">
+        <!-- futuro: grafici / statistiche -->
+    </div>
+
+
+  </div>
+</div>

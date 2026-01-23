@@ -1,40 +1,36 @@
-<div class="home-container" [class.dark-mode]="isDarkMode" [class.sidebar-collapsed]="isSidebarCollapsed">
-
-  <app-navbar (themeChange)="onThemeChange($event)" (sidebarToggle)="onSidebarToggle($event)">
-  </app-navbar>
-
+<div class="home-container"
+     [class.dark-mode]="themeService.isDarkMode$ | async"
+     [class.sidebar-collapsed]="sidebarService.value">
 
   <main class="main-content">
     <div class="content-wrapper">
       <div class="header-section">
-        <h1 [class.dark-text]="isDarkMode">Benvenuto nella Home</h1>
-        <p [class.dark-text]="isDarkMode">
+        <h1 [class.dark-text]="themeService.isDarkMode$ | async">
+          <fa-icon [icon]="iconaSaluto"></fa-icon>
+          {{saluto}} {{ (utente$ | async)?.nome }}
+        </h1>
+        <p [class.dark-text]="themeService.isDarkMode$ | async">
           Qui puoi vedere tutte le funzionalità principali.
         </p>
       </div>
 
-
       <div class="containers-grid">
-
-        <div class="content-box" [class.dark-box]="isDarkMode">
+        <div class="content-box" [class.dark-box]="themeService.isDarkMode$ | async">
           <h3>Calendario</h3>
           <p>Spazio per il componente</p>
         </div>
 
-
-        <div class="content-box" [class.dark-box]="isDarkMode">
+        <div class="content-box" [class.dark-box]="themeService.isDarkMode$ | async">
           <h3>Clienti</h3>
           <p>Spazio per il componente</p>
         </div>
 
-
-        <div class="content-box" [class.dark-box]="isDarkMode">
+        <div class="content-box" [class.dark-box]="themeService.isDarkMode$ | async">
           <h3>Statistiche</h3>
           <p>Spazio per il componente</p>
         </div>
 
-
-        <div class="content-box" [class.dark-box]="isDarkMode">
+        <div class="content-box" [class.dark-box]="themeService.isDarkMode$ | async">
           <h3>Notifiche</h3>
           <p>Spazio per il componente</p>
         </div>

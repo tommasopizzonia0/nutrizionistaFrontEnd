@@ -1,0 +1,23 @@
+/* ====================== */
+/* MAIN CONTENT ADATTIVO */
+/* ====================== */
+.main-content {
+  padding: 0px;       
+  min-height: 100vh;
+  transition: all 0.3s ease;
+  margin-left: 280px;  
+}
+
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 5px;  
+}
+
+
+.layout .main-content {
+  margin-left: 0px;
+}
+
+.layout.collapsed .main-content {
+  margin-left: 5px;
+}
