@@ -14,8 +14,6 @@ export interface UtenteDto {
   indirizzo?: string;
   ruolo: RuoloDto;
   filePathLogo?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 /**
@@ -27,7 +25,7 @@ export interface UtenteFormDto {
   cognome: string;
   codiceFiscale: string;
   email: string;
-  password?: string;
+  password: string;
   dataNascita?: string;
   telefono?: string;
   indirizzo?: string;
