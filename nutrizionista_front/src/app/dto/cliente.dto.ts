@@ -1,7 +1,7 @@
 
 export interface ClienteDto {
   id?: number;
-  sesso: 'MASCHIO' | 'FEMMINA';
+  sesso?: 'Maschio' | 'Femmina';
   nome: string;
   cognome: string;
   codiceFiscale?: string;
@@ -21,11 +21,8 @@ export interface ClienteDto {
 
 export interface ClienteFormDto {
   id?: number;
-  sesso: 'MASCHIO' | 'FEMMINA';
-  nome: string;
-  cognome: string;
+  sesso?: 'Maschio' | 'Femmina';
   codiceFiscale?: string;
-  email?: string;
   telefono?: string;
   dataNascita?: string;
   peso?: number;
