@@ -137,7 +137,7 @@ export class ClienteComponent implements OnInit {
 
   private resetNuovoCliente(): ClienteFormDto {
     return {
-      sesso: 'MASCHIO',
+      sesso: 'Maschio',
       nome: '',
       cognome: '',
       codiceFiscale: '',

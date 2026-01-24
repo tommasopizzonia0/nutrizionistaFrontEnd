@@ -94,7 +94,7 @@ export class ClienteDettaglioComponent implements OnInit {
 
   get sessoClass(): string {
     if (!this.cliente) return '';
-    return this.cliente.sesso === 'MASCHIO' ? 'maschio' : 'femmina';
+    return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
   }
 
   navigaTo(route: string): void {
