@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { 
-  MisurazioneAntropometricaDto, 
+import {
+  MisurazioneAntropometricaDto,
   MisurazioneAntropometricaFormDto,
   PageIt,
-  PageResponse 
+  PageResponse
 } from '../dto/misurazione-antropometrica.dto';
 
 @Injectable({
@@ -14,7 +14,7 @@ import {
 export class MisurazioneAntropometricaService {
   private apiUrl = 'http://localhost:8080/api/misurazioni_antropometriche';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   create(form: MisurazioneAntropometricaFormDto): Observable<MisurazioneAntropometricaDto> {
     return this.http.post<MisurazioneAntropometricaDto>(this.apiUrl, form);
@@ -28,14 +28,14 @@ export class MisurazioneAntropometricaService {
     return this.http.request<void>('delete', this.apiUrl, { body: { id } });
   }
 
-getAllByCliente(clienteId: number, page: number = 0, size: number = 10) {
-  const params = new HttpParams()
-    .set('clienteId', clienteId.toString())
-    .set('page', page.toString())
-    .set('size', size.toString());
+  getAllByCliente(clienteId: number, page: number = 0, size: number = 10) {
+    const params = new HttpParams()
+      .set('clienteId', clienteId.toString())
+      .set('page', page.toString())
+      .set('size', size.toString());
 
-  return this.http.get<PageIt<MisurazioneAntropometricaDto>>(this.apiUrl, { params });
-}
+    return this.http.get<PageIt<MisurazioneAntropometricaDto>>(this.apiUrl, { params });
+  }
 
 
   mapFormToDto(formValues: any, clienteId: number): MisurazioneAntropometricaFormDto {

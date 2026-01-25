@@ -1,4 +1,3 @@
-import { ClienteDto } from "./cliente.dto";
 
 
 export interface MisurazioneAntropometricaDto {
@@ -53,4 +52,11 @@ export interface MisurazioneDto {
   valore: number | null;
   unita: string;
   pathId: string;
+}
+
+export interface ClienteDto {
+  id: number;
+  nome?: string;
+  cognome?: string;
+
 }
