@@ -50,7 +50,21 @@ export class MisurazioneComponent implements OnInit {
     this.inizializzaForm();
   }
 
+      private todayISO(): string {
+      return new Date().toISOString().split('T')[0];
+    }
+
+
+    get sessoClass(): string {
+      if (!this.cliente) return '';
+      return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
+    }
+
   inizializzaForm(): void {
+    this.misurazioniForm.addControl(
+    'dataMisurazione',
+    this.fb.control(this.todayISO(), [Validators.required])
+    );
     this.misurazioni.forEach(mis => {
       this.misurazioniForm.addControl(
         mis.pathId,

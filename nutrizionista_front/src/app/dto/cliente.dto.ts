@@ -22,6 +22,8 @@ export interface ClienteDto {
 export interface ClienteFormDto {
   id?: number;
   sesso?: 'Maschio' | 'Femmina';
+  nome: string;
+  cognome: string;
   codiceFiscale?: string;
   telefono?: string;
   dataNascita?: string;

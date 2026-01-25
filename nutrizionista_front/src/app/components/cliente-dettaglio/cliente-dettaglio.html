@@ -82,6 +82,7 @@
       @if (vistaCorrente === 'nuova-misurazione') {
         <app-misurazione
           [clienteId]="clienteId"
+          [cliente]="cliente"
           [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"
           (misurazioneSalvata)="onMisurazioneSalvata()">
         </app-misurazione>
