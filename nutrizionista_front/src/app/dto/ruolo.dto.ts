@@ -3,3 +3,4 @@ export interface RuoloDto {
   nome: string;
   alias?: string;
 }
+

@@ -1,7 +1,7 @@
 
 
 export interface MisurazioneAntropometricaDto {
-  id?: number;
+  id: number;
   spalle?: number;
   vita?: number;
   fianchi?: number;
@@ -10,10 +10,8 @@ export interface MisurazioneAntropometricaDto {
   gambaD?: number;
   bicipiteS?: number;
   bicipiteD?: number;
-  dataMisurazione?: string;
-  cliente?: any;
-  createdAt?: string;
-  updatedAt?: string;
+  dataMisurazione: string;
+  cliente: ClienteDto;
 }
 
 export interface MisurazioneAntropometricaFormDto {
@@ -27,9 +25,7 @@ export interface MisurazioneAntropometricaFormDto {
   bicipiteS?: number;
   bicipiteD?: number;
   dataMisurazione?: string;
-  cliente: {
-    id: number;
-  };
+  cliente: ClienteDto;
 }
 
 export interface PageResponse<T> {
@@ -56,4 +52,11 @@ export interface MisurazioneDto {
   valore: number | null;
   unita: string;
   pathId: string;
+}
+
+export interface ClienteDto {
+  id: number;
+  nome?: string;
+  cognome?: string;
+
 }

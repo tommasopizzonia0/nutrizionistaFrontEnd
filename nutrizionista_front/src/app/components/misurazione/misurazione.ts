@@ -3,9 +3,8 @@
 import { Component, OnInit, Input, EventEmitter, Output, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { MisurazioneAntropometricaDto, MisurazioneAntropometricaFormDto, MisurazioneDto } from '../../dto/misurazione-antropometrica.dto';
-import { ClienteDto } from '../../dto/cliente.dto';
+import { MisurazioneAntropometricaService } from '../../services/misurazione-antropometrica.service';
 
 
 @Component({
@@ -17,12 +16,9 @@ import { ClienteDto } from '../../dto/cliente.dto';
 })
 export class MisurazioneComponent implements OnInit {
   @Input() clienteId!: number;
-  @Input() isDarkMode = false; 
+  @Input() isDarkMode = false;
   @Output() misurazioneSalvata = new EventEmitter<void>();
-  @Input() cliente: ClienteDto | null = null;
-  
-  private apiUrl = 'http://localhost:8080/api/misurazioni_antropometriche';
-  
+
   misurazioniForm: FormGroup;
   parteCorporeaAttiva: string | null = null;
   salvataggioInCorso = false;
@@ -43,7 +39,7 @@ export class MisurazioneComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private misurazioneService: MisurazioneAntropometricaService
   ) {
     this.misurazioniForm = this.fb.group({});
   }
@@ -110,33 +106,32 @@ export class MisurazioneComponent implements OnInit {
   salva(): void {
     if (this.misurazioniForm.valid && !this.salvataggioInCorso) {
       this.salvataggioInCorso = true;
-      this.misurazioniForm.disable(); 
       this.messaggioErrore = '';
       this.messaggioSuccesso = '';
 
-      const formData = this.mapFormToDto(this.misurazioniForm.value);
-
-      this.http.post<MisurazioneAntropometricaDto>(this.apiUrl, formData).subscribe({
+      const formData = this.mapFormToDto(this.misurazioniForm.getRawValue());
+      this.misurazioniForm.disable();
+      this.misurazioneService.create(formData).subscribe({
         next: (response: MisurazioneAntropometricaDto) => {
           console.log('Misurazione salvata con successo:', response);
           this.salvataggioInCorso = false;
-          this.misurazioniForm.enable(); 
+          this.misurazioniForm.enable();
           this.messaggioSuccesso = 'Misurazione salvata con successo!';
-          
+
           // Reset form dopo salvataggio
           this.misurazioniForm.reset();
           this.parteCorporeaAttiva = null;
-          
+
           // Emetti evento per aggiornare la lista
           this.misurazioneSalvata.emit();
-          
+
           // Scroll to top
           window.scrollTo({
             top: 0,
             behavior: 'smooth'
           });
 
-          
+
           setTimeout(() => {
             this.messaggioSuccesso = '';
             this.cdr.detectChanges();
@@ -145,10 +140,10 @@ export class MisurazioneComponent implements OnInit {
         error: (error: any) => {
           console.error('Errore durante il salvataggio:', error);
           this.salvataggioInCorso = false;
-          this.misurazioniForm.enable(); 
+          this.misurazioniForm.enable();
           this.messaggioErrore = 'Errore durante il salvataggio della misurazione. Riprova.';
-          
-                  
+
+
           window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -171,14 +166,14 @@ export class MisurazioneComponent implements OnInit {
   }
 
   focusNextInput(currentIndex: number, event: Event): void {
-    event.preventDefault(); 
-    
+    event.preventDefault();
+
     const nextIndex = currentIndex + 1;
-    
+
     if (nextIndex < this.misurazioni.length) {
       const nextPathId = this.misurazioni[nextIndex].pathId;
       const nextInput = document.getElementById(`input-${nextPathId}`) as HTMLInputElement;
-      
+
       if (nextInput) {
         nextInput.focus();
       }
