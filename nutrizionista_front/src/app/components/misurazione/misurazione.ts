@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MisurazioneAntropometricaDto, MisurazioneAntropometricaFormDto, MisurazioneDto } from '../../dto/misurazione-antropometrica.dto';
+import { ClienteDto } from '../../dto/cliente.dto';
 
 
 @Component({
@@ -18,6 +19,7 @@ export class MisurazioneComponent implements OnInit {
   @Input() clienteId!: number;
   @Input() isDarkMode = false; 
   @Output() misurazioneSalvata = new EventEmitter<void>();
+  @Input() cliente: ClienteDto | null = null;
   
   private apiUrl = 'http://localhost:8080/api/misurazioni_antropometriche';
   
@@ -52,7 +54,21 @@ export class MisurazioneComponent implements OnInit {
     this.inizializzaForm();
   }
 
+      private todayISO(): string {
+      return new Date().toISOString().split('T')[0];
+    }
+
+
+    get sessoClass(): string {
+      if (!this.cliente) return '';
+      return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
+    }
+
   inizializzaForm(): void {
+    this.misurazioniForm.addControl(
+    'dataMisurazione',
+    this.fb.control(this.todayISO(), [Validators.required])
+    );
     this.misurazioni.forEach(mis => {
       this.misurazioniForm.addControl(
         mis.pathId,

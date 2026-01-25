@@ -19,4 +19,6 @@ export class SidebarService {
     this._collapsed.next(collapsed);
     localStorage.setItem('sidebarCollapsed', collapsed ? 'true' : 'false');
   }
+
+  
 }
