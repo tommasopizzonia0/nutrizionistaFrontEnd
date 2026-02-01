@@ -1,7 +1,7 @@
 <div class="misurazioni-container" [class.dark-mode]="isDarkMode">
   <div class="header-section">
     <h2>
-      <i class="bi bi-clock-history"></i>
+      <fa-icon [icon]="icClock"></fa-icon>
       Storico Misurazioni
     </h2>
   </div>
@@ -13,8 +13,8 @@
   }
 
   <div class="content-layout">
-    <div class="list-section">
-
+    <!-- LISTA -->
+    <section class="list-section">
       @if (loading) {
         <div class="text-center p-4">
           <div class="spinner-border" role="status">
@@ -28,173 +28,107 @@
         @if (!loading && page.contenuto.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
-              <i class="bi bi-clipboard2-data"></i>
+              <fa-icon [icon]="icRuler"></fa-icon>
             </div>
             <div class="empty-text">
               <h4>Nessuna misurazione</h4>
-              <p>Compila il form sopra per aggiungerne una.</p>
+              <p>Compila il form in “Nuova misurazione” per aggiungerne una.</p>
             </div>
           </div>
         }
 
         @if (!loading && page.contenuto.length > 0) {
+
+          <div class="list-header">
+            <div>Data</div>
+            <div>Anteprima</div>
+            <div class="actions-col">Azioni</div>
+          </div>
+
           <div class="misurazioni-list">
             @for (misurazione of page.contenuto; track misurazione.id) {
-              <div
-                class="misurazione-card"
+
+              <button
+                type="button"
+                class="list-row"
                 [class.selected]="misurazioneSelezionata?.id === misurazione.id"
                 (click)="onSelezionaMisurazione(misurazione)">
 
-                <div class="card-top">
-                  <div class="date-badge">
-                    <i class="bi bi-calendar3"></i>
-                    <span>{{ formatData(misurazione.dataMisurazione) }}</span>
-                  </div>
+                <!-- col data -->
+                <div class="col-date">
+                  <span class="date-pill">
+                    <fa-icon [icon]="icCalendar"></fa-icon>
+                    {{ formatData(misurazione.dataMisurazione) }}
+                  </span>
+                </div>
 
-                  <div class="card-actions" (click)="$event.stopPropagation()">
-                    <button
-                      class="btn btn-sm btn-icon btn-outline-danger"
-                      (click)="onEliminaMisurazione(misurazione, $event)"
-                      title="Elimina">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                <div class="col-preview">
+                  <div class="preview-pro">
+                    @if (getCompletion(misurazione); as c) {
+                      <div class="completion">
+                        <div class="completion-top">
+                          <span class="completion-label">Compilata</span>
+                          <span class="completion-value">{{ c.filled }}/{{ c.total }}</span>
+                        </div>
 
-                    <button
-                      class="btn btn-sm btn-icon btn-outline-secondary"
-                      type="button"
-                      [attr.aria-expanded]="misurazioneSelezionata?.id === misurazione.id"
-                      title="Apri/Chiudi">
-                      <i class="bi"
-                        [class.bi-chevron-down]="misurazioneSelezionata?.id !== misurazione.id"
-                        [class.bi-chevron-up]="misurazioneSelezionata?.id === misurazione.id"></i>
-                    </button>
+                        <div class="bar"
+                            role="progressbar"
+                            [attr.aria-valuenow]="c.pct"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                          <div class="bar-fill" [style.width.%]="c.pct"></div>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="metrics">
+                      @for (x of getPreviewMetrics(misurazione); track x.label) {
+                        <div class="metric">
+                          <span class="metric-label">{{ x.label }}</span>
+
+                          <span class="metric-value">
+                            @if (x.value) {
+                              {{ x.value }} <span class="metric-unit">{{ x.unit }}</span>
+                            } @else {
+                              —
+                            }
+                          </span>
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
 
 
-                <!-- DETTAGLIO SOTTO (accordion) -->
-                @if (misurazioneSelezionata?.id === misurazione.id) {
-                  <div class="detail-inline" (click)="$event.stopPropagation()">
-                    <div class="detail-inline-header">
-                      <h3>
-                        <i class="bi bi-rulers"></i>
-                        Dettaglio
-                      </h3>
-                      <button
-                        class="btn btn-sm btn-icon btn-ghost"
-                        (click)="onChiudiDettaglio()"
-                        title="Chiudi">
-                        <i class="bi bi-x-lg"></i>
-                      </button>
-                    </div>
+                <!-- col azioni -->
+                <div class="col-actions" (click)="$event.stopPropagation()">
+                  <button
+                    class="icon-btn danger"
+                    type="button"
+                    (click)="onEliminaMisurazione(misurazione, $event)"
+                    title="Elimina">
+                    <fa-icon [icon]="icTrash"></fa-icon>
+                  </button>
 
-                    <div class="detail-inline-body">
-                      
-                    @if (misurazioneSelezionata; as sel) {
-                      <div class="info-row highlight">
-                        <span class="label">
-                          <i class="bi bi-calendar-check"></i>
-                          Data
-                        </span>
-                        <span class="value">{{ formatData(sel.dataMisurazione) }}</span>
-                      </div>
-                      <div class="section-title">
-                        <i class="bi bi-person-bounding-box"></i>
-                        Circonferenze Torso
-                      </div>
+                  <span class="chev" title="Apri dettagli">
+                    <fa-icon
+                      [icon]="misurazioneSelezionata?.id === misurazione.id ? icChevronDown : icChevronRight">
+                    </fa-icon>
+                  </span>
+                </div>
 
-                        @if (sel.spalle) {
-                          <div class="info-row">
-                            <span class="label">Spalle</span>
-                            <span class="value">{{ sel.spalle }} cm</span>
-                          </div>
-                        }
-
-                        @if (sel.torace) {
-                          <div class="info-row">
-                            <span class="label">Torace</span>
-                            <span class="value">{{ sel.torace }} cm</span>
-                          </div>
-                        }
-
-                        @if (sel.vita) {
-                          <div class="info-row">
-                            <span class="label">Vita (Addome)</span>
-                            <span class="value">{{ sel.vita }} cm</span>
-                          </div>
-                        }
-
-                        @if (sel.fianchi) {
-                          <div class="info-row">
-                            <span class="label">Fianchi</span>
-                            <span class="value">{{ sel.fianchi }} cm</span>
-                          </div>
-                        }
-
-                        <div class="section-title">
-                          <i class="bi bi-activity"></i>
-                          Gambe
-                        </div>
-
-                        <div class="two-col">
-                          @if (sel.gambaS) {
-                            <div class="info-row">
-                              <span class="label">Sinistra</span>
-                              <span class="value">{{ sel.gambaS }} cm</span>
-                            </div>
-                          }
-
-                          @if (sel.gambaD) {
-                            <div class="info-row">
-                              <span class="label">Destra</span>
-                              <span class="value">{{ sel.gambaD }} cm</span>
-                            </div>
-                          }
-                        </div>
-
-                        <div class="section-title">
-                          <i class="bi bi-bezier"></i>
-                          Bicipiti
-                        </div>
-
-                        <div class="two-col">
-                          @if (sel.bicipiteS) {
-                            <div class="info-row">
-                              <span class="label">Sinistro</span>
-                              <span class="value">{{ sel.bicipiteS }} cm</span>
-                            </div>
-                          }
-
-                          @if (sel.bicipiteD) {
-                            <div class="info-row">
-                              <span class="label">Destro</span>
-                              <span class="value">{{ sel.bicipiteD }} cm</span>
-                            </div>
-                          }
-                        </div>
-
-                        @if (!hasValues(sel)) {
-                          <div class="alert alert-warning mt-3">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            Nessun valore registrato per questa misurazione
-                          </div>
-                        }
-                      }
-
-                    </div>
-                  </div>
-                }
-              </div>
+              </button>
             }
           </div>
 
           @if (page.totalePagine > 1) {
             <div class="pagination-section">
               <button
-                class="btn btn-sm btn-outline-secondary"
+                class="pager-btn"
                 [disabled]="currentPage === 0"
                 (click)="goToPage(currentPage - 1)">
-                <i class="bi bi-chevron-left"></i> Precedente
+                <fa-icon [icon]="icChevronLeft"></fa-icon>
+                Precedente
               </button>
 
               <span class="page-info">
@@ -202,11 +136,13 @@
               </span>
 
               <button
-                class="btn btn-sm btn-outline-secondary"
+                class="pager-btn"
                 [disabled]="currentPage >= page.totalePagine - 1"
                 (click)="goToPage(currentPage + 1)">
-                Successiva <i class="bi bi-chevron-right"></i>
+                Successiva
+                <fa-icon [icon]="icChevronRight"></fa-icon>
               </button>
+
             </div>
           }
         }
@@ -218,14 +154,91 @@
           </div>
         }
       }
+    </section>
 
-    </div>
+    <!-- DETTAGLIO (scheda clinica) -->
+    <aside class="detail-panel">
+      @if (misurazioneSelezionata; as sel) {
 
+        <div class="detail-head">
+          <div class="detail-title">
+            <div class="kicker">Dettaglio misurazione</div>
+            <div class="big">{{ formatData(sel.dataMisurazione) }}</div>
+          </div>
 
-    <div class="right-placeholder">
-        <!-- futuro: grafici / statistiche -->
-    </div>
+          <button class="icon-btn" type="button" (click)="onChiudiDettaglio()" title="Chiudi">
+            <fa-icon [icon]="icClose"></fa-icon>
+          </button>
+        </div>
 
+        <div class="detail-body">
+          <div class="detail-section">
+            <div class="section-title-inline">
+              <fa-icon [icon]="icTorso"></fa-icon>
+              Circonferenze Torso
+            </div>
 
+            @if (sel.spalle) {
+              <div class="kv"><span>Spalle</span><strong>{{ sel.spalle }} cm</strong></div>
+            }
+            @if (sel.torace) {
+              <div class="kv"><span>Torace</span><strong>{{ sel.torace }} cm</strong></div>
+            }
+            @if (sel.vita) {
+              <div class="kv"><span>Vita</span><strong>{{ sel.vita }} cm</strong></div>
+            }
+            @if (sel.fianchi) {
+              <div class="kv"><span>Fianchi</span><strong>{{ sel.fianchi }} cm</strong></div>
+            }
+          </div>
+
+          <div class="detail-section">
+            <div class="section-title-inline">
+              <fa-icon [icon]="icLegs"></fa-icon>
+              Gambe
+            </div>
+
+            <div class="grid2">
+              @if (sel.gambaS) {
+                <div class="kv"><span>Sinistra</span><strong>{{ sel.gambaS }} cm</strong></div>
+              }
+              @if (sel.gambaD) {
+                <div class="kv"><span>Destra</span><strong>{{ sel.gambaD }} cm</strong></div>
+              }
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="section-title-inline">
+              <fa-icon [icon]="icArms"></fa-icon>
+              Bicipiti
+            </div>
+
+            <div class="grid2">
+              @if (sel.bicipiteS) {
+                <div class="kv"><span>Sinistro</span><strong>{{ sel.bicipiteS }} cm</strong></div>
+              }
+              @if (sel.bicipiteD) {
+                <div class="kv"><span>Destro</span><strong>{{ sel.bicipiteD }} cm</strong></div>
+              }
+            </div>
+          </div>
+
+          @if (!hasValues(sel)) {
+            <div class="alert alert-warning mt-3">
+              Nessun valore registrato per questa misurazione
+            </div>
+          }
+        </div>
+
+      } @else {
+        <div class="detail-empty">
+          <div class="detail-empty-title">Seleziona una misurazione</div>
+          <div class="detail-empty-sub">
+            Clicca una riga a sinistra per vedere la scheda dettagliata.
+          </div>
+        </div>
+      }
+    </aside>
   </div>
 </div>

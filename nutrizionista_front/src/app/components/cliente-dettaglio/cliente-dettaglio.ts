@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClienteService } from '../../services/cliente.service';
@@ -40,8 +40,8 @@ interface NavItem {
 })
 export class ClienteDettaglioComponent implements OnInit {
 
-  cliente: ClienteDto | null = null;
-  clienteId!: number;
+  @Input() cliente!: ClienteDto;
+  @Input() clienteId!: number;
   isLoading = true;
 
   vistaCorrente: string = 'info';
@@ -60,6 +60,13 @@ export class ClienteDettaglioComponent implements OnInit {
   faRulerVertical = faRulerVertical;
   faClipboardList = faClipboardList;
   faPenRuler = faPenRuler;
+  faEnvelope = faEnvelope;
+  faPhone = faPhone;
+  faCalendar = faCalendar;
+  faWeight = faWeight;
+  faRuler = faRuler;
+  faIdCard = faIdCard;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -93,9 +100,67 @@ export class ClienteDettaglioComponent implements OnInit {
   }
 
   get sessoClass(): string {
-    if (!this.cliente) return '';
-    return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
+    const sesso = (this.cliente?.sesso ?? '').toLowerCase().trim();
+    return sesso === 'maschio' ? 'maschio' : sesso === 'femmina' ? 'femmina' : '';
   }
+
+  formatData(value?: string): string {
+  if (!value) return 'Non disponibile';
+  const d = new Date(value.includes('T') ? value : `${value}T00:00:00`);
+  if (isNaN(d.getTime())) return 'Non disponibile';
+  return d.toLocaleDateString('it-IT');
+}
+
+calcolaEta(value?: string): string {
+  if (!value) return 'Non disponibile';
+
+  const dob = new Date(value.includes('T') ? value : `${value}T00:00:00`);
+  if (isNaN(dob.getTime())) return 'Non disponibile';
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return `${age} anni`;
+}
+
+get bmi(): number | null {
+  const peso = this.cliente?.peso ?? null;      
+  const altezza = this.cliente?.altezza ?? null; 
+  if (!peso || !altezza) return null;
+
+  const h = altezza / 100;
+  if (h <= 0) return null;
+
+  const v = peso / (h * h);
+  return Math.round(v * 10) / 10; 
+}
+
+get bmiCategoria(): { label: string; key: 'under' | 'normal' | 'over' | 'obese' } | null {
+  const b = this.bmi;
+  if (b == null) return null;
+
+  if (b < 18.5) return { label: 'Sottopeso', key: 'under' };
+  if (b < 25)   return { label: 'Normopeso', key: 'normal' };
+  if (b < 30)   return { label: 'Sovrappeso', key: 'over' };
+  return { label: 'Obesità', key: 'obese' };
+}
+
+get bmiPercent(): number {
+  const b = this.bmi;
+  if (b == null) return 0;
+
+  const min = 18.5;
+  const max = 30;
+
+  const clamped = Math.min(max, Math.max(min, b));
+  return ((clamped - min) / (max - min)) * 100;
+}
+
+
 
   navigaTo(route: string): void {
     this.vistaCorrente = route;

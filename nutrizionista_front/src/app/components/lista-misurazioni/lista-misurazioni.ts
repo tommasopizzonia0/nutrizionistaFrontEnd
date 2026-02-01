@@ -3,6 +3,22 @@ import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, shareReplay } from 'rxjs/operators';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import {
+  faTrash,
+  faChevronRight,
+  faChevronDown,
+  faXmark,
+  faRulerCombined,
+  faPerson,
+  faPersonWalking,
+  faDumbbell,
+  faCalendarDays,
+  faClock,
+  faChevronLeft
+} from '@fortawesome/free-solid-svg-icons';
+
 import {
   MisurazioneAntropometricaDto,
   PageIt
@@ -10,16 +26,19 @@ import {
 
 import { MisurazioneAntropometricaService } from '../../services/misurazione-antropometrica.service';
 
+type PreviewMetric = { label: string; value?: number | null; unit: string };
+
 @Component({
   selector: 'app-lista-misurazioni',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './lista-misurazioni.html',
   styleUrls: ['./lista-misurazioni.css']
 })
 export class ListaMisurazioniComponent implements OnChanges {
   @Input() clienteId!: number;
   @Input() isDarkMode = false;
+  
 
   private misurazioneService = inject(MisurazioneAntropometricaService);
 
@@ -30,13 +49,29 @@ export class ListaMisurazioniComponent implements OnChanges {
   pageSize = 10;
 
   page$!: Observable<PageIt<MisurazioneAntropometricaDto>>;
+  
 
   misurazioneSelezionata?: MisurazioneAntropometricaDto;
+
+  // ===== Font Awesome icons (importate nel TS) =====
+  icClock: IconDefinition = faClock;
+  icCalendar: IconDefinition = faCalendarDays;
+  icTrash: IconDefinition = faTrash;
+  icChevronRight: IconDefinition = faChevronRight;
+  icChevronDown: IconDefinition = faChevronDown;
+  icClose: IconDefinition = faXmark;
+  icChevronLeft: IconDefinition = faChevronLeft;
+
+  icRuler: IconDefinition = faRulerCombined;
+  icTorso: IconDefinition = faPerson;
+  icLegs: IconDefinition = faPersonWalking;
+  icArms: IconDefinition = faDumbbell;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['clienteId'] && this.clienteId) {
       this.currentPage = 0;
       this.loadMisurazioni();
+      this.misurazioneSelezionata = undefined; // UX: reset selezione cambiando cliente
     }
   }
 
@@ -87,7 +122,6 @@ export class ListaMisurazioniComponent implements OnChanges {
     event.stopPropagation();
 
     if (!confirm('Sei sicuro di voler eliminare questa misurazione?')) return;
-
     if (!m.id) return;
 
     this.misurazioneService.delete(m.id).subscribe({
@@ -95,13 +129,6 @@ export class ListaMisurazioniComponent implements OnChanges {
         if (this.misurazioneSelezionata?.id === m.id) {
           this.misurazioneSelezionata = undefined;
         }
-
-        
-        this.page$
-          ?.pipe()
-          .subscribe(); 
-
-        
         this.loadMisurazioni();
       },
       error: (err) => {
@@ -134,5 +161,24 @@ export class ListaMisurazioniComponent implements OnChanges {
     );
   }
 
+getPreviewMetrics(m: MisurazioneAntropometricaDto): PreviewMetric[] {
+  // scegliamo 3 metriche “core” per un nutrizionista
+  return [
+    { label: 'Vita',   value: m.vita ?? null,   unit: 'cm' },
+    { label: 'Fianchi',value: m.fianchi ?? null,unit: 'cm' },
+    { label: 'Torace', value: m.torace ?? null, unit: 'cm' },
+  ];
+}
+
+getCompletion(m: MisurazioneAntropometricaDto): { filled: number; total: number; pct: number } {
+  const fields: Array<number | undefined | null> = [
+    m.spalle, m.torace, m.vita, m.fianchi,
+    m.gambaS, m.gambaD, m.bicipiteS, m.bicipiteD
+  ];
+  const filled = fields.filter(v => v !== null && v !== undefined && v !== 0).length;
+  const total = fields.length;
+  const pct = total ? Math.round((filled / total) * 100) : 0;
+  return { filled, total, pct };
+}
   trackById = (_: number, item: MisurazioneAntropometricaDto) => item.id;
 }
