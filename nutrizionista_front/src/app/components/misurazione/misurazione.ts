@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { MisurazioneAntropometricaDto, MisurazioneAntropometricaFormDto, MisurazioneDto } from '../../dto/misurazione-antropometrica.dto';
 import { MisurazioneAntropometricaService } from '../../services/misurazione-antropometrica.service';
+import { ClienteDto } from '../../dto/cliente.dto';
 
 
 @Component({
@@ -18,6 +19,7 @@ export class MisurazioneComponent implements OnInit {
   @Input() clienteId!: number;
   @Input() isDarkMode = false;
   @Output() misurazioneSalvata = new EventEmitter<void>();
+  @Input() cliente!: ClienteDto;
 
   misurazioniForm: FormGroup;
   parteCorporeaAttiva: string | null = null;
@@ -40,6 +42,8 @@ export class MisurazioneComponent implements OnInit {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private misurazioneService: MisurazioneAntropometricaService
+
+
   ) {
     this.misurazioniForm = this.fb.group({});
   }
@@ -57,7 +61,7 @@ export class MisurazioneComponent implements OnInit {
 
     get sessoClass(): string {
       if (!this.cliente) return '';
-      return this.cliente.sesso === 'Maschio' ? 'maschio' : 'femmina';
+      return this.cliente.sesso === 'Maschio' ? 'Maschio' : 'Femmina';
     }
 
   inizializzaForm(): void {
@@ -88,20 +92,22 @@ export class MisurazioneComponent implements OnInit {
     }
   }
 
-  private mapFormToDto(formValues: any): MisurazioneAntropometricaFormDto {
-    return {
-      spalle: formValues.spalle || null,
-      vita: formValues.addome || null,
-      fianchi: formValues.fianchi || null,
-      torace: formValues.torace || null,
-      gambaS: formValues.gambaSx || null,
-      gambaD: formValues.gambaDx || null,
-      bicipiteS: formValues.bicipiteSx || null,
-      bicipiteD: formValues.bicipiteDx || null,
-      dataMisurazione: new Date().toISOString().split('T')[0],
-      cliente: { id: this.clienteId }
-    };
-  }
+    private mapFormToDto(formValues: any): MisurazioneAntropometricaFormDto {
+      return {
+        spalle: formValues.spalle ?? null,
+        vita: formValues.addome ?? null,
+        fianchi: formValues.fianchi ?? null,
+        torace: formValues.torace ?? null,
+        gambaS: formValues.gambaSx ?? null,
+        gambaD: formValues.gambaDx ?? null,
+        bicipiteS: formValues.bicipiteSx ?? null,
+        bicipiteD: formValues.bicipiteDx ?? null,
+        dataMisurazione: formValues.dataMisurazione ?? this.todayISO(),
+        cliente: { id: this.clienteId }
+
+
+      };
+    }
 
   salva(): void {
     if (this.misurazioniForm.valid && !this.salvataggioInCorso) {
@@ -157,6 +163,16 @@ export class MisurazioneComponent implements OnInit {
       });
     }
   }
+
+  changeValue(pathId: string, delta: number): void {
+  const control = this.misurazioniForm.get(pathId);
+  if (!control) return;
+
+  const current = Number(control.value) || 0;
+  const next = Math.max(0, +(current + delta).toFixed(1));
+  control.setValue(next);
+}
+
 
   reset(): void {
     this.misurazioniForm.reset();

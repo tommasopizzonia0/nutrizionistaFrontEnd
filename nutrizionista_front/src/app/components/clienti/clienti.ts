@@ -10,7 +10,9 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
   faUserGroup, faPlus, faMale, faFemale, faEye, faEdit, faTrash,
   faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave,
-  faIdCard, faHeartbeat, faRunning, faNotesMedical, 
+  faIdCard, faHeartbeat, faRunning, faNotesMedical,
+  faSearch,
+  faCalendarAlt, 
 } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
@@ -31,6 +33,9 @@ export class ClienteComponent implements OnInit {
   modalAperta = false;
   modalDettaglio = false;
   isEdit = false;
+  searchTerm = '';
+  step = 1;
+  readonly maxStep = 5;
 
   currentPage = 0;
   pageSize = 12;
@@ -40,6 +45,8 @@ export class ClienteComponent implements OnInit {
   nuovoCliente: ClienteFormDto = this.resetNuovoCliente();
 
   // Icone
+  faCalendarAlt: IconProp = faCalendarAlt;
+  faSearch: IconProp = faSearch;
   faUserGroup: IconProp = faUserGroup;
   faPlus: IconProp = faPlus;
   faMale: IconProp = faMale;
@@ -79,6 +86,39 @@ export class ClienteComponent implements OnInit {
       }
     });
   }
+
+  formatDataNascita(value?: string): string {
+  if (!value) return '—';
+
+  const date = new Date(value.includes('T') ? value : `${value}T00:00:00`);
+
+  if (isNaN(date.getTime())) return '—';
+
+  return date.toLocaleDateString('it-IT');
+}
+
+  vaiAvanti(): void {
+    if (this.step < this.maxStep) this.step++;
+  }
+
+  vaiIndietro(): void {
+    if (this.step > 1) this.step--;
+  }
+
+  vaiStep(n: number): void {
+    if (n >= 1 && n <= this.maxStep) this.step = n;
+  }
+
+
+  get clientiFiltrati(): ClienteDto[] {
+  const q = (this.searchTerm || '').trim().toLowerCase();
+  if (!q) return this.clienti;
+
+ 
+  return this.clienti.filter(c =>
+    (c.nome || '').toLowerCase().startsWith(q)
+  );
+}
 
   apriModalCreazione(): void {
     this.isEdit = false;

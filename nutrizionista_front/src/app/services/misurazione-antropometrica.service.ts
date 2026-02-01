@@ -38,18 +38,20 @@ export class MisurazioneAntropometricaService {
   }
 
 
-  mapFormToDto(formValues: any, clienteId: number): MisurazioneAntropometricaFormDto {
-    return {
-      spalle: formValues.spalle || null,
-      vita: formValues.addome || null,
-      fianchi: formValues.fianchi || null,
-      torace: formValues.torace || null,
-      gambaS: formValues.gambaSx || null,
-      gambaD: formValues.gambaDx || null,
-      bicipiteS: formValues.bicipiteSx || null,
-      bicipiteD: formValues.bicipiteDx || null,
-      dataMisurazione: new Date().toISOString().split('T')[0],
-      cliente: { id: clienteId }
-    };
-  }
+    mapFormToDto(formValues: any, clienteId: number): MisurazioneAntropometricaFormDto {
+      return {
+        spalle: formValues.spalle ?? null,
+        vita: formValues.addome ?? null,
+        fianchi: formValues.fianchi ?? null,
+        torace: formValues.torace ?? null,
+        gambaS: formValues.gambaSx ?? null,
+        gambaD: formValues.gambaDx ?? null,
+        bicipiteS: formValues.bicipiteSx ?? null,
+        bicipiteD: formValues.bicipiteDx ?? null,
+        dataMisurazione: formValues.dataMisurazione ?? new Date().toISOString().split('T')[0],
+        cliente: { id: clienteId }
+
+       };
+    }
+
 }

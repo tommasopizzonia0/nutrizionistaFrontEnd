@@ -148,7 +148,7 @@ body.dark-mode {
   align-items: center;
   background: white;
   padding: 2rem;
-  border-radius: 4px;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   border-left: 4px solid var(--green-primary);
@@ -171,6 +171,8 @@ body.dark-mode {
   letter-spacing: 0.5px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+
+
 
 /* 🌙 DARK MODE - H3 */
 .dark-mode .svg-section h3 {
@@ -249,6 +251,236 @@ body.dark-mode {
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
 }
+
+/* =============================== */
+/* MEDICAL ROWS (coerente con INFO) */
+/* =============================== */
+
+.medical-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.medical-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-lighter);
+  transition: all 0.25s ease;
+}
+
+.medical-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.12);
+  background: #fff;
+}
+
+.dark-mode .medical-row {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.dark-mode .medical-row:hover {
+  background: #374151;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.medical-row.is-active {
+  border-color: #fbbf24;
+  box-shadow: 0 8px 18px rgba(251, 191, 36, 0.18);
+}
+
+.row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 220px;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.dark-mode .row-label {
+  color: #fff;
+}
+
+.row-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green-primary);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+  flex-shrink: 0;
+}
+
+.row-title {
+  font-size: 0.95rem;
+}
+
+.row-value {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.input-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(143, 216, 192, 0.219);
+  border: 1px solid rgba(64, 226, 172, 0.26);
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+}
+
+.dark-mode .input-pill {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.input-pill input {
+  width: 120px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1f2937;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.dark-mode .input-pill input {
+  color: #fff;
+}
+
+.input-pill input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.unit-pill {
+  font-weight: 800;
+  color: var(--green-darker);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.dark-mode .unit-pill {
+  color: var(--green-light);
+  background: rgba(16, 185, 129, 0.22);
+}
+
+.row-error {
+  color: #ef4444;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.dark-mode .row-error {
+  color: #fca5a5;
+}
+
+/* ====================== */
+/* INPUT PILL MEDICAL */
+/* ====================== */
+.input-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-pill input {
+  width: 90px;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* 🌙 DARK MODE */
+.dark-mode .input-pill input {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: white;
+}
+
+/* Rimuove spinner nativi */
+.input-pill input[type="number"]::-webkit-inner-spin-button,
+.input-pill input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-pill input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ====================== */
+/* BOTTONI + / − */
+/* ====================== */
+.step-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--green-primary);
+  background: var(--green-ultralight);
+  color: var(--green-dark);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step-btn:hover:not(:disabled) {
+  background: var(--green-primary);
+  color: white;
+}
+
+.step-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 🌙 DARK MODE */
+.dark-mode .step-btn {
+  background: #374151;
+  color: var(--green-light);
+  border-color: var(--green-light);
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .medical-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .row-label {
+    min-width: 0;
+  }
+
+  .row-value {
+    align-items: flex-start;
+  }
+
+  .input-pill input {
+    width: 160px;
+  }
+}
+
 
 /* 🌙 DARK MODE - MISURAZIONE ITEM */
 .dark-mode .misurazione-item {

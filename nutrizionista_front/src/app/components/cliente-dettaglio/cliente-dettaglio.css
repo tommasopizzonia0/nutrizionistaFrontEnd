@@ -204,7 +204,6 @@ app-navbar {
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
 }
 
 .dark-mode .header {
@@ -384,6 +383,17 @@ app-navbar {
   align-items: stretch;
 }
 
+
+.layout-info {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  gap: 1.5rem;
+}
+
+.layout-info .full-width {
+  grid-column: 1 / -1;
+}
+
 /* ========================================================= */
 /* DETTAGLIO SECTION */
 /* ========================================================= */
@@ -484,6 +494,342 @@ app-navbar {
 .dark-mode .dettaglio-section p span {
   color: #9ca3af;
 }
+
+/* =============================== */
+/* MEDICAL ROWS */
+/* =============================== */
+
+.medical-card h4 {
+  margin-bottom: 0.75rem;
+}
+
+.medical-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.medical-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-lighter);
+  transition: all 0.25s ease;
+}
+
+.medical-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.12);
+}
+
+.dark-mode .medical-row {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 800;
+  color: #1f2937;
+  min-width: 200px;
+}
+
+.dark-mode .row-label {
+  color: #ffffff;
+}
+
+.row-label fa-icon {
+  color: var(--green-primary);
+  font-size: 1rem;
+}
+
+.row-value {
+  text-align: right;
+  font-weight: 800;
+  color: var(--green-darker);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-mode .row-value {
+  color: var(--green-light);
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+@media (max-width: 768px) {
+  .medical-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .row-label {
+    min-width: 0;
+  }
+
+  .row-value {
+    max-width: 100%;
+    text-align: left;
+    width: fit-content;
+  }
+}
+
+/* =============================== */
+/* BMI MINI CHART (LIGHT + DARK) */
+/* =============================== */
+
+.bmi-card {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-lighter);
+  box-shadow: var(--card-shadow);
+  transition: all 0.25s ease;
+}
+
+.bmi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.dark-mode .bmi-card {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.22);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.bmi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.bmi-title {
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  color: #1f2937;
+}
+
+.dark-mode .bmi-title {
+  color: #ffffff;
+}
+
+.bmi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.dark-mode .bmi-pill {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.bmi-value {
+  font-weight: 900;
+  color: var(--green-darker);
+}
+
+.dark-mode .bmi-value {
+  color: var(--green-light);
+}
+
+.bmi-label {
+  font-weight: 800;
+  color: #1f2937;
+  opacity: 0.9;
+}
+
+.dark-mode .bmi-label {
+  color: #ffffff;
+  opacity: 0.92;
+}
+
+/* Barra a segmenti */
+.bmi-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(16, 185, 129, 0.20);
+  background: rgba(16, 185, 129, 0.06);
+  display: grid;
+  grid-template-columns: 18.5fr 6.5fr 5fr 10fr; /* proporzioni indicative */
+}
+
+.dark-mode .bmi-bar {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+/* Segmenti */
+.bmi-seg { height: 100%; opacity: 0.95; }
+
+/* Light: tinte morbide */
+.bmi-seg.under  { background: rgba(59, 130, 246, 0.45); }  /* blu soft */
+.bmi-seg.normal { background: rgba(16, 185, 129, 0.70); }  /* verde */
+.bmi-seg.over   { background: rgba(245, 158, 11, 0.55); }  /* arancio soft */
+.bmi-seg.obese  { background: rgba(239, 68, 68, 0.45); }   /* rosso soft */
+
+/* Dark: leggermente più visibili */
+.dark-mode .bmi-seg.under  { background: rgba(59, 130, 246, 0.55); }
+.dark-mode .bmi-seg.normal { background: rgba(16, 185, 129, 0.75); }
+.dark-mode .bmi-seg.over   { background: rgba(245, 158, 11, 0.65); }
+.dark-mode .bmi-seg.obese  { background: rgba(239, 68, 68, 0.55); }
+
+/* Marker */
+.bmi-marker {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+}
+
+.dark-mode .bmi-marker {
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.28);
+}
+
+/* Legenda soglie */
+.bmi-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.dark-mode .bmi-legend {
+  color: #9ca3af;
+}
+
+/* Stato "mancano dati" */
+.bmi-missing {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px dashed rgba(16, 185, 129, 0.25);
+  color: #374151;
+  font-weight: 800;
+}
+
+.dark-mode .bmi-missing {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #d1d5db;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .bmi-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
+
+/* =============================== */
+/* BMI PILL COLORI PER CATEGORIA */
+/* =============================== */
+
+.bmi-card .bmi-pill {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* UNDER (Sottopeso) */
+.bmi-card[data-cat="under"] .bmi-pill {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.28);
+}
+.bmi-card[data-cat="under"] .bmi-value {
+  color: #2563eb;
+}
+.dark-mode .bmi-card[data-cat="under"] .bmi-pill {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(96, 165, 250, 0.32);
+}
+.dark-mode .bmi-card[data-cat="under"] .bmi-value {
+  color: #60a5fa;
+}
+
+/* NORMAL (Normopeso) */
+.bmi-card[data-cat="normal"] .bmi-pill {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+.bmi-card[data-cat="normal"] .bmi-value {
+  color: var(--green-darker);
+}
+.dark-mode .bmi-card[data-cat="normal"] .bmi-pill {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.32);
+}
+.dark-mode .bmi-card[data-cat="normal"] .bmi-value {
+  color: var(--green-light);
+}
+
+/* OVER (Sovrappeso) */
+.bmi-card[data-cat="over"] .bmi-pill {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.30);
+}
+.bmi-card[data-cat="over"] .bmi-value {
+  color: #b45309;
+}
+.dark-mode .bmi-card[data-cat="over"] .bmi-pill {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(251, 191, 36, 0.34);
+}
+.dark-mode .bmi-card[data-cat="over"] .bmi-value {
+  color: #fbbf24;
+}
+
+/* OBESE (Obesità) - rosso soft */
+.bmi-card[data-cat="obese"] .bmi-pill {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+.bmi-card[data-cat="obese"] .bmi-value {
+  color: #b91c1c;
+}
+.dark-mode .bmi-card[data-cat="obese"] .bmi-pill {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(248, 113, 113, 0.34);
+}
+.dark-mode .bmi-card[data-cat="obese"] .bmi-value {
+  color: #f87171;
+}
+
+
+
 
 /* ========================================================= */
 /* RESPONSIVE */
