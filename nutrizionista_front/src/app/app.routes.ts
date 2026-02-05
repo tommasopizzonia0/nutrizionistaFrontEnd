@@ -14,7 +14,8 @@ import { UserProfileComponent } from './components/user-profile/user-profile';
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component/main-layout.component';
 import { MisurazioneComponent } from './components/misurazione/misurazione';
 import { SchedaDietaComponent } from './components/scheda-dieta/scheda-dieta';
-import { Calendario } from './components/calendario/calendario';
+import { CalendarioComponent } from './components/calendario/calendario';
+import { AgendaComponent } from './components/agenda/agenda';
 
 export const routes: Routes = [
 
@@ -66,8 +67,13 @@ export const routes: Routes = [
         path: 'profilo',
         component: UserProfileComponent
       },
-      { path: 'calendario',
-        component: Calendario 
+      {
+        path: 'calendario',
+        component: CalendarioComponent
+      },
+      {
+        path: 'agenda',
+        component: AgendaComponent
       }
     ]
   },
