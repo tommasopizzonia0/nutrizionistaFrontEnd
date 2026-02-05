@@ -165,3 +165,46 @@
     height: 2px;
     background: #fff;
 }
+
+/* ============================================================ */
+/* OVERRIDE STILI PRIMENG PER UNIFORMARE GLI INPUT */
+/* ============================================================ */
+
+/* Rimuove sfondo, bordo e ombra dagli input interni di Datepicker, InputMask e Password */
+:host ::ng-deep .inputDati .p-inputtext,
+:host ::ng-deep .password .p-inputtext,
+:host ::ng-deep .p-datepicker-input,
+:host ::ng-deep .p-inputmask {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    /* Allinea il testo a sinistra come gli altri */
+    color: inherit !important;
+    /* Mantiene il colore del testo definito nel padre */
+    width: 100%;
+}
+
+/* Corregge il contenitore del Datepicker per occupare tutto lo spazio */
+:host ::ng-deep .p-datepicker {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Se vuoi che l'icona del calendario sia allineata meglio o bianca */
+:host ::ng-deep .p-datepicker-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* Assicura che il contenitore del calendario non abbia bordi indesiderati */
+:host ::ng-deep p-datepicker.ng-invalid.ng-dirty>.p-calendar>.p-inputtext {
+    border: none !important;
+}
+
+/* Correzione specifica per InputMask per occupare larghezza piena */
+:host ::ng-deep p-inputMask {
+    width: 100%;
+    display: block;
+}

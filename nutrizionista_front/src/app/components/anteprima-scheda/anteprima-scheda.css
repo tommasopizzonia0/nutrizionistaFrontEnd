@@ -1,0 +1,420 @@
+/* ========================================================= */
+/* ANTEPRIMA SCHEDA - Le variabili globali sono in styles.css */
+/* ========================================================= */
+
+:host {
+    display: block;
+    height: 100%;
+}
+
+.anteprima-container {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.anteprima-container.dark-mode {
+    background: #191c20;
+    border-color: rgba(16, 185, 129, .25);
+    color: #fff;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Header */
+.anteprima-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dark-mode .anteprima-header {
+    border-bottom-color: rgba(148, 163, 184, .18);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon {
+    color: var(--green-primary);
+    font-size: 1.2rem;
+}
+
+.anteprima-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 850;
+    color: var(--text);
+}
+
+.dark-mode .anteprima-header h3 {
+    color: #fff;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 160ms ease;
+}
+
+.btn-icon:hover {
+    transform: translateY(-1px);
+}
+
+.btn-icon.edit:hover {
+    background: rgba(16, 185, 129, .1);
+    border-color: rgba(16, 185, 129, .25);
+    color: var(--green-darker);
+}
+
+.btn-icon.close:hover {
+    background: rgba(107, 114, 128, .1);
+    border-color: rgba(107, 114, 128, .25);
+    color: var(--text);
+}
+
+.dark-mode .btn-icon {
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(148, 163, 184, .18);
+    color: #e5e7eb;
+}
+
+.dark-mode .btn-icon.edit:hover {
+    background: rgba(16, 185, 129, .14);
+    border-color: rgba(16, 185, 129, .3);
+    color: #d1fae5;
+}
+
+/* Body */
+.anteprima-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Info Card */
+.scheda-info-card {
+    background: rgba(16, 185, 129, .04);
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid rgba(16, 185, 129, .12);
+}
+
+.dark-mode .scheda-info-card {
+    background: rgba(16, 185, 129, .08);
+    border-color: rgba(16, 185, 129, .2);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(229, 231, 235, .5);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.dark-mode .info-row {
+    border-bottom-color: rgba(148, 163, 184, .1);
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.dark-mode .info-label {
+    color: #94a3b8;
+}
+
+.info-value {
+    font-weight: 800;
+    color: var(--text);
+}
+
+.info-value.nome {
+    font-size: 1.1rem;
+    color: var(--green-darker);
+}
+
+.dark-mode .info-value {
+    color: #fff;
+}
+
+.dark-mode .info-value.nome {
+    color: #d1fae5;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    background: rgba(107, 114, 128, .1);
+    color: var(--muted);
+    border: 1px solid rgba(107, 114, 128, .2);
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, .12);
+    color: var(--green-darker);
+    border-color: rgba(16, 185, 129, .25);
+}
+
+.dark-mode .status-badge {
+    background: rgba(148, 163, 184, .1);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, .2);
+}
+
+.dark-mode .status-badge.active {
+    background: rgba(16, 185, 129, .16);
+    color: #d1fae5;
+    border-color: rgba(16, 185, 129, .35);
+}
+
+/* Pasti Preview */
+.pasti-preview h4 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 850;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pasti-preview h4 fa-icon {
+    color: var(--green-primary);
+}
+
+.dark-mode .pasti-preview h4 {
+    color: #fff;
+}
+
+.pasti-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pasto-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, .6);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 160ms ease;
+}
+
+.pasto-row:hover {
+    background: rgba(16, 185, 129, .04);
+    border-color: rgba(16, 185, 129, .2);
+}
+
+.dark-mode .pasto-row {
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(148, 163, 184, .12);
+}
+
+.dark-mode .pasto-row:hover {
+    background: rgba(16, 185, 129, .08);
+    border-color: rgba(16, 185, 129, .25);
+}
+
+.pasto-nome {
+    font-weight: 800;
+    color: var(--text);
+}
+
+.dark-mode .pasto-nome {
+    color: #fff;
+}
+
+.pasto-stats {
+    display: flex;
+    gap: 12px;
+}
+
+.stat {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.stat.calorie {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--green-darker);
+}
+
+.stat.calorie fa-icon {
+    color: #f59e0b;
+    font-size: 0.8rem;
+}
+
+.dark-mode .stat {
+    color: #94a3b8;
+}
+
+.dark-mode .stat.calorie {
+    color: #d1fae5;
+}
+
+/* Totale Giornaliero */
+.totale-giornaliero {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, .1), rgba(16, 185, 129, .05));
+    border-radius: 14px;
+    border: 1px solid rgba(16, 185, 129, .2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dark-mode .totale-giornaliero {
+    background: linear-gradient(135deg, rgba(16, 185, 129, .15), rgba(16, 185, 129, .08));
+    border-color: rgba(16, 185, 129, .3);
+}
+
+.totale-label {
+    font-weight: 800;
+    color: var(--text);
+}
+
+.dark-mode .totale-label {
+    color: #fff;
+}
+
+.totale-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--green-darker);
+}
+
+.totale-value fa-icon {
+    color: #f59e0b;
+}
+
+.dark-mode .totale-value {
+    color: #d1fae5;
+}
+
+/* Empty State */
+.empty-pasti {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-style: italic;
+    background: rgba(107, 114, 128, .06);
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+}
+
+.dark-mode .empty-pasti {
+    background: rgba(148, 163, 184, .08);
+    border-color: rgba(148, 163, 184, .2);
+    color: #cbd5e1;
+}
+
+/* Footer */
+.anteprima-footer {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.btn-edit-full {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid rgba(16, 185, 129, .28);
+    background: rgba(16, 185, 129, .10);
+    color: var(--green-darker);
+    transition: all 160ms ease;
+}
+
+.btn-edit-full fa-icon {
+    color: var(--green-primary);
+}
+
+.btn-edit-full:hover {
+    background: rgba(16, 185, 129, .16);
+    border-color: rgba(16, 185, 129, .45);
+    transform: translateY(-2px);
+}
+
+.dark-mode .btn-edit-full {
+    background: rgba(16, 185, 129, .14);
+    border-color: rgba(16, 185, 129, .30);
+    color: #d1fae5;
+}
+
+.dark-mode .btn-edit-full fa-icon {
+    color: #a7f3d0;
+}
+
+.dark-mode .btn-edit-full:hover {
+    background: rgba(16, 185, 129, .20);
+    border-color: rgba(16, 185, 129, .45);
+}

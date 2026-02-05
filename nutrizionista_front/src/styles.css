@@ -1,11 +1,46 @@
 @import "primeicons/primeicons.css";
 
+/* ========================================================= */
+/* DESIGN SYSTEM - VARIABILI GLOBALI */
+/* ========================================================= */
+:root {
+  /* Palette Verde */
+  --green-primary: #10b981;
+  --green-dark: #059669;
+  --green-darker: #047857;
+  --green-light: #34d399;
+  --green-lighter: #d1fae5;
+  --green-ultralight: #ecfdf5;
+
+  /* Testi */
+  --text: #1f2937;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --muted: #6b7280;
+
+  /* Superfici e Bordi */
+  --bg-surface: #ffffff;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-color: #e5e7eb;
+
+  /* Ombre */
+  --shadow: 0 8px 20px rgba(0, 0, 0, .08);
+  --shadow-strong: 0 12px 30px rgba(0, 0, 0, .35);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 8px 20px rgba(16, 185, 129, 0.3);
+
+  /* Border Radius */
+  --radius: 12px;
+  --radius-lg: 18px;
+}
+
 /* Reset globale per tema */
 body {
   transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  overflow-y: scroll; 
+  overflow-y: scroll;
 }
 
 body.dark {

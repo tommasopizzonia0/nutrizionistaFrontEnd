@@ -1,5 +1,5 @@
 /* ====================== */
-/* VARIABILI TEMA VERDE */
+/* CLIENTI - Le variabili globali sono in styles.css */
 /* ====================== */
 
 /* Main content vero e proprio */
@@ -14,23 +14,15 @@
 
 /* Quando la sidebar è collassata */
 .container.sidebar-collapsed .main-content {
-    margin-left: 30px;
+  margin-left: 30px;
 }
 
-:root {
-  --green-primary: #10b981;
-  --green-dark: #059669;
-  --green-darker: #047857;
-  --green-light: #34d399;
-  --green-lighter: #d1fae5;
-  --green-ultralight: #ecfdf5;
-}
 .container {
-  background-color: #f9fafb; 
+  background-color: #f9fafb;
 }
 
 .container.dark-mode {
-  background-color: #030303; 
+  background-color: #030303;
 }
 
 app-navbar {
@@ -180,7 +172,7 @@ app-navbar {
   gap: 1.5rem;
   margin-bottom: 2rem;
   align-items: stretch;
-  grid-template-columns: 1fr 3fr; 
+  grid-template-columns: 1fr 3fr;
   align-items: stretch;
 }
 
@@ -292,7 +284,7 @@ app-navbar {
   align-items: center;
   gap: 0.75rem;
   padding: 0 1rem;
-  min-height: 104px; 
+  min-height: 104px;
   border: 2px solid transparent;
 }
 
@@ -526,7 +518,7 @@ app-navbar {
 }
 
 .cliente-info .meta-value {
-  margin-left: 0 !important;    
+  margin-left: 0 !important;
   display: inline-block;
   font-weight: 700;
   font-size: 0.9rem;
@@ -638,11 +630,11 @@ app-navbar {
   cursor: not-allowed;
 }
 
-.btn-primary{
+.btn-primary {
   color: black;
 }
 
-.dark-mode .btn-primary{
+.dark-mode .btn-primary {
   color: white;
 }
 
@@ -691,8 +683,13 @@ app-navbar {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -715,6 +712,7 @@ app-navbar {
     transform: translateY(50px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

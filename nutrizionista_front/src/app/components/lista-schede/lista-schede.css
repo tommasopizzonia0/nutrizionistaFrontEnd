@@ -1,0 +1,415 @@
+/* ========================================================= */
+/* 1. LISTA SCHEDE - Le variabili globali sono in styles.css */
+/* ========================================================= */
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.lista-container {
+    padding: 0;
+    max-width: 1100px;
+    color: var(--text);
+    margin-top: 1.5rem;
+}
+
+.lista-container.dark-mode {
+    color: #fff;
+}
+
+/* ========================================================= */
+/* 2. HEADER SEZIONE */
+/* ========================================================= */
+.lista-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.lista-header h3 {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 950;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -.2px;
+    color: var(--text);
+}
+
+.lista-header h3 fa-icon {
+    color: var(--green-primary);
+}
+
+.dark-mode .lista-header h3 {
+    color: #fff;
+}
+
+/* Bottone "Nuova Scheda" */
+.btn-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-weight: 950;
+    cursor: pointer;
+    border: 1px solid rgba(16, 185, 129, .28);
+    background: rgba(16, 185, 129, .10);
+    color: var(--green-darker);
+    transition: all 160ms ease;
+}
+
+.btn-new fa-icon {
+    color: var(--green-primary);
+}
+
+.btn-new:hover {
+    background: rgba(16, 185, 129, .16);
+    border-color: rgba(16, 185, 129, .45);
+    transform: translateY(-1px);
+}
+
+.dark-mode .btn-new {
+    background: rgba(16, 185, 129, .14);
+    border-color: rgba(16, 185, 129, .30);
+    color: #d1fae5;
+}
+
+.dark-mode .btn-new fa-icon {
+    color: #a7f3d0;
+}
+
+.dark-mode .btn-new:hover {
+    background: rgba(16, 185, 129, .20);
+    border-color: rgba(16, 185, 129, .45);
+}
+
+/* ========================================================= */
+/* 3. TABELLA / LISTA (Stile Card) */
+/* ========================================================= */
+.table-responsive {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 14px;
+    overflow-x: auto;
+}
+
+.dark-mode .table-responsive {
+    background: #191c20;
+    border-color: rgba(16, 185, 129, .25);
+    box-shadow: var(--shadow-strong);
+}
+
+.schede-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    /* Spazio verticale tra le righe */
+    text-align: left;
+}
+
+/* Header Tabella */
+.schede-table thead th {
+    padding: 10px 12px;
+    font-weight: 950;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(229, 231, 235, .9);
+}
+
+.dark-mode .schede-table thead th {
+    color: #cbd5e1;
+    border-bottom-color: rgba(148, 163, 184, .18);
+}
+
+.schede-table tbody tr {
+    background: transparent;
+    transition: all 160ms ease;
+}
+
+/* Celle */
+.schede-table tbody td {
+    padding: 12px;
+    background: transparent;
+    border-top: 1px solid rgba(229, 231, 235, .5);
+    vertical-align: middle;
+}
+
+.dark-mode .schede-table tbody td {
+    border-top-color: rgba(148, 163, 184, .1);
+}
+
+/* Hover Row Effect */
+.schede-table tbody tr:hover td {
+    background: rgba(16, 185, 129, .04);
+}
+
+.dark-mode .schede-table tbody tr:hover td {
+    background: rgba(16, 185, 129, .08);
+}
+
+/* Prima e Ultima cella arrotondate (opzionale se vuoi effetto pillola su riga) */
+.schede-table tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.schede-table tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+
+/* ========================================================= */
+/* 4. CONTENUTI CELLE */
+/* ========================================================= */
+
+/* Nome e Data */
+.scheda-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.scheda-nome {
+    font-weight: 950;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.dark-mode .scheda-nome {
+    color: #fff;
+}
+
+.scheda-data {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.scheda-data fa-icon {
+    font-size: 0.8rem;
+}
+
+.dark-mode .scheda-data {
+    color: #94a3b8;
+}
+
+
+/* Badge Stato */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 850;
+    background: rgba(107, 114, 128, .1);
+    color: var(--muted);
+    border: 1px solid rgba(107, 114, 128, .2);
+}
+
+.dark-mode .status-badge {
+    background: rgba(148, 163, 184, .1);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, .2);
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, .12);
+    color: var(--green-darker);
+    border-color: rgba(16, 185, 129, .25);
+}
+
+.dark-mode .status-badge.active {
+    background: rgba(16, 185, 129, .16);
+    color: #d1fae5;
+    border-color: rgba(16, 185, 129, .35);
+}
+
+/* Riepilogo Pasti */
+.pasti-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 850;
+    color: var(--text);
+}
+
+.pasti-summary fa-icon {
+    color: var(--green-primary);
+}
+
+.dark-mode .pasti-summary {
+    color: #fff;
+}
+
+
+/* Azioni (Bottoni Icona) */
+.actions-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(229, 231, 235, .9);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 160ms ease;
+}
+
+.btn-icon:hover {
+    background: rgba(16, 185, 129, .1);
+    border-color: rgba(16, 185, 129, .25);
+    color: var(--green-darker);
+    transform: translateY(-1px);
+}
+
+.btn-icon.delete:hover {
+    background: rgba(239, 68, 68, .12);
+    border-color: rgba(239, 68, 68, .35);
+    color: #ef4444;
+}
+
+.dark-mode .btn-icon {
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(148, 163, 184, .18);
+    color: #e5e7eb;
+}
+
+.dark-mode .btn-icon:hover {
+    background: rgba(16, 185, 129, .14);
+    border-color: rgba(16, 185, 129, .3);
+    color: #d1fae5;
+}
+
+.dark-mode .btn-icon.delete:hover {
+    background: rgba(239, 68, 68, .15);
+    border-color: rgba(239, 68, 68, .4);
+    color: #fca5a5;
+}
+
+/* ========================================================= */
+/* 5. LOADING & EMPTY STATE */
+/* ========================================================= */
+.spinner-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.custom-loader {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid var(--border);
+    border-top-color: var(--green-primary);
+    animation: spin 1s infinite linear;
+}
+
+.dark-mode .custom-loader {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: var(--green-primary);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-msg {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 600;
+    background: rgba(107, 114, 128, .06);
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+    margin-top: 1rem;
+}
+
+.dark-mode .empty-msg {
+    background: rgba(148, 163, 184, .08);
+    border-color: rgba(148, 163, 184, .2);
+    color: #cbd5e1;
+}
+
+/* ========================================================= */
+/* 6. PAGINAZIONE */
+/* ========================================================= */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(229, 231, 235, .9);
+}
+
+.dark-mode .pagination-controls {
+    border-top-color: rgba(148, 163, 184, .18);
+}
+
+.pagination-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(16, 185, 129, .28);
+    background: rgba(16, 185, 129, .10);
+    color: var(--green-darker);
+    cursor: pointer;
+    transition: all 160ms ease;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background: rgba(16, 185, 129, .16);
+    border-color: rgba(16, 185, 129, .45);
+    transform: translateY(-1px);
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.dark-mode .pagination-controls button {
+    background: rgba(16, 185, 129, .14);
+    border-color: rgba(16, 185, 129, .30);
+    color: #d1fae5;
+}
+
+.pagination-controls span {
+    font-weight: 850;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.dark-mode .pagination-controls span {
+    color: #cbd5e1;
+}
