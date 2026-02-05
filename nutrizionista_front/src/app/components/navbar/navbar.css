@@ -1,20 +1,14 @@
 /* ====================== */
-/* VARIABILI E RESET */
+/* NAVBAR - Le variabili globali sono in styles.css */
 /* ====================== */
 :root {
+  /* Variabili specifiche navbar */
   --white: #ffffff;
   --black: #000000;
-  --green-primary: #10b981;
-  --green-dark: #059669;
-  --green-darker: #047857;
-  --green-light: #34d399;
-  --green-lighter: #d1fae5;
-  --green-ultralight: #ecfdf5;
   --bg-light: #f8faf9;
   --text-dark: #1f2937;
   --text-light: #6b7280;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 

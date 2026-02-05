@@ -42,10 +42,11 @@
                             </p-iftalabel>
                         </div>
                         <div class="inputDati">
+                            <span><i class="pi pi-calendar"></i></span>
                             <p-iftalabel class="inputDatiI">
-                                <p-datepicker [(ngModel)]="dataNascita" id="dataNascita" dateFormat="dd/mm/yy"
-                                    [showIcon]="true" [maxDate]="maxDate" [showClear]="true" fluid="true">
-                                </p-datepicker>
+                                <p-datepicker [(ngModel)]="dataNascita" inputId="dataNascita" dateFormat="yy-mm-dd"
+                                    [showIcon]="false" [maxDate]="maxDate" [showClear]="true" fluid="true"
+                                    appendTo="body"> </p-datepicker>
                                 <label for="dataNascita">Data di Nascita</label>
                             </p-iftalabel>
                         </div>
@@ -55,8 +56,7 @@
                             <span><i class="pi pi-phone"></i></span>
                             <p-iftalabel class="inputDatiI">
                                 <p-inputMask class="inputDatiI" mask="(999) 999-9999" [(ngModel)]="telefono"
-                                    [unmask]="true" id="telefono" styleClass="w-full">
-                                </p-inputMask>
+                                    [unmask]="true" id="telefono" styleClass="w-full input-trasparente"> </p-inputMask>
                                 <label for="telefono">Telefono</label>
                             </p-iftalabel>
                         </div>
@@ -102,7 +102,8 @@
                             <span><i class="pi pi-lock"></i></span>
                             <p-iftalabel class="passwordI">
                                 <p-password [(ngModel)]="confermaPassword" [toggleMask]="true" [feedback]="false"
-                                    [invalid]="confermaPassword && password !== confermaPassword" fluid />
+                                    [invalid]="confermaPassword && password !== confermaPassword" fluid="true"
+                                    styleClass="w-full" inputStyleClass="password-custom-input"> </p-password>
                                 <label for="confermaPassword">Conferma Password</label>
                             </p-iftalabel>
                         </div>
