@@ -14,6 +14,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile';
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component/main-layout.component';
 import { MisurazioneComponent } from './components/misurazione/misurazione';
 import { SchedaDietaComponent } from './components/scheda-dieta/scheda-dieta';
+import { Calendario } from './components/calendario/calendario';
 
 export const routes: Routes = [
 
@@ -64,6 +65,9 @@ export const routes: Routes = [
       {
         path: 'profilo',
         component: UserProfileComponent
+      },
+      { path: 'calendario',
+        component: Calendario 
       }
     ]
   },
