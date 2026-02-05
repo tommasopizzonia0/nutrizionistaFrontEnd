@@ -13,6 +13,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile';
 
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component/main-layout.component';
 import { MisurazioneComponent } from './components/misurazione/misurazione';
+import { SchedaDietaComponent } from './components/scheda-dieta/scheda-dieta';
 
 export const routes: Routes = [
 
@@ -55,6 +56,10 @@ export const routes: Routes = [
       {
         path: 'misurazione/:clienteId',
         component: MisurazioneComponent
+      },
+      {
+        path: 'scheda-dieta/:clienteId',
+        component: SchedaDietaComponent
       },
       {
         path: 'profilo',

@@ -1,0 +1,270 @@
+<div class="scheda-dieta-container" [class.dark-mode]="isDarkMode">
+    <div class="header-section">
+        <h2>
+            <fa-icon [icon]="icons.book"></fa-icon>
+            Scheda Dieta Personalizzata
+        </h2>
+        <div class="header-actions">
+            <button class="btn-primary" (click)="onSalvaScheda()" [disabled]="saving || !schedaId">
+                <fa-icon [icon]="icons.save"></fa-icon>
+                {{ saving ? 'Salvataggio...' : 'Salva Scheda' }}
+            </button>
+        </div>
+    </div>
+
+    @if (errorMessage) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+    }
+
+    @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+    }
+
+    <div class="content-layout">
+        <section class="list-section">
+            @if (loading) {
+            <div class="text-center p-4">
+                <div class="spinner-border" role="status">...</div>
+            </div>
+            }
+            @if (!loading) {
+            <div class="pasti-container">
+                @for (pasto of pasti; track pasto.nome) {
+                <div class="pasto-card" [class.expanded]="pastoEspanso === pasto.nome">
+
+                    <div class="pasto-header" (click)="togglePasto(pasto.nome)">
+                        <div class="pasto-info">
+                            <div class="pasto-icon">
+                                <fa-icon [icon]="getIconaPasto(pasto.nome)"></fa-icon>
+                            </div>
+                            <div class="pasto-details">
+                                <h3>{{ pasto.nome }}</h3>
+                                <span class="pasto-orario">
+                                    @if (pasto.orarioInizio && pasto.orarioFine) {
+                                    {{ pasto.orarioInizio }} - {{ pasto.orarioFine }}
+                                    } @else {
+                                    Orario non impostato
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        <div class="pasto-stats">
+                            <div class="stat-badge">
+                                <span class="stat-value">{{ pasto.alimentiPasto?.length || 0 }}</span>
+                                <span class="stat-label">alimenti</span>
+                            </div>
+                            <div class="stat-badge calories">
+                                <span class="stat-value">{{ calcolaTotaleCalorico(pasto) }}</span>
+                                <span class="stat-label">kcal</span>
+                            </div>
+                            <span class="chev">
+                                <fa-icon
+                                    [icon]="pastoEspanso === pasto.nome ? icons.chevronDown : icons.chevronRight"></fa-icon>
+                            </span>
+                        </div>
+                    </div>
+
+                    @if (pastoEspanso === pasto.nome) {
+                    <div class="pasto-body">
+
+                        <div class="orari-section">
+                            <div class="orario-group">
+                                <label>Inizio</label>
+                                <input type="time" [(ngModel)]="pasto.orarioInizio" (change)="onSalvaOrariPasto(pasto)"
+                                    class="time-input" />
+                            </div>
+                            <div class="orario-group">
+                                <label>Fine</label>
+                                <input type="time" [(ngModel)]="pasto.orarioFine" (change)="onSalvaOrariPasto(pasto)"
+                                    class="time-input" />
+                            </div>
+                        </div>
+
+                        <div class="alimenti-section">
+                            <div class="section-title-inline">
+                                <fa-icon [icon]="icons.apple"></fa-icon>
+                                Alimenti Selezionati
+                            </div>
+
+                            @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
+                            <div class="alimenti-list">
+                                @for (alimentoPasto of pasto.alimentiPasto; track $index) {
+                                <div class="alimento-item">
+                                    <div class="alimento-info">
+                                        <span class="alimento-nome">{{ alimentoPasto.alimento.nome }}</span>
+                                        <div class="macros-mini">
+                                            <span class="macro p">P: {{ calcolaMacro(alimentoPasto, 'proteine')
+                                                }}g</span>
+                                            <span class="macro c">C: {{ calcolaMacro(alimentoPasto, 'carboidrati')
+                                                }}g</span>
+                                            <span class="macro g">G: {{ calcolaMacro(alimentoPasto, 'grassi') }}g</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="alimento-quantita">
+                                        <input type="number" [ngModel]="alimentoPasto.quantita" #qtyInput
+                                            (change)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, qtyInput.valueAsNumber)"
+                                            min="1" class="quantita-input" />
+                                        <span class="unit">g</span>
+                                    </div>
+
+                                    <button class="icon-btn danger" type="button"
+                                        (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
+                                        title="Rimuovi">
+                                        <fa-icon [icon]="icons.trash"></fa-icon>
+                                    </button>
+                                </div>
+                                }
+                            </div>
+                            } @else {
+                            <div class="empty-alimenti">
+                                <fa-icon [icon]="icons.apple"></fa-icon>
+                                <span>Nessun alimento aggiunto. Cerca e aggiungi alimenti dalla sezione a destra.</span>
+                            </div>
+                            }
+
+                            <div class="macro-totals">
+                                <div class="macro-total-card">
+                                    <span class="macro-label">Proteine</span>
+                                    <span class="macro-value proteine">{{ calcolaTotaleMacro(pasto, 'proteine')
+                                        }} g</span>
+                                </div>
+                                <div class="macro-total-card">
+                                    <span class="macro-label">Carboidrati</span>
+                                    <span class="macro-value carboidrati">{{ calcolaTotaleMacro(pasto, 'carboidrati')
+                                        }} g</span>
+                                </div>
+                                <div class="macro-total-card">
+                                    <span class="macro-label">Grassi</span>
+                                    <span class="macro-value grassi">{{ calcolaTotaleMacro(pasto, 'grassi') }} g</span>
+                                </div>
+                                <div class="macro-total-card highlight">
+                                    <span class="macro-label">Calorie</span>
+                                    <span class="macro-value kcal">{{ calcolaTotaleCalorico(pasto) }} kcal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="riepilogo-giornata">
+                <div class="section-title-inline">
+                    <fa-icon [icon]="icons.chart"></fa-icon>
+                    Riepilogo Giornaliero
+                </div>
+                <div class="riepilogo-grid">
+                    <div class="riepilogo-card">
+                        <div class="riepilogo-icon proteine">
+                            <fa-icon [icon]="icons.dumbbell"></fa-icon>
+                        </div>
+                        <div class="riepilogo-content">
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('proteine') }} g</span>
+                            <span class="riepilogo-label">Proteine</span>
+                        </div>
+                    </div>
+                    <div class="riepilogo-card">
+                        <div class="riepilogo-icon carboidrati">
+                            <fa-icon [icon]="icons.wheat"></fa-icon>
+                        </div>
+                        <div class="riepilogo-content">
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('carboidrati') }} g</span>
+                            <span class="riepilogo-label">Carboidrati</span>
+                        </div>
+                    </div>
+                    <div class="riepilogo-card">
+                        <div class="riepilogo-icon grassi">
+                            <fa-icon [icon]="icons.droplet"></fa-icon>
+                        </div>
+                        <div class="riepilogo-content">
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('grassi') }} g</span>
+                            <span class="riepilogo-label">Grassi</span>
+                        </div>
+                    </div>
+                    <div class="riepilogo-card highlight">
+                        <div class="riepilogo-icon kcal">
+                            <fa-icon [icon]="icons.fire"></fa-icon>
+                        </div>
+                        <div class="riepilogo-content">
+                            <span class="riepilogo-value">{{ calcolaTotaleCalorieGiornaliere() }}</span>
+                            <span class="riepilogo-label">Calorie Totali</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </section>
+
+        <aside class="detail-panel">
+            <div class="detail-head">
+                <div class="detail-title">
+                    <div class="kicker">Aggiungi alimenti</div>
+                    <div class="big">Catalogo Alimenti</div>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <div class="search-box">
+                    <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
+                    <input type="text" [(ngModel)]="searchQuery" (input)="onSearchAlimenti()"
+                        placeholder="Cerca alimento..." class="search-input" />
+                </div>
+            </div>
+
+            <div class="detail-body">
+                @if (loadingAlimenti) {
+                <div class="text-center p-4">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden"></span>
+                    </div>
+                </div>
+                }
+
+                @if (!loadingAlimenti && alimentiDisponibili.length === 0 && searchQuery.length >= 2) {
+                <div class="detail-empty">
+                    <div class="detail-empty-title">Nessun alimento trovato</div>
+                    <div class="detail-empty-sub">
+                        Prova a cercare con un termine diverso.
+                    </div>
+                </div>
+                }
+
+                @if (!loadingAlimenti && alimentiDisponibili.length > 0) {
+                <div class="alimenti-catalogo">
+                    @for (alimento of alimentiDisponibili; track alimento.id) {
+                    <div class="catalogo-item" (click)="onAggiungiAlimento(alimento)">
+                        <div class="catalogo-info">
+                            <span class="catalogo-nome">{{ alimento.nome }}</span>
+                            <div class="catalogo-macros">
+                                <span class="macro-chip p">P: {{ alimento.macroNutrienti.proteine }} g</span>
+                                <span class="macro-chip c">C: {{ alimento.macroNutrienti.carboidrati }} g</span>
+                                <span class="macro-chip g">G: {{ alimento.macroNutrienti.grassi }} g</span>
+                            </div>
+                        </div>
+                        <div class="catalogo-action">
+                            <button class="add-btn" type="button" title="Aggiungi">
+                                <fa-icon [icon]="icons.plus"></fa-icon>
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            @if (pastoEspanso) {
+            <div class="selected-pasto-indicator">
+                <fa-icon [icon]="icons.arrowRight"></fa-icon>
+                Aggiungendo a: <strong>{{ pastoEspanso }}</strong>
+            </div>
+            } @else {
+            <div class="selected-pasto-indicator warning">
+                <fa-icon [icon]="icons.warning"></fa-icon>
+                Seleziona un pasto per aggiungere alimenti
+            </div>
+            }
+        </aside>
+    </div>
+</div>

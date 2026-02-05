@@ -1,0 +1,914 @@
+/* ====================== */
+/* VARIABILI MACRO (Specifiche per Dieta) */
+/* Le variabili generali sono in styles.css */
+/* ====================== */
+:root {
+  /* Macro Colors (Specifici per Dieta) */
+  --proteine: #ef4444;
+  --carboidrati: #f59e0b;
+  --grassi: #3b82f6;
+  --kcal: #10b981;
+
+  /* Shadow specifiche per questo componente */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ====================== */
+/* LAYOUT PRINCIPALE */
+/* ====================== */
+.scheda-dieta-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background 0.3s ease;
+}
+
+/* 🌙 DARK MODE - CONTAINER */
+.scheda-dieta-container.dark-mode {
+  color: #fff;
+  background: #1a1a1a;
+}
+
+/* ===== Header ===== */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-section h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1f2937;
+}
+
+.header-section h2 fa-icon {
+  color: var(--green-primary);
+}
+
+.scheda-dieta-container.dark-mode .header-section h2 {
+  color: #fff;
+}
+
+/* ===== Grid Layout ===== */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====================== */
+/* CARD / SEZIONI */
+/* ====================== */
+/* Stile base simile a .form-section della misurazione */
+.list-section,
+.detail-panel {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-subtle);
+  border-left: 4px solid var(--green-primary);
+  /* Firma visiva */
+  transition: all 0.3s ease;
+}
+
+.scheda-dieta-container.dark-mode .list-section,
+.scheda-dieta-container.dark-mode .detail-panel {
+  background: #2d2d2d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-left-color: var(--green-primary);
+}
+
+/* ====================== */
+/* LISTA PASTI (Style like Medical Rows) */
+/* ====================== */
+.pasti-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Pasto Card: Simile a .medical-row */
+.pasto-card {
+  border-radius: 12px;
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-lighter);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.pasto-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+  background: #fff;
+}
+
+.pasto-card.expanded {
+  background: #fff;
+  border-color: var(--green-primary);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* 🌙 DARK MODE - PASTO CARD */
+.scheda-dieta-container.dark-mode .pasto-card {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.scheda-dieta-container.dark-mode .pasto-card:hover,
+.scheda-dieta-container.dark-mode .pasto-card.expanded {
+  background: #374151;
+  border-color: var(--green-primary);
+}
+
+/* Header del Pasto */
+.pasto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+}
+
+.pasto-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pasto-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  /* Uniformato a tondo come medical row dots */
+  background: var(--green-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(16, 185, 129, 0.3);
+}
+
+.pasto-details h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.scheda-dieta-container.dark-mode .pasto-details h3 {
+  color: #fff;
+}
+
+.pasto-orario {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.scheda-dieta-container.dark-mode .pasto-orario {
+  color: #9ca3af;
+}
+
+/* Statistiche Badge */
+.pasto-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.stat-value {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stat-badge.calories .stat-value {
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .stat-value {
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .stat-badge.calories .stat-value {
+  color: var(--green-light);
+}
+
+.chev {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.expanded .chev {
+  transform: rotate(180deg);
+}
+
+/* ====================== */
+/* PASTO BODY (Espanso) */
+/* ====================== */
+.pasto-body {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--border);
+  animation: slideDown 0.3s ease-out;
+}
+
+.scheda-dieta-container.dark-mode .pasto-body {
+  border-top-color: #4b5563;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sezione Orari */
+.orari-section {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.scheda-dieta-container.dark-mode .orari-section {
+  border-bottom-color: #4b5563;
+}
+
+.orario-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.orario-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Input Orario (Stile Input Pill) */
+.time-input {
+  background: rgba(143, 216, 192, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+}
+
+.scheda-dieta-container.dark-mode .time-input {
+  background: rgba(16, 185, 129, 0.16);
+  color: #fff;
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+/* Titoli interni */
+.section-title-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.section-title-inline fa-icon {
+  color: var(--green-primary);
+}
+
+.scheda-dieta-container.dark-mode .section-title-inline {
+  color: #fff;
+}
+
+/* Lista Alimenti */
+.alimenti-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Alimento Item (Mini Card) */
+.alimento-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid var(--border);
+}
+
+.scheda-dieta-container.dark-mode .alimento-item {
+  background: #262626;
+  border-color: #404040;
+}
+
+.alimento-nome {
+  font-weight: 700;
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.scheda-dieta-container.dark-mode .alimento-nome {
+  color: #fff;
+}
+
+/* Macros Chips */
+.macros-mini {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.macros-mini .macro {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #eee;
+}
+
+.macro.p {
+  color: var(--proteine);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.macro.c {
+  color: var(--carboidrati);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.macro.g {
+  color: var(--grassi);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Input Quantità (Stile Pill Medical) */
+.alimento-quantita {
+  display: flex;
+  align-items: center;
+  background: rgba(143, 216, 192, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+
+.scheda-dieta-container.dark-mode .alimento-quantita {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.quantita-input {
+  width: 60px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  text-align: right;
+  color: var(--text);
+  outline: none;
+}
+
+.scheda-dieta-container.dark-mode .quantita-input {
+  color: #fff;
+}
+
+.unit {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--green-darker);
+  margin-left: 4px;
+}
+
+.scheda-dieta-container.dark-mode .unit {
+  color: var(--green-light);
+}
+
+/* ====================== */
+/* TOTALI MACRO PASTO */
+/* ====================== */
+.macro-totals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.scheda-dieta-container.dark-mode .macro-totals {
+  border-top-color: #4b5563;
+}
+
+.macro-total-card {
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.scheda-dieta-container.dark-mode .macro-total-card {
+  background: #262626;
+}
+
+.macro-total-card.highlight {
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-lighter);
+}
+
+.scheda-dieta-container.dark-mode .macro-total-card.highlight {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.macro-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.macro-value {
+  font-size: 1rem;
+  font-weight: 800;
+  display: block;
+}
+
+.macro-value.proteine {
+  color: var(--proteine);
+}
+
+.macro-value.carboidrati {
+  color: var(--carboidrati);
+}
+
+.macro-value.grassi {
+  color: var(--grassi);
+}
+
+.macro-value.kcal {
+  color: var(--kcal);
+}
+
+/* ====================== */
+/* RIEPILOGO GIORNATA */
+/* ====================== */
+.riepilogo-giornata {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-subtle);
+  border-left: 4px solid #fbbf24;
+  /* Amber accent per distinzione */
+}
+
+.scheda-dieta-container.dark-mode .riepilogo-giornata {
+  background: #2d2d2d;
+}
+
+.riepilogo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.riepilogo-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.scheda-dieta-container.dark-mode .riepilogo-card {
+  background: #262626;
+  border-color: #404040;
+}
+
+.riepilogo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.riepilogo-card.highlight {
+  background: var(--green-primary);
+  border-color: var(--green-primary);
+}
+
+.riepilogo-card.highlight .riepilogo-value,
+.riepilogo-card.highlight .riepilogo-label {
+  color: #fff;
+}
+
+.riepilogo-card.highlight .riepilogo-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.riepilogo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.riepilogo-icon.proteine {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--proteine);
+}
+
+.riepilogo-icon.carboidrati {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--carboidrati);
+}
+
+.riepilogo-icon.grassi {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--grassi);
+}
+
+.riepilogo-icon.kcal {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--kcal);
+}
+
+.riepilogo-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.riepilogo-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.scheda-dieta-container.dark-mode .riepilogo-value {
+  color: #fff;
+}
+
+/* ====================== */
+/* ASIDE: CATALOGO */
+/* ====================== */
+.detail-panel {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-head {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.scheda-dieta-container.dark-mode .detail-head {
+  border-bottom-color: #4b5563;
+}
+
+.kicker {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.big {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.scheda-dieta-container.dark-mode .big {
+  color: #fff;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  background: #fff;
+}
+
+.scheda-dieta-container.dark-mode .search-input {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .search-input:focus {
+  background: #111827;
+}
+
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 1rem;
+}
+
+/* Catalogo Item */
+.catalogo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.scheda-dieta-container.dark-mode .catalogo-item {
+  background: #262626;
+  border-color: #404040;
+}
+
+.catalogo-item:hover {
+  border-color: var(--green-primary);
+  transform: translateX(2px);
+  background: var(--green-ultralight);
+}
+
+.scheda-dieta-container.dark-mode .catalogo-item:hover {
+  background: #374151;
+}
+
+.catalogo-nome {
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: block;
+  color: var(--text);
+}
+
+.scheda-dieta-container.dark-mode .catalogo-nome {
+  color: #fff;
+}
+
+.add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green-ultralight);
+  color: var(--green-dark);
+  border: 1px solid var(--green-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.add-btn:hover {
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .add-btn {
+  background: #374151;
+  color: var(--green-light);
+}
+
+.scheda-dieta-container.dark-mode .add-btn:hover {
+  background: var(--green-primary);
+  color: #fff;
+}
+
+/* Indicatore Pasto Selezionato */
+.selected-pasto-indicator {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: var(--green-ultralight);
+  border: 1px solid var(--green-light);
+  color: var(--green-darker);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.selected-pasto-indicator.warning {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+.scheda-dieta-container.dark-mode .selected-pasto-indicator {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--green-light);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ====================== */
+/* UTILITY & BUTTONS */
+/* ====================== */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: var(--green-primary);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--green-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(16, 185, 129, 0.35);
+}
+
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.scheda-dieta-container.dark-mode .btn-primary:disabled {
+  background: #4b5563;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+}
+
+.icon-btn.danger {
+  color: #ef4444;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.icon-btn.danger:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.scheda-dieta-container.dark-mode .icon-btn {
+  background: #374151;
+  border-color: #4b5563;
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .icon-btn.danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  color: var(--green-primary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-alimenti {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+}
+
+.scheda-dieta-container.dark-mode .empty-alimenti {
+  background: #262626;
+  border-color: #404040;
+}

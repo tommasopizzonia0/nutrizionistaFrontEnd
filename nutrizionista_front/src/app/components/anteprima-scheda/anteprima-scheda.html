@@ -1,0 +1,84 @@
+<div class="anteprima-container" [class.dark-mode]="isDarkMode">
+    <div class="anteprima-header">
+        <div class="header-left">
+            <fa-icon [icon]="icClipboard" class="header-icon"></fa-icon>
+            <h3>Anteprima Scheda</h3>
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon edit" (click)="onEdit()" title="Modifica scheda">
+                <fa-icon [icon]="icEdit"></fa-icon>
+            </button>
+            <button class="btn-icon close" (click)="onClose()" title="Chiudi anteprima">
+                <fa-icon [icon]="icClose"></fa-icon>
+            </button>
+        </div>
+    </div>
+
+    @if (scheda) {
+    <div class="anteprima-body">
+        <div class="scheda-info-card">
+            <div class="info-row">
+                <span class="info-label">Nome</span>
+                <span class="info-value nome">{{ scheda.nome }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">
+                    <fa-icon [icon]="icCalendar"></fa-icon> Data Creazione
+                </span>
+                <span class="info-value">{{ scheda.dataCreazione | date:'dd MMMM yyyy' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Stato</span>
+                <span class="status-badge" [class.active]="scheda.attiva">
+                    @if (scheda.attiva) {
+                    <fa-icon [icon]="icCheck"></fa-icon> Attiva
+                    } @else {
+                    <fa-icon [icon]="icBan"></fa-icon> Non Attiva
+                    }
+                </span>
+            </div>
+        </div>
+
+        <div class="pasti-preview">
+            <h4>
+                <fa-icon [icon]="icUtensils"></fa-icon> Pasti
+            </h4>
+            @if (scheda.pasti && scheda.pasti.length > 0) {
+            <div class="pasti-list">
+                @for (pasto of scheda.pasti; track pasto.nome) {
+                <div class="pasto-row">
+                    <span class="pasto-nome">{{ pasto.nome }}</span>
+                    <div class="pasto-stats">
+                        <span class="stat alimenti">{{ pasto.alimentiPasto?.length || 0 }} alimenti</span>
+                        <span class="stat calorie">
+                            <fa-icon [icon]="icFire"></fa-icon>
+                            {{ calcolaTotaleCalorico(pasto) }} kcal
+                        </span>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="totale-giornaliero">
+                <span class="totale-label">Totale Giornaliero</span>
+                <span class="totale-value">
+                    <fa-icon [icon]="icFire"></fa-icon>
+                    {{ calcolaTotaleCalorieGiornaliere() }} kcal
+                </span>
+            </div>
+            } @else {
+            <div class="empty-pasti">
+                <p>Nessun pasto configurato.</p>
+            </div>
+            }
+        </div>
+
+        <div class="anteprima-footer">
+            <button class="btn-edit-full" (click)="onEdit()">
+                <fa-icon [icon]="icEdit"></fa-icon>
+                Modifica Scheda
+            </button>
+        </div>
+    </div>
+    }
+</div>

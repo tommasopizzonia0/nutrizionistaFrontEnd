@@ -1,0 +1,96 @@
+<div class="lista-container" [class.dark-mode]="isDarkMode">
+
+    <div class="lista-header">
+        <h3><fa-icon [icon]="icClipboardList"></fa-icon> Storico Schede Dieta</h3>
+        <button class="btn-new" (click)="onCreaNuova()">
+            <fa-icon [icon]="icPlus"></fa-icon> Nuova Scheda
+        </button>
+    </div>
+
+    @if (loading) {
+    <div class="spinner-wrapper">
+        <div class="custom-loader"></div>
+    </div>
+    }
+
+    @if (errorMessage) {
+    <div class="error-msg">{{ errorMessage }}</div>
+    }
+
+    @if (page$ | async; as page) {
+    <div class="table-responsive">
+        <table class="schede-table">
+            <thead>
+                <tr>
+                    <th>Nome Scheda</th>
+                    <th>Stato</th>
+                    <th>Pasti</th>
+                    <th class="text-right">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (scheda of (page.contenuto || []); track trackById($index, scheda)) {
+                <tr class="scheda-row" (click)="onPreviewScheda(scheda)">
+                    <td>
+                        <div class="scheda-info">
+                            <span class="scheda-nome">{{ scheda.nome }}</span>
+                            <span class="scheda-data">
+                                <fa-icon [icon]="icCalendar"></fa-icon>
+                                {{ scheda.dataCreazione | date:'dd MMMM yyyy' }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="status-badge" [class.active]="scheda.attiva">
+                            @if (scheda.attiva) {
+                            <fa-icon [icon]="icCheck"></fa-icon> Attiva
+                            } @else {
+                            <fa-icon [icon]="icBan"></fa-icon> Non Attiva
+                            }
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="pasti-summary">
+                            <fa-icon [icon]="icUtensils"></fa-icon>
+                            <span>{{ scheda.pasti?.length || 0 }} pasti</span>
+                        </div>
+                    </td>
+
+                    <td class="text-right">
+                        <div class="actions-group">
+                            <button class="btn-icon edit" (click)="onSelezionaScheda(scheda); $event.stopPropagation()"
+                                title="Modifica">
+                                <fa-icon [icon]="icEdit"></fa-icon>
+                            </button>
+                            <button class="btn-icon delete" (click)="onEliminaScheda(scheda, $event)" title="Elimina">
+                                <fa-icon [icon]="icTrash"></fa-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        @if ((page.contenuto || []).length === 0 && !loading) {
+        <div class="empty-msg">
+            <p>Nessuna scheda presente per questo cliente.</p>
+        </div>
+        }
+
+        @if (page.totalePagine > 1) {
+        <div class="pagination-controls">
+            <button [disabled]="page.numeroPagina === 0" (click)="goToPage(currentPage - 1)">
+                <fa-icon [icon]="icChevronLeft"></fa-icon>
+            </button>
+            <span>Pagina {{ currentPage + 1 }} di {{ page.totalePagine }}</span>
+            <button [disabled]="page.ultima" (click)="goToPage(currentPage + 1)">
+                <fa-icon [icon]="icChevronRight"></fa-icon>
+            </button>
+        </div>
+        }
+    </div>
+    }
+</div>
