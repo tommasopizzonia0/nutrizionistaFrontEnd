@@ -16,6 +16,7 @@ import { MisurazioneComponent } from './components/misurazione/misurazione';
 import { SchedaDietaComponent } from './components/scheda-dieta/scheda-dieta';
 import { CalendarioComponent } from './components/calendario/calendario';
 import { AgendaComponent } from './components/agenda/agenda';
+import { Settings } from './components/settings/settings';
 
 export const routes: Routes = [
 
@@ -68,12 +69,12 @@ export const routes: Routes = [
         component: UserProfileComponent
       },
       {
-        path: 'calendario',
-        component: CalendarioComponent
-      },
-      {
         path: 'agenda',
         component: AgendaComponent
+      },
+      {
+        path: 'settings',
+        component: Settings
       }
     ]
   },

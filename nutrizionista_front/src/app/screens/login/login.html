@@ -1,54 +1,104 @@
 <div class="sfondo">
-    <div class="centro">
-        <div class="sinistra">  
-            <div class="logo">
-                <img class="animazione" src="assets/img/logo.gif" (click)="goToHome()"  alt="logo">
-            </div>
-        </div>
-        <div class="destra">
-            <div class="contenitore">
-                <div class="titolo">
-                    <p>Login</p>
-                </div>
-                <div class="dati">
-                    <div class="email">
-                            <span><i class="pi pi-at"></i></span>
-                            <p-iftalabel class="emailI">
-                                <input pInputText  class="emailI" type="email" [(ngModel)]="email" required  [invalid]="!email" fluid="true">
-                                <label for="email">Email</label>
-                            </p-iftalabel>
+  <div class="centro">
 
-                    </div>
-                    <div class="password">
-                        <span><i class="pi pi-lock"></i></span>
-                        <p-iftalabel class="passwordI">
-                            <p-password  styleClass="w-full" inputStyleClass="password-custom-input" [(ngModel)]="password" [toggleMask]="true" [feedback]="false" fluid  />
-                            <label for="password">Password</label>
-                        </p-iftalabel>
-                    </div>
-                    <div class="ricordami">
-                        <p-checkbox [(ngModel)]="checked" [binary]="true" size="small" />
-                        <div class="testo">
-                            <span>Ricordami</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="tasti">
-                    <div class="login">
-                        <p-button label="Login" severity="success"  (click)="login()" [text]="true"></p-button>
-                      
-                    </div>
-                    <div class="dimenticato">
-                        <a routerLink="/dimenticato" class="dimenticatoA">Forgot password?</a>
-                    </div>
-                    <div class="linea">
-                        <hr>
-                    </div>
-                    <div class="register">
-                        <p-button label="Non hai un account? Registrati" severity="success"  (click)="goToRegistration()" [text]="true"></p-button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="sinistra">
+      <div class="logo">
+        <img
+          class="animazione"
+          src="assets/img/logo.gif"
+          (click)="goToHome()"
+          alt="logo"
+        />
+      </div>
     </div>
+
+    <div class="destra">
+      <div class="contenitore">
+
+        <div class="titolo">
+          <p>Login</p>
+        </div>
+
+        <div class="dati">
+
+          <!-- EMAIL (stesso comportamento della password: floating label Prime) -->
+          <div class="email">
+            <span><i class="pi pi-at"></i></span>
+
+            <p-iftalabel class="emailI">
+              <input
+                pInputText
+                type="email"
+                id="email"
+                [(ngModel)]="email"
+                required
+                [invalid]="false"
+                fluid="true"
+                autocomplete="email"
+              />
+              <label for="email">Email</label>
+            </p-iftalabel>
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="password">
+            <span><i class="pi pi-lock"></i></span>
+
+            <p-iftalabel class="passwordI">
+              <p-password
+                styleClass="w-full"
+                inputStyleClass="password-custom-input"
+                [(ngModel)]="password"
+                [toggleMask]="true"
+                [feedback]="false"
+                fluid
+                autocomplete="current-password"
+              />
+              <label for="password">Password</label>
+            </p-iftalabel>
+          </div>
+
+          <!-- REMEMBER -->
+          <div class="ricordami">
+            <p-checkbox [(ngModel)]="checked" [binary]="true" size="small" />
+            <div class="testo">
+              <span>Ricordami</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="tasti">
+          <div class="login">
+            <p-button
+              label="Login"
+              severity="success"
+              (click)="login()"
+              [text]="true"
+            ></p-button>
+          </div>
+
+          <div class="dimenticato">
+            <a routerLink="/dimenticato" class="dimenticatoA">Forgot password?</a>
+          </div>
+
+          <div class="linea">
+            <hr />
+          </div>
+
+          <div class="register">
+            <p-button
+              label="Non hai un account? Registrati"
+              severity="success"
+              (click)="goToRegistration()"
+              [text]="true"
+            ></p-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>

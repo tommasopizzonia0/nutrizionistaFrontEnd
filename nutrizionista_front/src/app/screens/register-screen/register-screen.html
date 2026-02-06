@@ -1,134 +1,221 @@
 <div class="sfondo">
-    <div class="centro">
-        <div class="sinistra">
-            <div class="logo">
-                <img class="animazione" src="assets/img/logo.gif" (click)="goToHome()" alt="logo">
-            </div>
-        </div>
-        <div class="destra">
-            <div class="contenitore">
-                <div class="titolo">
-                    <p>Register</p>
-                </div>
-                <div class="dati">
-                    <div class="colonna">
+  <div class="centro">
 
-                        <div class="inputDati">
-                            <span><i class="pi pi-at"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <input pInputText class="inputDatiI" type="text" [(ngModel)]="nome" required
-                                    [invalid]="!nome" fluid="true">
-                                <label for="nome">Nome</label>
-                            </p-iftalabel>
-                        </div>
-                        <div class="inputDati">
-                            <span><i class="pi pi-at"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <input pInputText class="inputDatiI" type="text" [(ngModel)]="cognome" required
-                                    [invalid]="!cognome" fluid="true">
-                                <label for="cognome">Cognome</label>
-                            </p-iftalabel>
-                        </div>
-                    </div>
-                    <div class="colonna">
-                        <div class="inputDati">
-                            <span><i class="pi pi-at"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <input class="inputDatiI" pInputText [(ngModel)]="codiceFiscale"
-                                    style="text-transform: uppercase" maxlength="16"
-                                    pattern="^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$" [invalid]="!codiceFiscale"
-                                    fluid="true">
-                                <label for="codiceFiscale">Codice Fiscale</label>
-                            </p-iftalabel>
-                        </div>
-                        <div class="inputDati">
-                            <span><i class="pi pi-calendar"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <p-datepicker [(ngModel)]="dataNascita" inputId="dataNascita" dateFormat="yy-mm-dd"
-                                    [showIcon]="false" [maxDate]="maxDate" [showClear]="true" fluid="true"
-                                    appendTo="body"> </p-datepicker>
-                                <label for="dataNascita">Data di Nascita</label>
-                            </p-iftalabel>
-                        </div>
-                    </div>
-                    <div class="colonna">
-                        <div class="inputDati">
-                            <span><i class="pi pi-phone"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <p-inputMask class="inputDatiI" mask="(999) 999-9999" [(ngModel)]="telefono"
-                                    [unmask]="true" id="telefono" styleClass="w-full input-trasparente"> </p-inputMask>
-                                <label for="telefono">Telefono</label>
-                            </p-iftalabel>
-                        </div>
-                        <div class="inputDati">
-                            <span><i class="pi pi-at"></i></span>
-                            <p-iftalabel class="inputDatiI">
-                                <input pInputText class="inputDatiI" type="text" [(ngModel)]="indirizzo" fluid="true">
-                                <label for="indirizzo">Indirizzo</label>
-                            </p-iftalabel>
-                        </div>
-                    </div>
-                    <div class="email">
-                        <span><i class="pi pi-at"></i></span>
-                        <p-iftalabel class="emailI">
-                            <input pInputText class="emailI" type="email" [(ngModel)]="email" required
-                                [invalid]="!email" fluid="true">
-                            <label for="email">Email</label>
-                        </p-iftalabel>
-                    </div>
-                    <div class="colonna">
-                        <div class="password">
-                            <span><i class="pi pi-lock"></i></span>
-                            <p-iftalabel class="passwordI">
-                                <p-password styleClass="w-full" inputStyleClass="password-custom-input"
-                                    [(ngModel)]="password" [toggleMask]="true" promptLabel="Scegli una password"
-                                    weakLabel="Troppo semplice" mediumLabel="Media complessità"
-                                    strongLabel="Password complessa" fluid />
-                                <ng-template #header>
-                                    <div class="font-semibold text-xm mb-4">Reset Password</div>
-                                </ng-template>
-                                <ng-template #footer>
-                                    <p-divider />
-                                    <ul class="pl-2 my-0 leading-normal">
-                                        <li>Almeno una lettera Maiuscola</li>
-                                        <li>Almeno un numero</li>
-                                        <li>Minimo 8 numeri</li>
-                                    </ul>
-                                </ng-template>
-                                <label for="password">Password</label>
-                            </p-iftalabel>
-                        </div>
-                        <div class="password">
-                            <span><i class="pi pi-lock"></i></span>
-                            <p-iftalabel class="passwordI">
-                                <p-password [(ngModel)]="confermaPassword" [toggleMask]="true" [feedback]="false"
-                                    [invalid]="confermaPassword && password !== confermaPassword" fluid="true"
-                                    styleClass="w-full" inputStyleClass="password-custom-input"> </p-password>
-                                <label for="confermaPassword">Conferma Password</label>
-                            </p-iftalabel>
-                        </div>
-                        @if (confermaPassword && password !== confermaPassword) {
-                        <small style="color: red; padding-left: 45px; display: block; margin-top: -10px;">
-                            Le password non corrispondono.
-                        </small>
-                        }
-                    </div>
-                </div>
-                <div class="tasti">
-                    <div class="login">
-                        <p-button label="Register" severity="success" (click)="register()" [text]="true">
-                        </p-button>
-
-                    </div>
-                    <div class="linea">
-                        <hr>
-                    </div>
-                    <div class="register">
-                        <p-button label="Hai già un account? Accedi" severity="success" (click)="goToLogin()"
-                            [text]="true"></p-button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="sinistra">
+      <div class="logo">
+        <img class="animazione" src="assets/img/logo.gif" (click)="goToHome()" alt="logo" />
+      </div>
     </div>
+
+    <div class="destra">
+      <div class="contenitore">
+
+        <div class="titolo">
+          <p>Register</p>
+        </div>
+
+        <div class="dati">
+
+          <!-- RIGA 1 -->
+          <div class="row2">
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-user"></i></span>
+              <p-iftalabel class="fieldI">
+                <input
+                  pInputText
+                  id="nome"
+                  type="text"
+                  [(ngModel)]="nome"
+                  required
+                  [invalid]="false"
+                  fluid="true"
+                  autocomplete="given-name"
+                />
+                <label for="nome">Nome</label>
+              </p-iftalabel>
+            </div>
+
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-user"></i></span>
+              <p-iftalabel class="fieldI">
+                <input
+                  pInputText
+                  id="cognome"
+                  type="text"
+                  [(ngModel)]="cognome"
+                  required
+                  [invalid]="false"
+                  fluid="true"
+                  autocomplete="family-name"
+                />
+                <label for="cognome">Cognome</label>
+              </p-iftalabel>
+            </div>
+          </div>
+
+          <!-- RIGA 2 -->
+          <div class="row2">
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-id-card"></i></span>
+              <p-iftalabel class="fieldI">
+                <input
+                  pInputText
+                  id="codiceFiscale"
+                  type="text"
+                  [(ngModel)]="codiceFiscale"
+                  style="text-transform: uppercase"
+                  maxlength="16"
+                  pattern="^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$"
+                  [invalid]="false"
+                  fluid="true"
+                  autocomplete="off"
+                />
+                <label for="codiceFiscale">Codice Fiscale</label>
+              </p-iftalabel>
+            </div>
+
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-calendar"></i></span>
+              <p-iftalabel class="fieldI">
+                <p-datepicker
+                  [(ngModel)]="dataNascita"
+                  inputId="dataNascita"
+                  dateFormat="yy-mm-dd"
+                  [showIcon]="false"
+                  [maxDate]="maxDate"
+                  [showClear]="true"
+                  fluid="true"
+                  appendTo="body"
+                ></p-datepicker>
+                <label for="dataNascita">Data di Nascita</label>
+              </p-iftalabel>
+            </div>
+          </div>
+
+          <!-- RIGA 3 -->
+          <div class="row2">
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-phone"></i></span>
+              <p-iftalabel class="fieldI">
+                <p-inputMask
+                  mask="(999) 999-9999"
+                  [(ngModel)]="telefono"
+                  [unmask]="true"
+                  inputId="telefono"
+                  fluid="true"
+                ></p-inputMask>
+                <label for="telefono">Telefono</label>
+              </p-iftalabel>
+            </div>
+
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-map-marker"></i></span>
+              <p-iftalabel class="fieldI">
+                <input
+                  pInputText
+                  id="indirizzo"
+                  type="text"
+                  [(ngModel)]="indirizzo"
+                  [invalid]="false"
+                  fluid="true"
+                  autocomplete="street-address"
+                />
+                <label for="indirizzo">Indirizzo</label>
+              </p-iftalabel>
+            </div>
+          </div>
+
+          <!-- EMAIL (full width) -->
+          <div class="field full">
+            <span class="fieldIcon"><i class="pi pi-at"></i></span>
+            <p-iftalabel class="fieldI">
+              <input
+                pInputText
+                id="email"
+                type="email"
+                [(ngModel)]="email"
+                required
+                [invalid]="false"
+                fluid="true"
+                autocomplete="email"
+              />
+              <label for="email">Email</label>
+            </p-iftalabel>
+          </div>
+
+          <!-- PASSWORDS (full width) -->
+          <div class="row2">
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-lock"></i></span>
+              <p-iftalabel class="fieldI">
+                <p-password
+                  [(ngModel)]="password"
+                  [toggleMask]="true"
+                  promptLabel="Scegli una password"
+                  weakLabel="Troppo semplice"
+                  mediumLabel="Media complessità"
+                  strongLabel="Password complessa"
+                  fluid
+                  styleClass="w-full"
+                  inputStyleClass="password-custom-input"
+                  inputId="password"
+                  autocomplete="new-password"
+                ></p-password>
+                <label for="password">Password</label>
+              </p-iftalabel>
+            </div>
+
+            <div class="field">
+              <span class="fieldIcon"><i class="pi pi-lock"></i></span>
+              <p-iftalabel class="fieldI">
+                <p-password
+                  [(ngModel)]="confermaPassword"
+                  [toggleMask]="true"
+                  [feedback]="false"
+                  [invalid]="false"
+                  fluid="true"
+                  styleClass="w-full"
+                  inputStyleClass="password-custom-input"
+                  inputId="confermaPassword"
+                  autocomplete="new-password"
+                ></p-password>
+                <label for="confermaPassword">Conferma Password</label>
+              </p-iftalabel>
+            </div>
+          </div>
+
+          @if (confermaPassword && password !== confermaPassword) {
+            <small class="errorText">
+              Le password non corrispondono.
+            </small>
+          }
+
+        </div>
+
+        <div class="tasti">
+          <div class="login">
+            <p-button
+              label="Register"
+              severity="success"
+              (click)="register()"
+              [text]="true"
+            ></p-button>
+          </div>
+
+          <div class="linea"><hr /></div>
+
+          <div class="register">
+            <p-button
+              label="Hai già un account? Accedi"
+              severity="success"
+              (click)="goToLogin()"
+              [text]="true"
+            ></p-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>

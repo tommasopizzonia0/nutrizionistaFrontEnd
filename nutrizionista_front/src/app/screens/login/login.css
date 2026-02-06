@@ -1,148 +1,463 @@
+:root{
+  --green-primary:#10b981;
+  --green-dark:#059669;
+  --green-darker:#047857;
+  --green-light:#34d399;
+
+  --text:#0f172a;
+  --muted:#64748b;
+
+  --surface: rgba(255,255,255,.92);
+  --border: rgba(16,185,129,.22);
+
+  --shadow: 0 22px 60px rgba(15,23,42,.12);
+  --radius: 18px;
+}
+
+/* ====================== */
+/* BACKGROUND (Clinical clean) */
+/* ====================== */
 .sfondo{
-    color: #10b981;            
-    background-image: url("/assets/img/sfondo-login.png");
-    background-size: cover;
-    width: 100vw;  /* 100% della larghezza viewport */
-    height: 100vh; /* 100% dell’altezza viewport */
-  
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(900px 600px at 15% 20%, rgba(16,185,129,.14), transparent 60%),
+    radial-gradient(900px 600px at 85% 80%, rgba(59,130,246,.10), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
+
+.sfondo::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(1px 1px at 25px 25px, rgba(16,185,129,.10) 1px, transparent 1px) 0 0 / 34px 34px,
+    radial-gradient(1px 1px at 10px 10px, rgba(59,130,246,.07) 1px, transparent 1px) 0 0 / 46px 46px,
+    linear-gradient(180deg, rgba(255,255,255,.55), rgba(0,0,0,.02));
+  pointer-events:none;
+}
+
+/* ====================== */
+/* LAYOUT */
+/* ====================== */
 .centro{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100vw;  /* 100% della larghezza viewport */
-    height: 100vh; /* 100% dell’altezza viewport */
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 40px;
+
+  padding: 26px 22px;
 }
+
 .sinistra, .destra{
-    display: flex;
-    width: 50%;
-    justify-content: center;
+  display:flex;
+  width: 50%;
+  justify-content:center;
+  align-items:center;
 }
+
 .sinistra{
-    padding-left: 10%;
+  padding-left: 6%;
 }
+
 .animazione{
-    max-width: 360px;
-    width: 100%;
+  max-width: 360px;
+  width: 100%;
+  cursor: pointer;
+  filter: drop-shadow(0 20px 40px rgba(15,23,42,.18));
+  transition: transform .25s ease, filter .25s ease;
 }
+
+.animazione:hover{
+  transform: translateY(-2px);
+  filter: drop-shadow(0 28px 55px rgba(15,23,42,.20));
+}
+
 .destra{
-    padding-right: 10%;   
+  padding-right: 6%;
 }
 
+/* ====================== */
+/* CARD LOGIN */
+/* ====================== */
 .contenitore{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0px 0px 16px rgba(211, 211, 211, 0.744);
-    max-width: 500px;
-    height: auto;
-    height: 500px;
-    width: 100%;
-    border-radius: 16px;
+  width: 100%;
+  max-width: 540px;
+  min-height: 520px;
+
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+
+  border-radius: var(--radius);
+  padding: 22px 22px 18px 22px;
+
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.55);
+  box-shadow: var(--shadow);
+
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
 }
-.dati{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 23px;
-    width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+
+.contenitore::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--green-primary), var(--green-dark));
 }
+
+/* ====================== */
+/* TITLE */
+/* ====================== */
 .titolo{
+  width: 100%;
+  padding: 8px 6px 0 6px;
 
-    font-size: xx-large;
-    font-weight: 500;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
 
+  font-size: 1.95rem;
+  font-weight: 950;
+  letter-spacing: -.6px;
+  color: var(--text);
 }
+
+.titolo p{
+  margin: 0;
+}
+
+.titolo::after{
+  content:"Accesso area professionista";
+  margin-top: 8px;
+  font-size: .98rem;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: -.2px;
+}
+
+/* ====================== */
+/* FORM */
+/* ====================== */
+.dati{
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 20px;
+  padding: 0 6px;
+}
+
+/* Field row */
 .email, .password{
-    border-bottom: 1px solid rgb(255, 255, 255);
-    width: 100%;
-    border-radius: 6px;
-    height: 54px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-.email{
-    margin: 10px;
-        margin-top: 0px;
+  width: 100%;
+  min-height: 74px;
+  height: auto;
 
+  display:flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(16,185,129,.18);
+  background: rgba(255,255,255,.72);
+
+  padding: 10px 12px;
+
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .15s ease;
 }
+
+.email:hover, .password:hover{
+  border-color: rgba(16,185,129,.32);
+  box-shadow: 0 12px 28px rgba(16,185,129,.12);
+  transform: translateY(-1px);
+}
+
+.email:focus-within, .password:focus-within{
+  border-color: rgba(16,185,129,.60);
+  box-shadow: 0 0 0 4px rgba(16,185,129,.16);
+  background: rgba(255,255,255,.92);
+}
+
+/* Icon container */
 .email span, .password span{
-    padding: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
 
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-}
-.emailI{
-    width: 100%; 
-    border: none;
-    background-color: transparent;
-    outline: none;
-     box-shadow: none
-}
-/* Per il componente p-password */
-:host ::ng-deep .password-custom-input {
-    width: 100% !important;
-    border: none !important;
-    background-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
+  background: rgba(16,185,129,.12);
+  color: var(--green-darker);
+  flex: 0 0 auto;
+  margin-top: 6px; /* centra l’icona rispetto al label */
 }
 
-/* Rimuovere il bordo anche dal contenitore di p-password se necessario */
-:host ::ng-deep .p-password {
-    width: 100%;
-}
-.passwordI {
-    width: 100%;
-    display: block;
+.email span i, .password span i{
+  font-size: 1.05rem;
 }
 
+/* wrappers */
+.emailI, .passwordI{ width: 100%; }
+
+/* ===== EMAIL: floating label corretto (come password) ===== */
+:host ::ng-deep .emailI{
+  width: 100%;
+}
+
+:host ::ng-deep .emailI .p-iftalabel{
+  width: 100%;
+}
+
+/* padding-top fondamentale per NON scrivere sopra la label */
+:host ::ng-deep .emailI input.p-inputtext{
+  width: 100% !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+
+  padding: 1.15rem 0 0.25rem 0 !important;   /* ✅ FIX label */
+  font-weight: 850;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* label email */
+:host ::ng-deep .emailI .p-iftalabel > label{
+  color: var(--muted) !important;
+  font-weight: 800 !important;
+}
+
+/* label sale su focus o quando è pieno */
+:host ::ng-deep .emailI .p-iftalabel:focus-within > label,
+:host ::ng-deep .emailI .p-iftalabel.p-iftalabel-filled > label{
+  color: var(--green-darker) !important;
+  transform: translateY(-1.05rem) scale(.9) !important;
+}
+
+/* rimuove eventuali bordi/ombre invalid sull’input email */
+:host ::ng-deep .emailI .p-inputtext.p-invalid,
+:host ::ng-deep .emailI input.ng-invalid.ng-touched{
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ===== PASSWORD Prime ===== */
+:host ::ng-deep .p-password{
+  width: 100%;
+}
+
+/* stesso padding-top del campo email (così label e testo sono coerenti) */
+:host ::ng-deep .password-custom-input{
+  width: 100% !important;
+  border: none !important;
+  background-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  padding: 1.15rem 0 0.25rem 0 !important;
+  font-weight: 850 !important;
+  font-size: 1.05rem !important;
+  color: var(--text) !important;
+}
+
+/* label password */
+:host ::ng-deep .passwordI .p-iftalabel > label{
+  color: var(--muted) !important;
+  font-weight: 800 !important;
+}
+
+:host ::ng-deep .passwordI .p-iftalabel:focus-within > label,
+:host ::ng-deep .passwordI .p-iftalabel.p-iftalabel-filled > label{
+  color: var(--green-darker) !important;
+}
+
+/* Toggle visibility */
+:host ::ng-deep .p-password .p-password-toggle{
+  color: rgba(15,23,42,.45);
+}
+:host ::ng-deep .p-password .p-password-toggle:hover{
+  color: var(--green-darker);
+}
+
+/* ====================== */
+/* REMEMBER */
+/* ====================== */
 .ricordami{
-    width: 100%;
-    padding: 10px;
-    
-    display: flex;
-    flex-direction: row;
-        align-items: center;
+  width: 100%;
+  padding: 6px 8px 0 8px;
+
+  display:flex;
+  align-items:center;
+  gap: 10px;
 }
 
-.testo{
-    padding-left: 5px;
+.testo span{
+  color: var(--text);
+  font-weight: 800;
 }
 
+/* Checkbox Prime */
+:host ::ng-deep .p-checkbox .p-checkbox-box{
+  border-radius: 9px;
+  border: 2px solid rgba(16,185,129,.30);
+  background: white;
+  transition: all .2s ease;
+}
 
+:host ::ng-deep .p-checkbox .p-checkbox-box:hover{
+  border-color: rgba(16,185,129,.55);
+  box-shadow: 0 0 0 4px rgba(16,185,129,.12);
+}
+
+:host ::ng-deep .p-checkbox .p-checkbox-box.p-highlight{
+  background: var(--green-primary);
+  border-color: var(--green-primary);
+}
+
+/* ====================== */
+/* ACTIONS */
+/* ====================== */
 .tasti{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    justify-content: flex-end;
-    padding-bottom: 10px;
+  width: 100%;
+  margin-top: 18px;
+
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+
+  gap: 12px;
+  padding: 14px 6px 6px 6px;
 }
+
+.login{ width: 100%; }
 
 .dimenticato{
-        margin-top: 10px;
+  width: 100%;
+  display:flex;
+  justify-content:center;
 }
-.dimenticatoA{
-    text-decoration: none;
-    color: rgb(255, 255, 255)
 
+.dimenticatoA{
+  text-decoration: none;
+  color: var(--green-darker);
+  font-weight: 850;
+  transition: transform .2s ease, color .2s ease;
 }
-.register{
-padding-top: 10px;
-padding-bottom: 10px;
+
+.dimenticatoA:hover{
+  color: var(--green-dark);
+  transform: translateY(-1px);
 }
 
 .linea{
-    width: 100%;
+  width: 100%;
+  padding-top: 2px;
 }
 
 .linea hr{
-     width: 80%;
-  margin: 20px auto;
-  height: 2px;
-  background: #fff;
+  width: 86%;
+  margin: 10px auto;
+  height: 1px;
+  border: none;
+  background: linear-gradient(90deg, transparent, rgba(16,185,129,.50), transparent);
+}
+
+.register{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+}
+
+/* ====================== */
+/* PRIME BUTTONS */
+/* ====================== */
+:host ::ng-deep .p-button{
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: .2px;
+}
+
+:host ::ng-deep .p-button.p-button-text{
+  width: 100%;
+  justify-content: center;
+  padding: 12px 14px !important;
+}
+
+/* LOGIN */
+.login :host ::ng-deep .p-button.p-button-text{
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark)) !important;
+  color: #07130f !important;
+  border: 1px solid rgba(16,185,129,.32) !important;
+  box-shadow: 0 12px 26px rgba(16,185,129,.24) !important;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.login :host ::ng-deep .p-button.p-button-text:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(16,185,129,.28) !important;
+}
+
+.login :host ::ng-deep .p-button.p-button-text:active{
+  transform: translateY(0) scale(.98);
+}
+
+/* REGISTER */
+.register :host ::ng-deep .p-button.p-button-text{
+  background: rgba(16,185,129,.10) !important;
+  color: var(--green-darker) !important;
+  border: 1px solid rgba(16,185,129,.22) !important;
+}
+
+.register :host ::ng-deep .p-button.p-button-text:hover{
+  background: rgba(16,185,129,.14) !important;
+  transform: translateY(-1px);
+}
+
+/* ====================== */
+/* RESPONSIVE */
+/* ====================== */
+@media (max-width: 1024px){
+  .sinistra{ display:none; }
+  .destra{
+    width: 100%;
+    padding-right: 0;
+  }
+  .centro{
+    padding: 22px 14px;
+  }
+  .contenitore{
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 420px){
+  .contenitore{
+    padding: 18px 14px 14px 14px;
+    border-radius: 16px;
+    min-height: 500px;
+  }
+  .titolo{
+    font-size: 1.7rem;
+  }
 }
