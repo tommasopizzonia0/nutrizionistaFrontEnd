@@ -1,18 +1,25 @@
-<div class="home-container"
-     [class.dark-mode]="themeService.isDarkMode$ | async"
-     [class.sidebar-collapsed]="sidebarService.value">
+<div class="home-container" [class.dark-mode]="themeService.isDarkMode$ | async"
+  [class.sidebar-collapsed]="sidebarService.value">
 
   <main class="main-content">
     <div class="content-wrapper">
-      <div class="header-section">
-        <h1 [class.dark-text]="themeService.isDarkMode$ | async">
-          <fa-icon [icon]="iconaSaluto"></fa-icon>
-          {{saluto}} {{ (utente$ | async)?.nome }}
-        </h1>
-        <p [class.dark-text]="themeService.isDarkMode$ | async">
-          Qui puoi vedere tutte le funzionalità principali.
-        </p>
-      </div>
+<div class="header-section">
+  <div class="header-flex">
+    <div class="logo">
+      <img class="animazione" src="assets/img/LogoStatera.png" alt="logo" />
+    </div>
+    
+    <div class="header-text">
+      <h1 [class.dark-text]="themeService.isDarkMode$ | async">
+        <fa-icon [icon]="iconaSaluto"></fa-icon>
+        {{saluto}} {{ (utente$ | async)?.nome }}
+      </h1>
+      <p [class.dark-text]="themeService.isDarkMode$ | async">
+        Qui puoi vedere tutte le funzionalità principali.
+      </p>
+    </div>
+  </div>
+</div>
 
       <div class="containers-grid">
         <div class="content-box" [class.dark-box]="themeService.isDarkMode$ | async">

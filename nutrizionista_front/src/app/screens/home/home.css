@@ -49,6 +49,39 @@ app-navbar {
 .sidebar.collapsed .containers-grid{
   margin-left: none;
 }
+/* Nuovo layout per l'header */
+.header-flex {
+  display: flex;
+  align-items: center; /* Allinea verticalmente al centro */
+  gap: 20px;           /* Spazio tra logo e testo */
+  padding: 20px;       /* Padding interno se necessario */
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;    /* Allinea il testo a sinistra */
+}
+
+/* Modifica la dimensione del logo se risulta troppo grande nel nuovo layout */
+.animazione {
+  max-width: 150px;    /* Ridotto leggermente per stare meglio a fianco del testo */
+  width: 100%;
+  cursor: pointer;
+  filter: drop-shadow(0 20px 40px rgba(15,23,42,.18));
+  transition: transform .25s ease, filter .25s ease;
+}
+
+/* Responsive: se lo schermo è piccolo*/
+@media (max-width: 600px) {
+  .header-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header-text {
+    text-align: center;
+  }
+}
 
 /* ====================== */
 /* GRIGLIA DEI 4 CONTENITORI */
