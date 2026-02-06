@@ -15,7 +15,6 @@ import { SidebarService } from '../../services/navbar.service';
 export class UserProfileComponent implements OnInit {
 
   profileForm!: FormGroup;
-  passwordForm!: FormGroup;
 
   userData: any = null;
   isEditMode = false;
@@ -56,18 +55,9 @@ export class UserProfileComponent implements OnInit {
       indirizzo: ['']
     });
 
-    this.passwordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confermaPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
   }
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const conferma = form.get('confermaPassword')?.value;
-    return password === conferma ? null : { passwordMismatch: true };
-  }
+
 
   /* =======================
      LOAD PROFILE
@@ -79,7 +69,6 @@ export class UserProfileComponent implements OnInit {
       next: data => {
         this.userData = data;
         this.profileForm.patchValue(data);
-        this.passwordForm.patchValue({ email: data.email });
 
         if (data.filePathLogo) {
           this.previewUrl = `http://localhost:8080/${data.filePathLogo}`;
@@ -109,12 +98,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  togglePasswordChange(): void {
-    this.isChangingPassword = !this.isChangingPassword;
-    if (!this.isChangingPassword && this.userData) {
-      this.passwordForm.reset({ email: this.userData.email });
-    }
-  }
+
 
   /* =======================
      FILE UPLOAD
@@ -182,25 +166,6 @@ export class UserProfileComponent implements OnInit {
       error: err => {
         console.error(err);
         this.errorMessage = 'Errore aggiornamento profilo';
-        this.loading = false;
-      }
-    });
-  }
-
-  updatePassword(): void {
-    if (this.passwordForm.invalid) return;
-
-    this.loading = true;
-    this.userService.updatePassword(this.passwordForm.value).subscribe({
-      next: () => {
-        this.message = 'Password aggiornata!';
-        this.isChangingPassword = false;
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        console.error(err);
-        this.errorMessage = 'Errore cambio password';
         this.loading = false;
       }
     });
