@@ -1,0 +1,130 @@
+<div class="agenda-shell"
+     [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
+     [class.sidebar-collapsed]="sidebarService.value">
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h2 class="title">Agenda</h2>
+        <p class="subtitle">Crea o modifica appuntamenti con preview calendario.</p>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-secondary" type="button" (click)="reset()">Reset</button>
+
+        @if (mode === 'edit') {
+          <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
+        }
+
+        <button class="btn btn-primary" type="button" [disabled]="form.invalid" (click)="save()">
+          {{ mode === 'edit' ? 'Salva' : 'Crea' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="split-grid">
+
+      <!-- SINISTRA: PREVIEW CALENDARIO -->
+      <section class="panel calendar-panel">
+        <div class="panel-header">
+          <h3>Calendario</h3>
+          <span class="hint">Seleziona uno slot per precompilare il form.</span>
+        </div>
+
+        <!-- Reuse del componente -->
+        <calendario></calendario>
+      </section>
+
+      <!-- DESTRA: FORM -->
+      <section class="panel form-panel">
+        <div class="panel-header">
+          <h3>{{ mode === 'edit' ? 'Modifica appuntamento' : 'Nuovo appuntamento' }}</h3>
+
+          <div class="badges">
+            <span class="badge badge-status" [attr.data-status]="form.value.stato">
+              {{ form.value.stato }}
+            </span>
+            <span class="badge badge-mode" [attr.data-mode]="form.value.modalita">
+              {{ form.value.modalita }}
+            </span>
+          </div>
+        </div>
+
+        <form class="form-body" [formGroup]="form" (ngSubmit)="save()">
+
+          <div class="row2">
+            <div class="field">
+              <label>Data</label>
+              <input class="input" type="date" formControlName="data">
+            </div>
+
+            <div class="field">
+              <label>Ora</label>
+              <input class="input" type="time" formControlName="ora">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Descrizione</label>
+            <input class="input" type="text" formControlName="descrizioneAppuntamento">
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label>Modalità</label>
+              <select class="input" formControlName="modalita">
+                <option value="ONLINE">Online</option>
+                <option value="IN_PRESENZA">In presenza</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Stato</label>
+              <select class="input" formControlName="stato">
+                <option value="PROGRAMMATO">Da confermare</option>
+                <option value="CONFERMATO">Confermato</option>
+                <option value="ANNULLATO">Annullato</option>
+              </select>
+            </div>
+          </div>
+
+          @if (form.value.modalita === 'IN_PRESENZA') {
+            <div class="field">
+              <label>Luogo</label>
+              <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
+            </div>
+          }
+
+          <div class="field">
+            <label>Email cliente</label>
+            <input class="input" type="email" formControlName="emailCliente" placeholder="cliente@email.com">
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label>Nome</label>
+              <input class="input" type="text" formControlName="clienteNome">
+            </div>
+
+            <div class="field">
+              <label>Cognome</label>
+              <input class="input" type="text" formControlName="clienteCognome">
+            </div>
+          </div>
+
+          @if (error) {
+            <div class="alert alert-error">{{ error }}</div>
+          }
+          @if (ok) {
+            <div class="alert alert-ok">{{ ok }}</div>
+          }
+
+          <!-- tasto submit utile per invio da tastiera -->
+          <button class="sr-only" type="submit"></button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+</div>
