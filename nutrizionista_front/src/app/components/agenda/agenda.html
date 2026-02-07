@@ -32,7 +32,6 @@
           <span class="hint">Seleziona uno slot per precompilare il form.</span>
         </div>
 
-        <!-- Reuse del componente -->
         <calendario></calendario>
       </section>
 
@@ -96,6 +95,37 @@
             </div>
           }
 
+          <!-- ✅ RICERCA CLIENTE REGISTRATO -->
+          <div class="field">
+            <label>Cliente registrato (cerca per nome o cognome)</label>
+
+            <div style="position: relative;">
+              <input class="input"
+                     type="text"
+                     formControlName="clienteSearch"
+                     placeholder="Es. Rossi"
+                     (focus)="onSearchFocus()"
+                     (blur)="onSearchBlur()">
+
+              @if (showClientDropdown) {
+                <div class="dropdown-results">
+                  @for (c of clientResults; track c.id) {
+                    <button type="button" class="dropdown-item" (click)="selectClient(c)">
+                      {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (form.value.clienteId) {
+              <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
+                Usa cliente non registrato
+              </button>
+            }
+          </div>
+
+          <!-- CAMPI GUEST (diventano disabilitati se cliente registrato) -->
           <div class="field">
             <label>Email cliente</label>
             <input class="input" type="email" formControlName="emailCliente" placeholder="cliente@email.com">
@@ -120,7 +150,6 @@
             <div class="alert alert-ok">{{ ok }}</div>
           }
 
-          <!-- tasto submit utile per invio da tastiera -->
           <button class="sr-only" type="submit"></button>
         </form>
       </section>

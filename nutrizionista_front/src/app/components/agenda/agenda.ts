@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 
 // Services
 import { ThemeService } from '../../services/theme.service';
@@ -15,6 +16,14 @@ import { AppuntamentoFormDto, OpenAgendaPayload } from '../../dto/appuntamento.d
 
 // ✅ Reuse calendario
 import { CalendarioComponent } from '../calendario/calendario';
+
+type ClienteDropdown = {
+  id: number;
+  nome: string;
+  cognome: string;
+  dataNascita: string;
+  email: string; 
+};
 
 @Component({
   selector: 'app-agenda',
@@ -46,6 +55,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
   public sidebarService = inject(SidebarService);
 
+  // ✅ risultati ricerca clienti
+  clientResults: ClienteDropdown[] = [];
+  showClientDropdown = false;
+
   form = this.fb.group({
     data: ['', Validators.required],
     ora: ['', Validators.required],
@@ -55,16 +68,48 @@ export class AgendaComponent implements OnInit, OnDestroy {
     stato: ['PROGRAMMATO'], // ✅ allineato all'enum backend
 
     luogo: [''],
+
     emailCliente: ['', [Validators.required, Validators.email]],
 
     clienteId: [null as number | null],
     clienteNome: ['', Validators.required],
     clienteCognome: ['', Validators.required],
+
+    // ✅ solo UI: ricerca cliente registrato
+    clienteSearch: ['']
   });
 
   ngOnInit(): void {
-    // ascolta comandi da Calendario (anche se storicamente erano rotte diverse)
+    // ascolta comandi da Calendario
     this.sub = this.agendaState.open$.subscribe((payload) => this.open(payload));
+
+    // ✅ validatori dinamici: se clienteId presente -> registrato, altrimenti guest
+    this.form.get('clienteId')!.valueChanges.subscribe((id) => {
+      if (id) this.setRegisteredValidators();
+      else this.setGuestValidators();
+    });
+
+    // all'avvio: guest
+    this.setGuestValidators();
+
+    // ✅ ricerca clienti (debounce)
+    this.form.get('clienteSearch')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((q) => {
+        const query = (q ?? '').trim();
+        if (query.length < 2) {
+          return of([] as ClienteDropdown[]);
+        }
+        return this.api.getMyClientsDropdown(query).pipe(
+          catchError(() => of([] as ClienteDropdown[]))
+        );
+      })
+    ).subscribe((res) => {
+      this.clientResults = res;
+      this.showClientDropdown = res.length > 0;
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy(): void {
@@ -96,6 +141,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
     this.api.getById(this.currentId).subscribe({
       next: (dto) => {
+        // NB: se cliente registrato, patchiamo anche search per mostrare label
+        const searchLabel = dto?.clienteId
+          ? `${dto.clienteNome ?? ''} ${dto.clienteCognome ?? ''}`
+          : '';
+
         this.form.patchValue({
           data: dto.data,
           ora: dto.ora?.substring(0, 5),
@@ -109,8 +159,13 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
           clienteId: dto.clienteId ?? null,
           clienteNome: dto.clienteNome ?? '',
-          clienteCognome: dto.clienteCognome ?? ''
+          clienteCognome: dto.clienteCognome ?? '',
+          clienteSearch: searchLabel
         });
+
+        // forza validatori in base a clienteId (perché patchValue non sempre triggera bene)
+        if (dto.clienteId) this.setRegisteredValidators();
+        else this.setGuestValidators();
 
         this.cdr.detectChanges();
       },
@@ -121,6 +176,103 @@ export class AgendaComponent implements OnInit, OnDestroy {
     });
   }
 
+  // =========================
+  // ✅ Dropdown clienti
+  // =========================
+
+  selectClient(c: ClienteDropdown): void {
+    this.form.patchValue({
+      clienteId: c.id,
+      clienteNome: c.nome,
+      clienteCognome: c.cognome,
+      emailCliente: c.email,
+      clienteSearch: `${c.nome} ${c.cognome} (${this.formatDateIt(c.dataNascita)})`
+    });
+
+    this.showClientDropdown = false;
+    this.clientResults = [];
+    this.cdr.detectChanges();
+  }
+
+  clearSelectedClient(): void {
+    this.form.patchValue({
+      clienteId: null,
+      clienteNome: '',
+      clienteCognome: '',
+      emailCliente: '',
+      clienteSearch: ''
+    });
+
+    this.setGuestValidators();
+
+    this.showClientDropdown = false;
+    this.clientResults = [];
+    this.cdr.detectChanges();
+  }
+
+  onSearchFocus(): void {
+    this.showClientDropdown = this.clientResults.length > 0;
+  }
+
+  onSearchBlur(): void {
+    // piccolo delay per consentire click sugli item
+    setTimeout(() => {
+      this.showClientDropdown = false;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  formatDateIt(iso: string): string {
+    const [y, m, d] = (iso ?? '').split('-');
+    if (!y || !m || !d) return iso;
+    return `${d}/${m}/${y}`;
+  }
+
+  // =========================
+  // ✅ Validators dinamici
+  // =========================
+
+  private setGuestValidators(): void {
+    const nome = this.form.get('clienteNome')!;
+    const cognome = this.form.get('clienteCognome')!;
+    const email = this.form.get('emailCliente')!;
+
+    nome.setValidators([Validators.required]);
+    cognome.setValidators([Validators.required]);
+    email.setValidators([Validators.required, Validators.email]);
+
+    nome.enable({ emitEvent: false });
+    cognome.enable({ emitEvent: false });
+    email.enable({ emitEvent: false });
+
+    nome.updateValueAndValidity({ emitEvent: false });
+    cognome.updateValueAndValidity({ emitEvent: false });
+    email.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private setRegisteredValidators(): void {
+    const nome = this.form.get('clienteNome')!;
+    const cognome = this.form.get('clienteCognome')!;
+    const email = this.form.get('emailCliente')!;
+
+    nome.clearValidators();
+    cognome.clearValidators();
+    email.clearValidators();
+
+    // disabilita inserimento manuale per evitare modifiche superflue
+    nome.disable({ emitEvent: false });
+    cognome.disable({ emitEvent: false });
+    email.disable({ emitEvent: false });
+
+    nome.updateValueAndValidity({ emitEvent: false });
+    cognome.updateValueAndValidity({ emitEvent: false });
+    email.updateValueAndValidity({ emitEvent: false });
+  }
+
+  // =========================
+  // ✅ CRUD
+  // =========================
+
   save(): void {
     this.error = '';
     this.ok = '';
@@ -130,7 +282,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const v: any = this.form.value;
+    // ✅ include anche campi disabilitati
+    const v: any = this.form.getRawValue();
 
     const payload: AppuntamentoFormDto = {
       data: v.data,
@@ -139,7 +292,9 @@ export class AgendaComponent implements OnInit, OnDestroy {
       modalita: v.modalita,
       stato: v.stato,
       luogo: v.luogo,
+
       emailCliente: v.emailCliente,
+
       clienteId: v.clienteId,
       clienteNome: v.clienteNome,
       clienteCognome: v.clienteCognome
@@ -149,7 +304,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       this.api.create(payload).subscribe({
         next: () => {
           this.ok = 'Appuntamento creato';
-          this.calendarRefresh.requestRefresh(); // ✅ ricarica preview calendario
+          this.calendarRefresh.requestRefresh();
           this.cdr.detectChanges();
         },
         error: (e) => {
@@ -165,7 +320,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.api.update(this.currentId, payload).subscribe({
       next: () => {
         this.ok = 'Appuntamento aggiornato';
-        this.calendarRefresh.requestRefresh(); // ✅
+        this.calendarRefresh.requestRefresh();
         this.cdr.detectChanges();
       },
       error: (e) => {
@@ -184,7 +339,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.api.delete(this.currentId).subscribe({
       next: () => {
         this.ok = 'Appuntamento eliminato';
-        this.calendarRefresh.requestRefresh(); // ✅
+        this.calendarRefresh.requestRefresh();
         this.reset();
         this.mode = 'create';
         this.currentId = null;
@@ -211,8 +366,12 @@ export class AgendaComponent implements OnInit, OnDestroy {
       emailCliente: '',
       clienteId: null,
       clienteNome: '',
-      clienteCognome: ''
+      clienteCognome: '',
+      clienteSearch: ''
     });
+
+    // torna guest
+    this.setGuestValidators();
 
     this.cdr.detectChanges();
   }

@@ -15,6 +15,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
+import itLocale from '@fullcalendar/core/locales/it';
+
 import { AppuntamentiApiService } from '../../services/appuntamenti.service';
 import { AgendaStateService } from '../../services/agenda-state.service';
 import { CalendarRefreshService } from '../../services/calendar-refresh.service';
@@ -57,20 +59,46 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
-  calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-    initialView: 'timeGridWeek',
-    selectable: true,
-    editable: true,
-    eventResizableFromStart: true,
-    nowIndicator: true,
-    height: 'auto',
+calendarOptions: CalendarOptions = {
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
 
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
+  locale: itLocale,
+  timeZone: 'Europe/Rome',
+
+  initialView: 'timeGridWeek',
+  firstDay: 1,
+
+  weekNumbers: false,   // ❌ niente "Sm"
+  allDaySlot: false,    // ❌ niente "Tutto il giorno"
+
+  selectable: true,
+  editable: true,
+  eventResizableFromStart: true,
+  nowIndicator: true,
+  height: 'auto',
+
+  // slotMinTime: '11:00:00',
+  // slotMaxTime: '23:00:00',
+  scrollTime: '08:00:00',
+
+  slotLabelFormat: {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  },
+
+  eventTimeFormat: {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  },
+
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+  },
+
 
     // carica eventi per range
     events: (info, successCallback, failureCallback) => {
@@ -83,6 +111,7 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
           const mapped = events.map(e => {
             const stato = e?.extendedProps?.stato ?? e?.stato ?? null;
 
+            // (opzionale) mappa colori per stato
             const colorMap: Record<string, { bg: string; border: string; text: string }> = {
               PROGRAMMATO: { bg: '#f59e0b', border: '#d97706', text: '#111827' },
               CONFERMATO: { bg: '#22c55e', border: '#16a34a', text: '#052e16' },
@@ -93,10 +122,14 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
 
             return {
               ...e,
-              id: String(e.id),          // ⚠️ FullCalendar vuole string
+              id: String(e.id),          // FullCalendar vuole string
+
+              // colori (opzionale)
               backgroundColor: c?.bg,
               borderColor: c?.border,
               textColor: c?.text,
+
+              // conserva lo stato sempre in extendedProps
               extendedProps: {
                 ...(e.extendedProps ?? {}),
                 stato: stato
@@ -110,50 +143,45 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       });
     },
 
-
     // click su evento -> apri agenda in edit
     eventClick: (arg: EventClickArg) => {
       const id = Number(arg.event.id);
       this.agendaState.openEdit(id);
-      // qui non navighiamo: l’Agenda è su un’altra rotta.
-      // se vuoi navigare automaticamente, dimmelo e lo aggiungo.
     },
 
     // selezione slot -> apri agenda in create
     select: (arg: DateSelectArg) => {
       this.agendaState.openCreate(arg.startStr);
-      // idem: se vuoi navigare alla rotta agenda, dimmelo.
     },
 
     // drag&drop
+    // ✅ usa startStr/endStr (coerenti con Europe/Rome) invece di toISOString() (UTC)
     eventDrop: (arg: EventDropArg) => {
       const id = Number(arg.event.id);
-      const startIso = arg.event.start?.toISOString();
-      const endIso = arg.event.end?.toISOString() ?? null;
+      const startStr = arg.event.startStr;
+      const endStr = arg.event.endStr ?? null;
 
-      if (!startIso) return;
+      if (!startStr) return;
 
-      this.api.move(id, startIso, endIso).subscribe({
+      this.api.move(id, startStr, endStr).subscribe({
         next: () => { },
         error: () => arg.revert()
       });
     },
 
-    // resize (typing non esportato nella tua versione -> any)
+    // resize
+    // ✅ usa startStr/endStr invece di toISOString()
     eventResize: (arg: any) => {
       const id = Number(arg.event.id);
-      const startIso = arg.event.start?.toISOString();
-      const endIso = arg.event.end?.toISOString() ?? null;
+      const startStr = arg.event.startStr;
+      const endStr = arg.event.endStr ?? null;
 
-      if (!startIso) return;
+      if (!startStr) return;
 
-      this.api.move(id, startIso, endIso).subscribe({
+      this.api.move(id, startStr, endStr).subscribe({
         next: () => { },
         error: () => arg.revert?.()
       });
     }
-
-
-
   };
 }

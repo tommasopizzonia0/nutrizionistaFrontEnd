@@ -48,3 +48,11 @@ export interface ClienteFormDto {
   assunzioneFarmaci?: string;
   beveAlcol?: boolean;
 }
+
+export interface ClienteDropdownDto {
+  id: number;
+  nome: string;
+  cognome: string;
+  dataNascita: string; // ISO: yyyy-mm-dd
+  email : string;
+}

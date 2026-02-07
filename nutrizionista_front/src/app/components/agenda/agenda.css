@@ -205,6 +205,65 @@ label{
   background: rgba(255,255,255,0.06);
   color: #e5e7eb;
 }
+/* ===== CLIENT DROPDOWN (ricerca cliente registrato) ===== */
+.dropdown-results{
+  position: absolute;
+  z-index: 999;
+  left: 0;
+  right: 0;
+  margin-top: 6px;
+
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dropdown-item{
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  font-weight: 800;
+  color: #111827;
+}
+
+.dropdown-item:hover{
+  background: rgba(37,99,235,0.08);
+}
+
+/* Dark mode */
+.agenda-shell.dark-mode .dropdown-results{
+  background: #020617;
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+}
+.agenda-shell.dark-mode .dropdown-item{
+  color: #e5e7eb;
+}
+.agenda-shell.dark-mode .dropdown-item:hover{
+  background: rgba(37,99,235,0.18);
+}
+
+/* ===== INPUT DISABLED (cliente registrato) ===== */
+.input:disabled{
+  opacity: .75;
+  cursor: not-allowed;
+  background: rgba(0,0,0,0.04);
+}
+
+.agenda-shell.dark-mode .input:disabled{
+  background: rgba(255,255,255,0.06);
+}
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1100px){
@@ -215,3 +274,4 @@ label{
     grid-template-columns: 1fr;
   }
 }
+
