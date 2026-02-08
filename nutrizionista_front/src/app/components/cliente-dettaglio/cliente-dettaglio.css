@@ -341,6 +341,10 @@
   background: #2d2d2d;
 }
 
+.dark-mode .dettaglio-section {
+  color: #ffffff;
+}
+
 .dettaglio-section:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-shadow-hover);

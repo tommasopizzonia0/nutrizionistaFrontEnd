@@ -1,14 +1,15 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faEdit, faTimes, faCalendarDays, faCheckCircle, faBan,
-  faUtensils, faFire, faClipboardList
+  faUtensils, faFire, faClipboardList, faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
 import { SchedaDto } from '../../dto/scheda.dto';
 import { PastoDto } from '../../dto/pasto.dto';
+import { SchedaService } from '../../services/scheda-service';
 
 @Component({
   selector: 'app-anteprima-scheda',
@@ -17,11 +18,18 @@ import { PastoDto } from '../../dto/pasto.dto';
   templateUrl: './anteprima-scheda.html',
   styleUrls: ['./anteprima-scheda.css']
 })
-export class AnteprimaSchedaComponent {
+export class AnteprimaSchedaComponent implements OnChanges {
   @Input() scheda!: SchedaDto;
   @Input() isDarkMode = false;
   @Output() editRequested = new EventEmitter<void>();
   @Output() closeRequested = new EventEmitter<void>();
+
+  private schedaService = inject(SchedaService);
+  private cdr = inject(ChangeDetectorRef);
+
+  // La scheda con dati completi (pasti + alimentiPasto)
+  schedaDettagliata?: SchedaDto;
+  loading = false;
 
   // Icone
   icEdit = faEdit;
@@ -32,6 +40,32 @@ export class AnteprimaSchedaComponent {
   icUtensils = faUtensils;
   icFire = faFire;
   icClipboard = faClipboardList;
+  icSpinner = faSpinner;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['scheda'] && this.scheda?.id) {
+      this.loadSchedaDettagliata(this.scheda.id);
+    }
+  }
+
+  private loadSchedaDettagliata(id: number): void {
+    this.loading = true;
+    this.cdr.markForCheck();
+
+    this.schedaService.getById(id).subscribe({
+      next: (scheda) => {
+        this.schedaDettagliata = scheda;
+        this.loading = false;
+        this.cdr.detectChanges(); // Forza aggiornamento UI
+      },
+      error: () => {
+        // Fallback: usa la scheda passata senza dettagli
+        this.schedaDettagliata = this.scheda;
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   onEdit(): void {
     this.editRequested.emit();
@@ -50,7 +84,7 @@ export class AnteprimaSchedaComponent {
   }
 
   calcolaTotaleCalorieGiornaliere(): number {
-    if (!this.scheda?.pasti) return 0;
-    return this.scheda.pasti.reduce((sum, pasto) => sum + this.calcolaTotaleCalorico(pasto), 0);
+    if (!this.schedaDettagliata?.pasti) return 0;
+    return this.schedaDettagliata.pasti.reduce((sum, pasto) => sum + this.calcolaTotaleCalorico(pasto), 0);
   }
 }

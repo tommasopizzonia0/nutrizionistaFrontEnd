@@ -1,0 +1,73 @@
+<aside class="catalogo-panel" [class.dark-mode]="isDarkMode">
+    <div class="catalogo-head">
+        <div class="catalogo-title">
+            <div class="kicker">Aggiungi alimenti</div>
+            <div class="big">Catalogo Alimenti</div>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <div class="search-box">
+            <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
+            <input type="text" [(ngModel)]="searchQuery" (input)="onSearchAlimenti()" placeholder="Cerca alimento..."
+                class="search-input" />
+        </div>
+    </div>
+
+    <div class="catalogo-body">
+        @if (loadingAlimenti) {
+        <div class="text-center p-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Caricamento...</span>
+            </div>
+        </div>
+        }
+
+        @if (!loadingAlimenti && alimentiDisponibili.length === 0 && searchQuery.length > 0) {
+        <div class="catalogo-empty">
+            <div class="catalogo-empty-title">Nessun alimento trovato</div>
+            <div class="catalogo-empty-sub">
+                Prova a cercare con un termine diverso.
+            </div>
+        </div>
+        }
+
+        @if (!loadingAlimenti && alimentiDisponibili.length > 0) {
+        <div class="alimenti-catalogo">
+            @for (alimento of alimentiDisponibili; track alimento.id) {
+            <div class="catalogo-item" (click)="onClickAlimento(alimento)">
+                <div class="catalogo-info">
+                    <span class="catalogo-nome">{{ alimento.nome }}</span>
+                    @if (alimento.macroNutrienti) {
+                    <div class="catalogo-macros">
+                        <span class="macro-chip p">P: {{ alimento.macroNutrienti.proteine }} g</span>
+                        <span class="macro-chip c">C: {{ alimento.macroNutrienti.carboidrati }} g</span>
+                        <span class="macro-chip g">G: {{ alimento.macroNutrienti.grassi }} g</span>
+                        <span class="macro-chip kcal">{{ alimento.macroNutrienti.calorie }} kcal</span>
+                    </div>
+                    }
+                </div>
+                <div class="catalogo-action">
+                    <button class="add-btn" type="button" title="Aggiungi">
+                        <fa-icon [icon]="icons.plus"></fa-icon>
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+
+    <!-- Indicatore pasto selezionato -->
+    @if (pastoEspanso) {
+    <div class="selected-pasto-indicator">
+        <fa-icon [icon]="icons.arrowRight"></fa-icon>
+        Aggiungendo a: <strong>{{ pastoEspanso }}</strong>
+    </div>
+    } @else {
+    <div class="selected-pasto-indicator warning">
+        <fa-icon [icon]="icons.warning"></fa-icon>
+        Seleziona un pasto per aggiungere alimenti
+    </div>
+    }
+</aside>

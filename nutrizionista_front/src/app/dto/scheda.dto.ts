@@ -14,7 +14,8 @@ export interface SchedaDto {
 export interface SchedaFormDto {
     id?: number;
     nome: string;
-    cliente: ClienteDto;
-    attiva: boolean;
-    dataCreazione: string;
+    cliente: { id: number };
+    attiva?: boolean;
+    dataCreazione?: string;
 }
+

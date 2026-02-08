@@ -43,9 +43,15 @@
             <h4>
                 <fa-icon [icon]="icUtensils"></fa-icon> Pasti
             </h4>
-            @if (scheda.pasti && scheda.pasti.length > 0) {
+
+            @if (loading) {
+            <div class="loading-pasti">
+                <fa-icon [icon]="icSpinner" class="fa-spin"></fa-icon>
+                <span>Caricamento dettagli...</span>
+            </div>
+            } @else if (schedaDettagliata && schedaDettagliata.pasti && schedaDettagliata.pasti.length > 0) {
             <div class="pasti-list">
-                @for (pasto of scheda.pasti; track pasto.nome) {
+                @for (pasto of schedaDettagliata!.pasti!; track pasto.nome) {
                 <div class="pasto-row">
                     <span class="pasto-nome">{{ pasto.nome }}</span>
                     <div class="pasto-stats">
