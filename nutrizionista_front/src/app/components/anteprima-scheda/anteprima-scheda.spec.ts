@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AnteprimaScheda } from './anteprima-scheda';
+import { AnteprimaSchedaComponent } from './anteprima-scheda';
 
-describe('AnteprimaScheda', () => {
-  let component: AnteprimaScheda;
-  let fixture: ComponentFixture<AnteprimaScheda>;
+describe('AnteprimaSchedaComponent', () => {
+  let component: AnteprimaSchedaComponent;
+  let fixture: ComponentFixture<AnteprimaSchedaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AnteprimaScheda]
+      imports: [AnteprimaSchedaComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(AnteprimaScheda);
+    fixture = TestBed.createComponent(AnteprimaSchedaComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

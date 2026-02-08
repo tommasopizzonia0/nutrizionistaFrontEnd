@@ -14,7 +14,7 @@ export interface PastoDto {
 export interface PastoFormDto {
     id?: number;
     nome?: 'Colazione' | 'Pranzo' | 'Cena' | 'Merenda';
-    scheda: SchedaDto;
+    scheda: { id: number };
     orarioInizio?: string;
     orarioFine?: string;
 }

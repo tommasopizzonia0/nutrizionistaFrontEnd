@@ -1,104 +1,115 @@
-:root{
-  --green-primary:#10b981;
-  --green-dark:#059669;
-  --green-darker:#047857;
-  --green-light:#34d399;
+:root {
+  --green-primary: #10b981;
+  --green-dark: #059669;
+  --green-darker: #047857;
+  --green-light: #34d399;
 
-  --text:#0f172a;
-  --muted:#64748b;
+  --text: #0f172a;
+  --muted: #64748b;
 
-  --surface: rgba(255,255,255,.92);
-  --border: rgba(16,185,129,.22);
+  --surface: rgba(255, 255, 255, .92);
+  --border: rgba(16, 185, 129, .22);
 
-  --shadow: 0 22px 60px rgba(15,23,42,.12);
+  --shadow: 0 22px 60px rgba(15, 23, 42, .12);
   --radius: 18px;
 }
 
 /* ====================== */
 /* BACKGROUND */
 /* ====================== */
-.sfondo{
+.sfondo {
+  margin: 0;
+  padding: 0;
   width: 100vw;
   height: 100vh;
   position: relative;
   overflow: hidden;
 
   background:
-    radial-gradient(900px 600px at 15% 20%, rgba(16,185,129,.14), transparent 60%),
-    radial-gradient(900px 600px at 85% 80%, rgba(59,130,246,.10), transparent 60%),
+    radial-gradient(900px 600px at 15% 20%, rgba(16, 185, 129, .14), transparent 60%),
+    radial-gradient(900px 600px at 85% 80%, rgba(59, 130, 246, .10), transparent 60%),
     linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
-.sfondo::before{
-  content:"";
-  position:absolute;
-  inset:0;
+.sfondo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(1px 1px at 25px 25px, rgba(16,185,129,.10) 1px, transparent 1px) 0 0 / 34px 34px,
-    radial-gradient(1px 1px at 10px 10px, rgba(59,130,246,.07) 1px, transparent 1px) 0 0 / 46px 46px,
-    linear-gradient(180deg, rgba(255,255,255,.55), rgba(0,0,0,.02));
-  pointer-events:none;
+    radial-gradient(1px 1px at 25px 25px, rgba(16, 185, 129, .10) 1px, transparent 1px) 0 0 / 34px 34px,
+    radial-gradient(1px 1px at 10px 10px, rgba(59, 130, 246, .07) 1px, transparent 1px) 0 0 / 46px 46px,
+    linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(0, 0, 0, .02));
+  pointer-events: none;
 }
 
 /* ====================== */
 /* LAYOUT */
 /* ====================== */
-.centro{
+.centro {
   position: relative;
   z-index: 1;
 
   width: 100vw;
   height: 100vh;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  /* AGGIUNGI QUESTA RIGA: */
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 40px;
 
   padding: 26px 22px;
 }
 
-.sinistra, .destra{
-  display:flex;
+.sinistra,
+.destra {
+  display: flex;
   width: 50%;
-  justify-content:center;
-  align-items:center;
+  justify-content: center;
+  align-items: center;
 }
 
-.sinistra{ padding-left: 6%; }
+.sinistra {
+  padding-left: 6%;
+}
 
-.animazione{
+.animazione {
   max-width: 600px;
   width: 100%;
   cursor: pointer;
-  filter: drop-shadow(0 20px 40px rgba(15,23,42,.18));
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, .18));
   transition: transform .25s ease, filter .25s ease;
 }
 
-.animazione:hover{
+.animazione:hover {
   transform: translateY(-2px);
-  filter: drop-shadow(0 28px 55px rgba(15,23,42,.20));
+  filter: drop-shadow(0 28px 55px rgba(15, 23, 42, .20));
 }
 
-.destra{ padding-right: 6%; }
+.destra {
+  padding-right: 6%;
+}
 
 /* ====================== */
 /* CARD */
 /* ====================== */
-.contenitore{
+.contenitore {
   width: 100%;
-  max-width: 780px;           /* più largo del login: qui hai più campi */
+  max-width: 780px;
+  /* più largo del login: qui hai più campi */
   min-height: 560px;
 
-  display:flex;
+  display: flex;
   flex-direction: column;
-  align-items:center;
+  align-items: center;
 
   border-radius: var(--radius);
   padding: 22px 22px 18px 22px;
 
   background: var(--surface);
-  border: 1px solid rgba(255,255,255,.55);
+  border: 1px solid rgba(255, 255, 255, .55);
   box-shadow: var(--shadow);
 
   backdrop-filter: blur(10px);
@@ -106,12 +117,12 @@
   overflow: hidden;
 }
 
-.contenitore::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
+.contenitore::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 6px;
   background: linear-gradient(90deg, var(--green-primary), var(--green-dark));
 }
@@ -119,13 +130,13 @@
 /* ====================== */
 /* TITLE */
 /* ====================== */
-.titolo{
+.titolo {
   width: 100%;
   padding: 8px 6px 0 6px;
 
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 14px;
 
   font-size: 1.95rem;
@@ -134,10 +145,12 @@
   color: var(--text);
 }
 
-.titolo p{ margin: 0; }
+.titolo p {
+  margin: 0;
+}
 
-.titolo::after{
-  content:"Crea il tuo accesso professionale";
+.titolo::after {
+  content: "Crea il tuo accesso professionale";
   margin-top: 8px;
   font-size: .98rem;
   font-weight: 800;
@@ -148,9 +161,9 @@
 /* ====================== */
 /* FORM */
 /* ====================== */
-.dati{
+.dati {
   width: 100%;
-  display:flex;
+  display: flex;
   flex-direction: column;
   gap: 12px;
 
@@ -159,150 +172,166 @@
 }
 
 /* Griglia 2 colonne */
-.row2{
-  display:grid;
+.row2 {
+  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
 /* Campo */
-.field{
+.field {
   width: 100%;
-  min-height: 74px;
+  min-height: 60px;
   height: auto;
 
-  display:flex;
+  display: flex;
   align-items: stretch;
   gap: 12px;
 
   border-radius: 14px;
-  border: 1px solid rgba(16,185,129,.18);
-  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(16, 185, 129, .18);
+  background: rgba(255, 255, 255, .72);
 
   padding: 10px 12px;
   transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .15s ease;
 }
 
-.field.full{ width: 100%; }
+.field.full {
+  width: 100%;
+}
 
-.field:hover{
-  border-color: rgba(16,185,129,.32);
-  box-shadow: 0 12px 28px rgba(16,185,129,.12);
+.field:hover {
+  border-color: rgba(16, 185, 129, .32);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, .12);
   transform: translateY(-1px);
 }
 
-.field:focus-within{
-  border-color: rgba(16,185,129,.60);
-  box-shadow: 0 0 0 4px rgba(16,185,129,.16);
-  background: rgba(255,255,255,.92);
+.field:focus-within {
+  border-color: rgba(16, 185, 129, .60);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, .16);
+  background: rgba(255, 255, 255, .92);
 }
 
 /* Icon */
-.fieldIcon{
+.fieldIcon {
   width: 40px;
   height: 40px;
   border-radius: 14px;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  background: rgba(16,185,129,.12);
+  background: rgba(16, 185, 129, .12);
   color: var(--green-darker);
   flex: 0 0 auto;
 
   margin-top: 6px;
 }
 
-.fieldIcon i{ font-size: 1.05rem; }
+.fieldIcon i {
+  font-size: 1.05rem;
+}
 
 /* Prime label wrapper */
-.fieldI{ width: 100%; }
-:host ::ng-deep .fieldI .p-iftalabel{ width: 100%; }
+.fieldI {
+  width: 100%;
+}
+
+:host ::ng-deep .fieldI .p-iftalabel {
+  width: 100%;
+}
 
 /* ====================== */
 /* PRIME INPUTS - NO OVERLAP LABEL */
 /* ====================== */
 
 /* Input text */
-:host ::ng-deep .fieldI input.p-inputtext{
+:host ::ng-deep .fieldI input.p-inputtext {
   width: 100% !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
 
-  padding: 1.15rem 0 0.25rem 0 !important;  /* ✅ fondamentale */
+  padding: 1.15rem 0 0.25rem 0 !important;
+  /* ✅ fondamentale */
   font-weight: 850;
   font-size: 1.05rem;
   color: var(--text);
 }
 
 /* Datepicker input */
-:host ::ng-deep .fieldI .p-datepicker-input{
+:host ::ng-deep .fieldI .p-datepicker-input {
   width: 100% !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
 
-  padding: 1.15rem 0 0.25rem 0 !important;  /* ✅ fondamentale */
+  padding: 1.15rem 0 0.25rem 0 !important;
+  /* ✅ fondamentale */
   font-weight: 850;
   font-size: 1.05rem;
   color: var(--text);
 }
 
 /* InputMask input */
-:host ::ng-deep .fieldI .p-inputmask{
+:host ::ng-deep .fieldI .p-inputmask {
   width: 100% !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
 
-  padding: 1.15rem 0 0.25rem 0 !important;  /* ✅ fondamentale */
+  padding: 1.15rem 0 0.25rem 0 !important;
+  /* ✅ fondamentale */
   font-weight: 850;
   font-size: 1.05rem;
   color: var(--text);
 }
 
 /* Password input */
-:host ::ng-deep .password-custom-input{
+:host ::ng-deep .password-custom-input {
   width: 100% !important;
   border: none !important;
   background-color: transparent !important;
   outline: none !important;
   box-shadow: none !important;
 
-  padding: 1.15rem 0 0.25rem 0 !important;  /* ✅ fondamentale */
+  padding: 1.15rem 0 0.25rem 0 !important;
+  /* ✅ fondamentale */
   font-weight: 850 !important;
   font-size: 1.05rem !important;
   color: var(--text) !important;
 }
 
-:host ::ng-deep .p-password{ width: 100%; }
+:host ::ng-deep .p-password {
+  width: 100%;
+}
 
 /* Labels */
-:host ::ng-deep .fieldI .p-iftalabel > label{
+:host ::ng-deep .fieldI .p-iftalabel>label {
   color: var(--muted) !important;
   font-weight: 800 !important;
 }
 
-:host ::ng-deep .fieldI .p-iftalabel:focus-within > label,
-:host ::ng-deep .fieldI .p-iftalabel.p-iftalabel-filled > label{
+:host ::ng-deep .fieldI .p-iftalabel:focus-within>label,
+:host ::ng-deep .fieldI .p-iftalabel.p-iftalabel-filled>label {
   color: var(--green-darker) !important;
 }
 
 /* Toggle password */
-:host ::ng-deep .p-password .p-password-toggle{
-  color: rgba(15,23,42,.45);
+:host ::ng-deep .p-password .p-password-toggle {
+  color: rgba(15, 23, 42, .45);
 }
-:host ::ng-deep .p-password .p-password-toggle:hover{
+
+:host ::ng-deep .p-password .p-password-toggle:hover {
   color: var(--green-darker);
 }
 
 /* Errore password mismatch */
-.errorText{
+.errorText {
   color: #dc2626;
   font-weight: 800;
   padding-left: 52px;
@@ -312,101 +341,122 @@
 /* ====================== */
 /* ACTIONS */
 /* ====================== */
-.tasti{
+.tasti {
   width: 100%;
   margin-top: 14px;
 
-  display:flex;
+  display: flex;
   flex-direction: column;
-  align-items:center;
+  align-items: center;
 
   gap: 12px;
   padding: 14px 6px 6px 6px;
 }
 
-.login{ width: 100%; }
+.login {
+  width: 100%;
+}
 
-.linea{ width: 100%; padding-top: 2px; }
-.linea hr{
+.linea {
+  width: 100%;
+  padding-top: 2px;
+}
+
+.linea hr {
   width: 86%;
   margin: 10px auto;
   height: 1px;
   border: none;
-  background: linear-gradient(90deg, transparent, rgba(16,185,129,.50), transparent);
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, .50), transparent);
 }
 
-.register{
+.register {
   width: 100%;
-  display:flex;
-  justify-content:center;
+  display: flex;
+  justify-content: center;
 }
 
 /* Prime buttons */
-:host ::ng-deep .p-button{
+:host ::ng-deep .p-button {
   border-radius: 14px !important;
   font-weight: 900 !important;
   letter-spacing: .2px;
 }
 
-:host ::ng-deep .p-button.p-button-text{
+:host ::ng-deep .p-button.p-button-text {
   width: 100%;
   justify-content: center;
   padding: 12px 14px !important;
 }
 
 /* Register primary */
-.login :host ::ng-deep .p-button.p-button-text{
+.login :host ::ng-deep .p-button.p-button-text {
   background: linear-gradient(135deg, var(--green-primary), var(--green-dark)) !important;
   color: #07130f !important;
-  border: 1px solid rgba(16,185,129,.32) !important;
-  box-shadow: 0 12px 26px rgba(16,185,129,.24) !important;
+  border: 1px solid rgba(16, 185, 129, .32) !important;
+  box-shadow: 0 12px 26px rgba(16, 185, 129, .24) !important;
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.login :host ::ng-deep .p-button.p-button-text:hover{
+.login :host ::ng-deep .p-button.p-button-text:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 34px rgba(16,185,129,.28) !important;
+  box-shadow: 0 18px 34px rgba(16, 185, 129, .28) !important;
 }
 
-.login :host ::ng-deep .p-button.p-button-text:active{
+.login :host ::ng-deep .p-button.p-button-text:active {
   transform: translateY(0) scale(.98);
 }
 
 /* Link button */
-.register :host ::ng-deep .p-button.p-button-text{
-  background: rgba(16,185,129,.10) !important;
+.register :host ::ng-deep .p-button.p-button-text {
+  background: rgba(16, 185, 129, .10) !important;
   color: var(--green-darker) !important;
-  border: 1px solid rgba(16,185,129,.22) !important;
+  border: 1px solid rgba(16, 185, 129, .22) !important;
 }
 
-.register :host ::ng-deep .p-button.p-button-text:hover{
-  background: rgba(16,185,129,.14) !important;
+.register :host ::ng-deep .p-button.p-button-text:hover {
+  background: rgba(16, 185, 129, .14) !important;
   transform: translateY(-1px);
 }
 
 /* ====================== */
 /* RESPONSIVE */
 /* ====================== */
-@media (max-width: 1024px){
-  .sinistra{ display:none; }
-  .destra{
+@media (max-width: 1140px) {
+  .sinistra {
+    display: none;
+  }
+
+  .destra {
     width: 100%;
     padding-right: 0;
   }
-  .centro{ padding: 22px 14px; }
-  .contenitore{ max-width: 720px; }
+
+  .centro {
+    padding: 22px 14px;
+  }
+
+  .contenitore {
+    max-width: 720px;
+  }
 }
 
-@media (max-width: 720px){
-  .row2{ grid-template-columns: 1fr; }
-  .contenitore{ max-width: 620px; }
+@media (max-width: 720px) {
+
+  .contenitore {
+    max-width: 620px;
+  }
 }
 
-@media (max-width: 420px){
-  .contenitore{
+@media (max-width: 420px) {
+  .contenitore {
     padding: 18px 14px 14px 14px;
     border-radius: 16px;
-    min-height: 560px;
+    min-height: 500px;
   }
-  .titolo{ font-size: 1.7rem; }
+
+  .titolo {
+    font-size: 1.7rem;
+  }
+
 }

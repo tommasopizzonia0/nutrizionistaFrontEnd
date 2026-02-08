@@ -40,7 +40,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 body.dark {
