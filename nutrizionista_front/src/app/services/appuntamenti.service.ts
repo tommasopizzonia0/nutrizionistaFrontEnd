@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CalendarEventDto, AppuntamentoFormDto, AppuntamentoDto } from '../dto/appuntamento.dto';
+import { ClienteDropdownDto } from '../dto/cliente.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { CalendarEventDto, AppuntamentoFormDto, AppuntamentoDto } from '../dto/a
 export class AppuntamentiApiService {
   private baseUrl = 'http://localhost:8080/api/appuntamenti';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getMyEvents(start: string, end: string): Observable<CalendarEventDto[]> {
     const params = new HttpParams().set('start', start).set('end', end);
@@ -37,4 +38,11 @@ export class AppuntamentiApiService {
     if (endIso) params = params.set('end', endIso);
     return this.http.patch<AppuntamentoDto>(`${this.baseUrl}/${id}/move`, null, { params });
   }
+
+  getMyClientsDropdown(q: string) {
+    return this.http.get<ClienteDropdownDto[]>(`${this.baseUrl}/me/clienti/dropdown`, {
+      params: { q }
+    });
+  }
+
 }
