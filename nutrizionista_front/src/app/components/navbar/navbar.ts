@@ -25,7 +25,7 @@ import {
 import { UtenteDto } from '../../dto/utente.dto';
 import { UserService } from '../../services/user.service';
 import { SidebarService } from '../../services/navbar.service';
-import { ThemeService } from '../../services/theme.service'; 
+import { ThemeService } from '../../services/theme.service';
 import { Observable } from 'rxjs';
 
 interface MenuItem {
@@ -45,10 +45,10 @@ interface MenuItem {
 })
 export class NavbarComponent implements OnInit {
 
-  
+
   activeItem: string = 'dashboard';
   loading = false;
-  utente$!: Observable <UtenteDto>;
+  utente$!: Observable<UtenteDto>;
   previewUrl: string | null = null;
   errorMessage = '';
 
@@ -76,10 +76,10 @@ export class NavbarComponent implements OnInit {
   ];
 
   constructor(
-    private router: Router, 
-    private serviceUtente: UserService,  
+    private router: Router,
+    private serviceUtente: UserService,
     public sidebarService: SidebarService,
-    public themeService: ThemeService 
+    public themeService: ThemeService
   ) { }
 
   ngOnInit(): void {
@@ -151,8 +151,8 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-    getThemeIcon() {
-      return this.themeService.value ? this.faSun : this.faMoon;
-    }
+  getThemeIcon() {
+    return this.themeService.value ? this.faSun : this.faMoon;
+  }
 
 }

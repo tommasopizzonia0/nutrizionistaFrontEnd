@@ -33,7 +33,7 @@ export class UserProfileComponent implements OnInit {
     private userService: UserService,
     public themeService: ThemeService,
     public sidebarService: SidebarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForms();

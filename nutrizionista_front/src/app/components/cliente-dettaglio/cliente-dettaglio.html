@@ -115,9 +115,11 @@
     }
 
     @if (vistaCorrente === 'misurazioni') {
-    <app-lista-misurazioni [clienteId]="clienteId" [isDarkMode]="(themeService.isDarkMode$ | async) ?? false">
+    <app-lista-misurazioni [clienteId]="clienteId" [cliente]="cliente"
+      [isDarkMode]="(themeService.isDarkMode$ | async) ?? false">
     </app-lista-misurazioni>
     }
+
 
     @if (vistaCorrente === 'piano-alimentare') {
 

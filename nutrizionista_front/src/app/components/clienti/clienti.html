@@ -74,18 +74,25 @@
 
     <!-- PAGINAZIONE -->
     @if (totalPages > 1) {
-    <div class="pagination">
-      <button (click)="cambiapagina(currentPage - 1)" [disabled]="currentPage === 0">
+    <div class="pagination-pro">
+      <button class="page-btn" (click)="cambiapagina(currentPage - 1)" [disabled]="currentPage === 0"
+        aria-label="Pagina precedente">
         <fa-icon [icon]="faChevronLeft"></fa-icon>
       </button>
 
-      <span>Pagina {{ paginaCorrente }} di {{ totalPages }}</span>
+      <div class="page-indicator pill-indicator">
+        <span class="page-current">{{ paginaCorrente }}</span>
+        <span class="page-sep">/</span>
+        <span class="page-total">{{ totalPages }}</span>
+      </div>
 
-      <button (click)="cambiapagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+      <button class="page-btn" (click)="cambiapagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1"
+        aria-label="Pagina successiva">
         <fa-icon [icon]="faChevronRight"></fa-icon>
       </button>
     </div>
     }
+
 
     <!-- MODAL -->
     @if (modalAperta) {

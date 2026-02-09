@@ -1,4 +1,13 @@
-import { Component, Input, OnChanges, SimpleChanges, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  ViewChild,
+  ElementRef,
+  AfterViewInit
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
@@ -16,7 +25,8 @@ import {
   faDumbbell,
   faCalendarDays,
   faClock,
-  faChevronLeft
+  faChevronLeft,
+  faPlus
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -29,19 +39,30 @@ import { MisurazioneAntropometricaService } from '../../services/misurazione-ant
 // ✅ Chart.js
 import { Chart } from 'chart.js/auto';
 
+// ✅ Form component
+import { MisurazioneComponent } from '../misurazione/misurazione';
+
+// ✅ Cliente dto (serve per sessoClass nel form)
+import { ClienteDto } from '../../dto/cliente.dto';
+
 type PreviewMetric = { label: string; value?: number | null; unit: string };
 type MetricKey = 'all' | 'vita' | 'fianchi' | 'torace' | 'spalle';
 
 @Component({
   selector: 'app-lista-misurazioni',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, FontAwesomeModule, MisurazioneComponent],
   templateUrl: './lista-misurazioni.html',
   styleUrls: ['./lista-misurazioni.css']
 })
 export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
   @Input() clienteId!: number;
   @Input() isDarkMode = false;
+
+  // ✅ serve perché <app-misurazione> lo usa per sessoClass
+  @Input() cliente!: ClienteDto;
+
+  unreadIds = new Set<number>();
 
   private misurazioneService = inject(MisurazioneAntropometricaService);
 
@@ -55,6 +76,9 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
 
   misurazioneSelezionata?: MisurazioneAntropometricaDto;
 
+  // ✅ Modal form
+  showForm = false;
+
   // ===== Font Awesome icons =====
   icClock: IconDefinition = faClock;
   icCalendar: IconDefinition = faCalendarDays;
@@ -63,6 +87,7 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
   icChevronDown: IconDefinition = faChevronDown;
   icClose: IconDefinition = faXmark;
   icChevronLeft: IconDefinition = faChevronLeft;
+  icPlus: IconDefinition = faPlus;
 
   icRuler: IconDefinition = faRulerCombined;
   icTorso: IconDefinition = faPerson;
@@ -83,6 +108,7 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.viewReady = true;
+
     // se ho già dati in cache (caso raro), disegno
     if (this.lastList.length) {
       setTimeout(() => this.updateChartFromList(this.lastList), 0);
@@ -93,6 +119,7 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
     if (changes['clienteId'] && this.clienteId) {
       this.currentPage = 0;
       this.misurazioneSelezionata = undefined;
+      this.loadUnreadIds();
       this.loadMisurazioni();
     }
 
@@ -102,6 +129,29 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
     }
   }
 
+  // =========================
+  // MODAL FORM
+  // =========================
+  openForm(): void {
+    this.showForm = true;
+  }
+
+  closeForm(): void {
+    this.showForm = false;
+  }
+    onMisurazioneSalvata(id: number): void {
+      this.showForm = false;
+      this.currentPage = 0;
+      this.unreadIds.add(id);
+      this.saveUnreadIds();
+      this.loadMisurazioni();
+    }
+
+
+
+  // =========================
+  // LOAD + LIST ACTIONS
+  // =========================
   loadMisurazioni(): void {
     if (!this.clienteId) return;
 
@@ -113,12 +163,12 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
       .pipe(
         tap((page) => {
           this.lastList = page.contenuto ?? [];
-          // chart update
           setTimeout(() => this.updateChartFromList(this.lastList), 0);
         }),
         catchError((err) => {
           console.error(err);
           this.errorMessage = 'Errore nel caricamento delle misurazioni';
+
           this.lastList = [];
           setTimeout(() => this.updateChartFromList([]), 0);
 
@@ -144,10 +194,41 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
     this.loadMisurazioni();
   }
 
-  onSelezionaMisurazione(m: MisurazioneAntropometricaDto): void {
-    this.misurazioneSelezionata =
-      this.misurazioneSelezionata?.id === m.id ? undefined : m;
+onSelezionaMisurazione(m: MisurazioneAntropometricaDto): void {
+  const isOpening = this.misurazioneSelezionata?.id !== m.id;
+
+  this.misurazioneSelezionata = isOpening ? m : undefined;
+
+  if (isOpening && m?.id) {
+    this.unreadIds.delete(m.id);
+
+    this.saveUnreadIds(); 
+
+    this.unreadIds = new Set(this.unreadIds);
   }
+}
+
+private unreadStorageKey(): string {
+  return `misurazioni_unread_${this.clienteId}`;
+}
+
+private loadUnreadIds(): void {
+  try {
+    const raw = localStorage.getItem(this.unreadStorageKey());
+    const arr = raw ? (JSON.parse(raw) as number[]) : [];
+    this.unreadIds = new Set(arr);
+  } catch {
+    this.unreadIds = new Set<number>();
+  }
+}
+
+private saveUnreadIds(): void {
+  try {
+    localStorage.setItem(this.unreadStorageKey(), JSON.stringify([...this.unreadIds]));
+  } catch {}
+}
+
+
 
   onChiudiDettaglio(): void {
     this.misurazioneSelezionata = undefined;
@@ -210,12 +291,20 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
     ];
   }
 
-  getCompletion(m: MisurazioneAntropometricaDto): { filled: number; total: number; pct: number } {
+  getCompletion(
+    m: MisurazioneAntropometricaDto
+  ): { filled: number; total: number; pct: number } {
     const fields: Array<number | undefined | null> = [
-      m.spalle, m.torace, m.vita, m.fianchi,
-      m.gambaS, m.gambaD, m.bicipiteS, m.bicipiteD
+      m.spalle,
+      m.torace,
+      m.vita,
+      m.fianchi,
+      m.gambaS,
+      m.gambaD,
+      m.bicipiteS,
+      m.bicipiteD
     ];
-    const filled = fields.filter(v => v !== null && v !== undefined && v !== 0).length;
+    const filled = fields.filter((v) => v !== null && v !== undefined && v !== 0).length;
     const total = fields.length;
     const pct = total ? Math.round((filled / total) * 100) : 0;
     return { filled, total, pct };
@@ -226,43 +315,57 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
   // =========================
   private metricLabel(metric: Exclude<MetricKey, 'all'>): string {
     switch (metric) {
-      case 'vita': return 'Vita';
-      case 'fianchi': return 'Fianchi';
-      case 'torace': return 'Torace';
-      case 'spalle': return 'Spalle';
+      case 'vita':
+        return 'Vita';
+      case 'fianchi':
+        return 'Fianchi';
+      case 'torace':
+        return 'Torace';
+      case 'spalle':
+        return 'Spalle';
     }
   }
 
-  private getMetricValue(m: MisurazioneAntropometricaDto, metric: Exclude<MetricKey, 'all'>): number | null {
+  private getMetricValue(
+    m: MisurazioneAntropometricaDto,
+    metric: Exclude<MetricKey, 'all'>
+  ): number | null {
     const v =
-      metric === 'vita' ? m.vita :
-      metric === 'fianchi' ? m.fianchi :
-      metric === 'torace' ? m.torace :
-      m.spalle;
+      metric === 'vita'
+        ? m.vita
+        : metric === 'fianchi'
+          ? m.fianchi
+          : metric === 'torace'
+            ? m.torace
+            : m.spalle;
 
-    return (v === null || v === undefined || v === 0) ? null : v;
+    return v === null || v === undefined || v === 0 ? null : v;
   }
 
   private updateChartFromList(list: MisurazioneAntropometricaDto[]) {
     // se la view non è pronta, evita errori (es. canvas non esiste ancora)
     if (!this.viewReady) return;
 
-    const sorted = [...list].sort((a, b) =>
-      new Date(a.dataMisurazione || '').getTime() - new Date(b.dataMisurazione || '').getTime()
+    const sorted = [...list].sort(
+      (a, b) =>
+        new Date(a.dataMisurazione || '').getTime() -
+        new Date(b.dataMisurazione || '').getTime()
     );
 
-    const labels = sorted.map(x => this.formatData(x.dataMisurazione));
+    const labels = sorted.map((x) => this.formatData(x.dataMisurazione));
 
-    // palette per metrica (colori diversi)
-    const palette: Record<Exclude<MetricKey, 'all'>, { border: string; point: string }> = {
-      vita: { border: '#10b981', point: '#10b981' },      // green
-      fianchi: { border: '#3b82f6', point: '#3b82f6' },   // blue
-      torace: { border: '#f59e0b', point: '#f59e0b' },    // amber
-      spalle: { border: '#a855f7', point: '#a855f7' }    // purple
+    const palette: Record<
+      Exclude<MetricKey, 'all'>,
+      { border: string; point: string }
+    > = {
+      vita: { border: '#10b981', point: '#10b981' },
+      fianchi: { border: '#3b82f6', point: '#3b82f6' },
+      torace: { border: '#f59e0b', point: '#f59e0b' },
+      spalle: { border: '#a855f7', point: '#a855f7' }
     };
 
     const buildSeries = (metric: Exclude<MetricKey, 'all'>) => {
-      const values = sorted.map(x => this.getMetricValue(x, metric));
+      const values = sorted.map((x) => this.getMetricValue(x, metric));
       return { metric, values };
     };
 
@@ -278,7 +381,10 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
         ? allSeries
         : [buildSeries(this.selectedMetric as Exclude<MetricKey, 'all'>)];
 
-    const hasAny = activeSeries.some(s => s.values.some(v => v !== null && v !== undefined));
+    const hasAny = activeSeries.some((s) =>
+      s.values.some((v) => v !== null && v !== undefined)
+    );
+
     this.chartHasData = hasAny && labels.length > 0;
 
     if (!this.chartHasData) {
@@ -292,22 +398,24 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
     const canvas = this.progressChart?.nativeElement;
     if (!canvas) return;
 
-    const gridColor = this.isDarkMode ? 'rgba(148,163,184,0.18)' : 'rgba(15,23,42,0.10)';
+    const gridColor = this.isDarkMode
+      ? 'rgba(148,163,184,0.18)'
+      : 'rgba(15,23,42,0.10)';
     const tickColor = this.isDarkMode ? '#cbd5e1' : '#334155';
     const isSinglePoint = labels.length === 1;
 
-    const datasets = activeSeries.map(s => {
+    const datasets = activeSeries.map((s) => {
       const c = palette[s.metric];
       return {
         label: this.metricLabel(s.metric),
-        data: s.values.map(v => (v ?? null)),
+        data: s.values.map((v) => (v ?? null)),
         spanGaps: true,
         tension: 0.35,
         borderWidth: 2,
         borderColor: c.border,
         pointBackgroundColor: c.point,
         pointBorderColor: c.point,
-        pointRadius: isSinglePoint ? 6 : 3, // ✅ visibile anche con 1 misurazione
+        pointRadius: isSinglePoint ? 6 : 3,
         pointHoverRadius: 7
       };
     });
@@ -329,8 +437,15 @@ export class ListaMisurazioniComponent implements OnChanges, AfterViewInit {
         }
       },
       scales: {
-        x: { grid: { color: gridColor }, ticks: { color: tickColor, maxRotation: 0 } },
-        y: { grid: { color: gridColor }, ticks: { color: tickColor }, beginAtZero: false }
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor, maxRotation: 0 }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor },
+          beginAtZero: false
+        }
       }
     };
 

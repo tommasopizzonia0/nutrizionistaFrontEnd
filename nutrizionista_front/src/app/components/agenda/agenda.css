@@ -1,212 +1,255 @@
-.agenda-shell { width: 100%; }
+.agenda-shell {
+  width: 100%;
+}
 
-.main-content { padding: 16px; }
+.main-content {
+  padding: 16px;
+}
 
-.page-header{
-  display:flex;
+.page-header {
+  display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 14px;
 }
 
-.title{
-  margin:0;
+.title {
+  margin: 0;
   font-size: 1.6rem;
   font-weight: 800;
 }
-.subtitle{
+
+.subtitle {
   margin: 6px 0 0;
   opacity: .75;
 }
 
-.top-actions{
-  display:flex;
+.top-actions {
+  display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.btn{
+.btn {
   padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid transparent;
   cursor: pointer;
   font-weight: 700;
 }
-.btn-primary{ background:#2563eb; color:#fff; }
-.btn-secondary{ background:#374151; color:#e5e7eb; }
-.btn-danger{ background:#b91c1c; color:#fff; }
-.btn-primary:disabled{ opacity:.55; cursor:not-allowed; }
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.btn-danger {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 
 /* ====== SPLIT LAYOUT ====== */
-.split-grid{
-  display:grid;
-  grid-template-columns: 2fr 1fr; /* ✅ sinistra grande */
+.split-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  /* ✅ sinistra grande */
   gap: 16px;
   align-items: start;
 }
 
-.panel{
+.panel {
   border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.10);
+  border: 1px solid rgba(0, 0, 0, 0.10);
   background: #f9fafb;
   overflow: hidden;
 }
 
-.panel-header{
+.panel-header {
   padding: 14px 14px 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-  display:flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.panel-header h3{ margin:0; font-size: 1.1rem; font-weight: 800; }
-.hint{ opacity:.7; font-size:.9rem; }
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
 
-.calendar-panel{
+.hint {
+  opacity: .7;
+  font-size: .9rem;
+}
+
+.calendar-panel {
   padding-bottom: 10px;
 }
 
 /* FullCalendar wrapper dentro panel */
 .calendar-panel :host,
-.calendar-panel calendario{
-  display:block;
+.calendar-panel calendario {
+  display: block;
 }
 
 /* ===== FORM PANEL ===== */
-.form-panel .form-body{
+.form-panel .form-body {
   padding: 14px;
 }
 
-.field{
-  display:flex;
+.field {
+  display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 12px;
 }
 
-label{
+label {
   font-weight: 700;
   opacity: .85;
   font-size: .9rem;
 }
 
-.input{
-  width:100%;
+.input {
+  width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.18);
+  border: 1px solid rgba(0, 0, 0, 0.18);
   background: #fff;
   color: #111827;
 }
 
-.input:focus{
-  outline:none;
-  border-color:#2563eb;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
-.row2{
-  display:grid;
+.row2 {
+  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
 /* ===== BADGES ===== */
-.badges{
-  display:flex;
+.badges {
+  display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-.badge{
-  display:inline-flex;
-  align-items:center;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
   padding: 7px 10px;
   border-radius: 999px;
   font-weight: 800;
   font-size: .82rem;
-  border: 1px solid rgba(0,0,0,0.10);
-  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(0, 0, 0, 0.03);
 }
-.badge-status[data-status="PROGRAMMATO"]{
-  background: rgba(245,158,11,.14);
-  border-color: rgba(245,158,11,.35);
+
+.badge-status[data-status="PROGRAMMATO"] {
+  background: rgba(245, 158, 11, .14);
+  border-color: rgba(245, 158, 11, .35);
   color: #92400e;
 }
-.badge-status[data-status="CONFERMATO"]{
-  background: rgba(34,197,94,.14);
-  border-color: rgba(34,197,94,.35);
+
+.badge-status[data-status="CONFERMATO"] {
+  background: rgba(34, 197, 94, .14);
+  border-color: rgba(34, 197, 94, .35);
   color: #14532d;
 }
-.badge-status[data-status="ANNULLATO"]{
-  background: rgba(239,68,68,.14);
-  border-color: rgba(239,68,68,.35);
+
+.badge-status[data-status="ANNULLATO"] {
+  background: rgba(239, 68, 68, .14);
+  border-color: rgba(239, 68, 68, .35);
   color: #7f1d1d;
 }
-.badge-mode[data-mode="ONLINE"]{
-  background: rgba(59,130,246,.14);
-  border-color: rgba(59,130,246,.35);
+
+.badge-mode[data-mode="ONLINE"] {
+  background: rgba(59, 130, 246, .14);
+  border-color: rgba(59, 130, 246, .35);
   color: #1e3a8a;
 }
-.badge-mode[data-mode="IN_PRESENZA"]{
-  background: rgba(168,85,247,.14);
-  border-color: rgba(168,85,247,.35);
+
+.badge-mode[data-mode="IN_PRESENZA"] {
+  background: rgba(168, 85, 247, .14);
+  border-color: rgba(168, 85, 247, .35);
   color: #581c87;
 }
 
 /* ===== ALERTS ===== */
-.alert{
+.alert {
   border-radius: 14px;
   padding: 12px 14px;
   border: 1px solid transparent;
   font-weight: 700;
   margin-top: 10px;
 }
-.alert-error{
-  background: rgba(185,28,28,0.12);
-  border-color: rgba(185,28,28,0.30);
+
+.alert-error {
+  background: rgba(185, 28, 28, 0.12);
+  border-color: rgba(185, 28, 28, 0.30);
   color: #7f1d1d;
 }
-.alert-ok{
-  background: rgba(21,128,61,0.12);
-  border-color: rgba(21,128,61,0.30);
+
+.alert-ok {
+  background: rgba(21, 128, 61, 0.12);
+  border-color: rgba(21, 128, 61, 0.30);
   color: #14532d;
 }
 
 /* SR-only submit */
-.sr-only{
-  position:absolute;
-  left:-9999px;
+.sr-only {
+  position: absolute;
+  left: -9999px;
 }
 
 /* ===== DARK MODE ===== */
-.agenda-shell.dark-mode .panel{
+.agenda-shell.dark-mode .panel {
   background: #0f172a;
-  border-color: rgba(255,255,255,0.10);
+  border-color: rgba(255, 255, 255, 0.10);
 }
-.agenda-shell.dark-mode .panel-header{
-  border-bottom-color: rgba(255,255,255,0.08);
+
+.agenda-shell.dark-mode .panel-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
+
 .agenda-shell.dark-mode .title,
 .agenda-shell.dark-mode .subtitle,
 .agenda-shell.dark-mode label,
 .agenda-shell.dark-mode .panel-header h3,
-.agenda-shell.dark-mode .hint{
+.agenda-shell.dark-mode .hint {
   color: #e5e7eb;
 }
-.agenda-shell.dark-mode .input{
+
+.agenda-shell.dark-mode .input {
   background: #020617;
   color: #e5e7eb;
-  border-color: rgba(255,255,255,0.16);
+  border-color: rgba(255, 255, 255, 0.16);
 }
-.agenda-shell.dark-mode .badge{
-  border-color: rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+
+.agenda-shell.dark-mode .badge {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
   color: #e5e7eb;
 }
+
 /* ===== CLIENT DROPDOWN (ricerca cliente registrato) ===== */
-.dropdown-results{
+.dropdown-results {
   position: absolute;
   z-index: 999;
   left: 0;
@@ -214,16 +257,16 @@ label{
   margin-top: 6px;
 
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.10);
 
   overflow: hidden;
   max-height: 260px;
   overflow-y: auto;
 }
 
-.dropdown-item{
+.dropdown-item {
   width: 100%;
   text-align: left;
   padding: 10px 12px;
@@ -236,42 +279,45 @@ label{
   color: #111827;
 }
 
-.dropdown-item:hover{
-  background: rgba(37,99,235,0.08);
+.dropdown-item:hover {
+  background: rgba(37, 99, 235, 0.08);
 }
 
 /* Dark mode */
-.agenda-shell.dark-mode .dropdown-results{
+.agenda-shell.dark-mode .dropdown-results {
   background: #020617;
-  border-color: rgba(255,255,255,0.14);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
-.agenda-shell.dark-mode .dropdown-item{
+
+.agenda-shell.dark-mode .dropdown-item {
   color: #e5e7eb;
 }
-.agenda-shell.dark-mode .dropdown-item:hover{
-  background: rgba(37,99,235,0.18);
+
+.agenda-shell.dark-mode .dropdown-item:hover {
+  background: rgba(37, 99, 235, 0.18);
 }
 
 /* ===== INPUT DISABLED (cliente registrato) ===== */
-.input:disabled{
+.input:disabled {
   opacity: .75;
   cursor: not-allowed;
-  background: rgba(0,0,0,0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.agenda-shell.dark-mode .input:disabled{
-  background: rgba(255,255,255,0.06);
+.agenda-shell.dark-mode .input:disabled {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 1100px){
-  .split-grid{
-    grid-template-columns: 1fr; /* stack */
+@media (max-width: 1100px) {
+  .split-grid {
+    grid-template-columns: 1fr;
+    /* stack */
   }
-  .row2{
+
+  .row2 {
     grid-template-columns: 1fr;
   }
 }
-
