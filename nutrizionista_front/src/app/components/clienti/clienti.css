@@ -589,6 +589,204 @@ app-navbar {
 /* ====================== */
 /* PAGINATION */
 /* ====================== */
+
+/* =========================
+   PAGINAZIONE PRO
+   ========================= */
+
+.pagination-pro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 10px 14px;
+
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 16px;
+
+  box-shadow: 0 10px 22px rgba(16, 185, 129, 0.12);
+}
+
+/* bottoni */
+.page-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  background: rgba(16, 185, 129, 0.10);
+  color: var(--green-darker);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.22);
+}
+
+.page-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* indicatore pagina */
+.page-indicator {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+
+  font-weight: 950;
+  letter-spacing: -0.3px;
+}
+
+.page-current {
+  font-size: 1.1rem;
+  color: var(--green-darker);
+}
+
+.page-sep {
+  opacity: 0.5;
+}
+
+.page-total {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* =========================
+   DARK MODE
+   ========================= */
+
+.dark-mode .pagination-pro {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.30);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+}
+
+.dark-mode .page-btn {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #d1fae5;
+}
+
+.dark-mode .page-btn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: rgba(16, 185, 129, 0.55);
+}
+
+.dark-mode .page-current {
+  color: #ecfdf5;
+}
+
+.dark-mode .page-indicator {
+  color: #ecfdf5;
+}
+
+.dark-mode .page-current {
+  color: #ffffff;
+}
+
+.dark-mode .page-sep {
+  opacity: 0.7;
+  color: #a7f3d0;
+}
+
+.dark-mode .page-total {
+  opacity: 0.85;
+  color: #d1fae5;
+}
+
+/* =========================
+   PAGINATION GLOW PILL
+   ========================= */
+
+.pill-indicator {
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.05),
+    0 6px 16px rgba(16, 185, 129, .18);
+
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.pill-indicator:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 10px 22px rgba(16, 185, 129, .28);
+}
+
+/* numeri */
+
+.pill-indicator .page-current {
+  font-size: 1.15rem;
+  font-weight: 950;
+  color: var(--green-darker);
+}
+
+.pill-indicator .page-sep {
+  opacity: .6;
+}
+
+.pill-indicator .page-total {
+  font-size: .9rem;
+  opacity: .75;
+}
+
+/* =========================
+   DARK MODE GLOW
+   ========================= */
+
+.dark-mode .pill-indicator {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 10px 28px rgba(0,0,0,.45),
+    0 0 18px rgba(16,185,129,.25);
+}
+
+.dark-mode .pill-indicator .page-current {
+  color: #ffffff;
+}
+
+.dark-mode .pill-indicator .page-sep {
+  color: #a7f3d0;
+  opacity: .8;
+}
+
+.dark-mode .pill-indicator .page-total {
+  color: #d1fae5;
+  opacity: .9;
+}
+
+
+
 .pagination {
   display: flex;
   justify-content: center;

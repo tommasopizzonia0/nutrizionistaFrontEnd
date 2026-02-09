@@ -22,7 +22,7 @@ type ClienteDropdown = {
   nome: string;
   cognome: string;
   dataNascita: string;
-  email: string; 
+  email: string;
 };
 
 @Component({
@@ -370,7 +370,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       clienteSearch: ''
     });
 
-    // torna guest
+    
     this.setGuestValidators();
 
     this.cdr.detectChanges();

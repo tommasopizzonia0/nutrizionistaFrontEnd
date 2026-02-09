@@ -1,6 +1,5 @@
-<div class="container"
-     [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
-     [class.sidebar-collapsed]="sidebarService.value">
+<div class="container" [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
+  [class.sidebar-collapsed]="sidebarService.value">
 
   <main class="main-content">
     <div class="settings-container">
@@ -16,136 +15,131 @@
       </header>
 
       @if (message) {
-        <div class="alert alert-success">
-          <fa-icon [icon]="icOk"></fa-icon> {{ message }}
-        </div>
+      <div class="alert alert-success">
+        <fa-icon [icon]="icOk"></fa-icon> {{ message }}
+      </div>
       }
       @if (errorMessage) {
-        <div class="alert alert-error">
-          <fa-icon [icon]="icWarn"></fa-icon> {{ errorMessage }}
-        </div>
+      <div class="alert alert-error">
+        <fa-icon [icon]="icWarn"></fa-icon> {{ errorMessage }}
+      </div>
       }
 
       @if (loading && !userData) {
-        <div class="loading-container">
-          <!-- qui puoi lasciare la spinner classica se vuoi -->
-          <i class="fas fa-spinner fa-spin fa-3x"></i>
-          <p>Caricamento impostazioni...</p>
-        </div>
+      <div class="loading-container">
+        <!-- qui puoi lasciare la spinner classica se vuoi -->
+        <i class="fas fa-spinner fa-spin fa-3x"></i>
+        <p>Caricamento impostazioni...</p>
+      </div>
       }
 
       @if (!loading && userData) {
 
-        <section class="panel">
-          <div class="panel-head">
-            <div class="panel-title">
-              <h2>
-                <fa-icon [icon]="icShield"></fa-icon>
-                Sicurezza
-              </h2>
-              <p class="panel-sub">Proteggi l’accesso e mantieni l’account al sicuro.</p>
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>
+              <fa-icon [icon]="icShield"></fa-icon>
+              Sicurezza
+            </h2>
+            <p class="panel-sub">Proteggi l’accesso e mantieni l’account al sicuro.</p>
+          </div>
+
+          <button class="btn btn-secondary" (click)="togglePasswordChange()" [disabled]="loading">
+            <fa-icon [icon]="isChangingPassword ? icClose : icKey"></fa-icon>
+            {{ isChangingPassword ? 'Chiudi' : 'Cambia password' }}
+          </button>
+        </div>
+
+        @if (!isChangingPassword) {
+        <div class="panel-body">
+          <div class="setting-row">
+            <div class="setting-left">
+              <div class="setting-name">
+                <fa-icon [icon]="icLock"></fa-icon>
+                Password
+              </div>
+              <div class="setting-desc">
+                Usa una password unica e lunga. Consigliato almeno 12 caratteri.
+              </div>
+            </div>
+            <div class="setting-right">
+              <span class="pill">
+                <fa-icon [icon]="icOk"></fa-icon> Gestita
+              </span>
+            </div>
+          </div>
+
+          <div class="callout">
+            <fa-icon [icon]="icInfo"></fa-icon>
+            Se gestisci dati sanitari, cambia password periodicamente e non condividerla.
+          </div>
+        </div>
+        } @else {
+        <form class="panel-body" [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>
+                <fa-icon [icon]="icEnvelope"></fa-icon> Email
+              </label>
+              <input type="email" formControlName="email" readonly class="readonly">
             </div>
 
-            <button class="btn btn-secondary"
-                    (click)="togglePasswordChange()"
-                    [disabled]="loading">
-              <fa-icon [icon]="isChangingPassword ? icClose : icKey"></fa-icon>
-              {{ isChangingPassword ? 'Chiudi' : 'Cambia password' }}
+            <div class="form-group">
+              <label>
+                <fa-icon [icon]="icKey"></fa-icon> Nuova password *
+              </label>
+              <input type="password" formControlName="password" placeholder="Minimo 8 caratteri">
+              @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+              <span class="error">La password deve essere di almeno 8 caratteri</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>
+                <fa-icon [icon]="icKey"></fa-icon> Conferma password *
+              </label>
+              <input type="password" formControlName="confermaPassword" placeholder="Ripeti la password">
+              @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confermaPassword')?.touched) {
+              <span class="error">Le password non coincidono</span>
+              }
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" (click)="togglePasswordChange()" [disabled]="loading">
+              <fa-icon [icon]="icBack"></fa-icon>
+              Annulla
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || loading">
+              <fa-icon [icon]="icSave"></fa-icon>
+              Aggiorna
             </button>
           </div>
+        </form>
+        }
+      </section>
 
-          @if (!isChangingPassword) {
-            <div class="panel-body">
-              <div class="setting-row">
-                <div class="setting-left">
-                  <div class="setting-name">
-                    <fa-icon [icon]="icLock"></fa-icon>
-                    Password
-                  </div>
-                  <div class="setting-desc">
-                    Usa una password unica e lunga. Consigliato almeno 12 caratteri.
-                  </div>
-                </div>
-                <div class="setting-right">
-                  <span class="pill">
-                    <fa-icon [icon]="icOk"></fa-icon> Gestita
-                  </span>
-                </div>
-              </div>
-
-              <div class="callout">
-                <fa-icon [icon]="icInfo"></fa-icon>
-                Se gestisci dati sanitari, cambia password periodicamente e non condividerla.
-              </div>
-            </div>
-          } @else {
-            <form class="panel-body" [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
-              <div class="form-grid">
-                <div class="form-group full-width">
-                  <label>
-                    <fa-icon [icon]="icEnvelope"></fa-icon> Email
-                  </label>
-                  <input type="email" formControlName="email" readonly class="readonly">
-                </div>
-
-                <div class="form-group">
-                  <label>
-                    <fa-icon [icon]="icKey"></fa-icon> Nuova password *
-                  </label>
-                  <input type="password" formControlName="password" placeholder="Minimo 8 caratteri">
-                  @if (passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
-                    <span class="error">La password deve essere di almeno 8 caratteri</span>
-                  }
-                </div>
-
-                <div class="form-group">
-                  <label>
-                    <fa-icon [icon]="icKey"></fa-icon> Conferma password *
-                  </label>
-                  <input type="password" formControlName="confermaPassword" placeholder="Ripeti la password">
-                  @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confermaPassword')?.touched) {
-                    <span class="error">Le password non coincidono</span>
-                  }
-                </div>
-              </div>
-
-              <div class="actions">
-                <button type="button" class="btn btn-ghost"
-                        (click)="togglePasswordChange()" [disabled]="loading">
-                  <fa-icon [icon]="icBack"></fa-icon>
-                  Annulla
-                </button>
-
-                <button type="submit" class="btn btn-primary"
-                        [disabled]="passwordForm.invalid || loading">
-                  <fa-icon [icon]="icSave"></fa-icon>
-                  Aggiorna
-                </button>
-              </div>
-            </form>
-          }
-        </section>
-
-        <section class="panel muted">
-          <div class="panel-head">
-            <div class="panel-title">
-              <h2>
-                <fa-icon [icon]="icSliders"></fa-icon>
-                Preferenze
-              </h2>
-              <p class="panel-sub">Sezione pronta per notifiche, privacy, tema, ecc.</p>
-            </div>
+      <section class="panel muted">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>
+              <fa-icon [icon]="icSliders"></fa-icon>
+              Preferenze
+            </h2>
+            <p class="panel-sub">Sezione pronta per notifiche, privacy, tema, ecc.</p>
           </div>
-          <div class="panel-body">
-            <div class="empty">
-              <fa-icon [icon]="icHourglass"></fa-icon>
-              Nessuna preferenza configurabile al momento.
-            </div>
+        </div>
+        <div class="panel-body">
+          <div class="empty">
+            <fa-icon [icon]="icHourglass"></fa-icon>
+            Nessuna preferenza configurabile al momento.
           </div>
-        </section>
+        </div>
+      </section>
 
       }
     </div>
   </main>
 </div>
-//

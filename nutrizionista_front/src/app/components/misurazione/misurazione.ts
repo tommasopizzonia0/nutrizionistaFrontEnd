@@ -18,7 +18,7 @@ import { ClienteDto } from '../../dto/cliente.dto';
 export class MisurazioneComponent implements OnInit {
   @Input() clienteId!: number;
   @Input() isDarkMode = false;
-  @Output() misurazioneSalvata = new EventEmitter<void>();
+  @Output() misurazioneSalvata = new EventEmitter<number>();
   @Input() cliente!: ClienteDto;
 
   misurazioniForm: FormGroup;
@@ -54,20 +54,20 @@ export class MisurazioneComponent implements OnInit {
     this.inizializzaForm();
   }
 
-      private todayISO(): string {
-      return new Date().toISOString().split('T')[0];
-    }
+  private todayISO(): string {
+    return new Date().toISOString().split('T')[0];
+  }
 
 
-    get sessoClass(): string {
-      if (!this.cliente) return '';
-      return this.cliente.sesso === 'Maschio' ? 'Maschio' : 'Femmina';
-    }
+  get sessoClass(): string {
+    if (!this.cliente) return '';
+    return this.cliente.sesso === 'Maschio' ? 'Maschio' : 'Femmina';
+  }
 
   inizializzaForm(): void {
     this.misurazioniForm.addControl(
-    'dataMisurazione',
-    this.fb.control(this.todayISO(), [Validators.required])
+      'dataMisurazione',
+      this.fb.control(this.todayISO(), [Validators.required])
     );
     this.misurazioni.forEach(mis => {
       this.misurazioniForm.addControl(
@@ -92,22 +92,22 @@ export class MisurazioneComponent implements OnInit {
     }
   }
 
-    private mapFormToDto(formValues: any): MisurazioneAntropometricaFormDto {
-      return {
-        spalle: formValues.spalle ?? null,
-        vita: formValues.addome ?? null,
-        fianchi: formValues.fianchi ?? null,
-        torace: formValues.torace ?? null,
-        gambaS: formValues.gambaSx ?? null,
-        gambaD: formValues.gambaDx ?? null,
-        bicipiteS: formValues.bicipiteSx ?? null,
-        bicipiteD: formValues.bicipiteDx ?? null,
-        dataMisurazione: formValues.dataMisurazione ?? this.todayISO(),
-        cliente: { id: this.clienteId }
+  private mapFormToDto(formValues: any): MisurazioneAntropometricaFormDto {
+    return {
+      spalle: formValues.spalle ?? null,
+      vita: formValues.addome ?? null,
+      fianchi: formValues.fianchi ?? null,
+      torace: formValues.torace ?? null,
+      gambaS: formValues.gambaSx ?? null,
+      gambaD: formValues.gambaDx ?? null,
+      bicipiteS: formValues.bicipiteSx ?? null,
+      bicipiteD: formValues.bicipiteDx ?? null,
+      dataMisurazione: formValues.dataMisurazione ?? this.todayISO(),
+      cliente: { id: this.clienteId }
 
 
-      };
-    }
+    };
+  }
 
   salva(): void {
     if (this.misurazioniForm.valid && !this.salvataggioInCorso) {
@@ -129,7 +129,8 @@ export class MisurazioneComponent implements OnInit {
           this.parteCorporeaAttiva = null;
 
           // Emetti evento per aggiornare la lista
-          this.misurazioneSalvata.emit();
+          this.misurazioneSalvata.emit(response.id);
+
 
           // Scroll to top
           window.scrollTo({
@@ -165,13 +166,13 @@ export class MisurazioneComponent implements OnInit {
   }
 
   changeValue(pathId: string, delta: number): void {
-  const control = this.misurazioniForm.get(pathId);
-  if (!control) return;
+    const control = this.misurazioniForm.get(pathId);
+    if (!control) return;
 
-  const current = Number(control.value) || 0;
-  const next = Math.max(0, +(current + delta).toFixed(1));
-  control.setValue(next);
-}
+    const current = Number(control.value) || 0;
+    const next = Math.max(0, +(current + delta).toFixed(1));
+    control.setValue(next);
+  }
 
 
   reset(): void {

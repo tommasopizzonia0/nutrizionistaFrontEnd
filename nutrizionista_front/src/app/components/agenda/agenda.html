@@ -1,6 +1,5 @@
-<div class="agenda-shell"
-     [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
-     [class.sidebar-collapsed]="sidebarService.value">
+<div class="agenda-shell" [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
+  [class.sidebar-collapsed]="sidebarService.value">
 
   <main class="main-content">
 
@@ -14,7 +13,7 @@
         <button class="btn btn-secondary" type="button" (click)="reset()">Reset</button>
 
         @if (mode === 'edit') {
-          <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
+        <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
         }
 
         <button class="btn btn-primary" type="button" [disabled]="form.invalid" (click)="save()">
@@ -89,10 +88,10 @@
           </div>
 
           @if (form.value.modalita === 'IN_PRESENZA') {
-            <div class="field">
-              <label>Luogo</label>
-              <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
-            </div>
+          <div class="field">
+            <label>Luogo</label>
+            <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
+          </div>
           }
 
           <!-- ✅ RICERCA CLIENTE REGISTRATO -->
@@ -100,28 +99,24 @@
             <label>Cliente registrato (cerca per nome o cognome)</label>
 
             <div style="position: relative;">
-              <input class="input"
-                     type="text"
-                     formControlName="clienteSearch"
-                     placeholder="Es. Rossi"
-                     (focus)="onSearchFocus()"
-                     (blur)="onSearchBlur()">
+              <input class="input" type="text" formControlName="clienteSearch" placeholder="Es. Rossi"
+                (focus)="onSearchFocus()" (blur)="onSearchBlur()">
 
               @if (showClientDropdown) {
-                <div class="dropdown-results">
-                  @for (c of clientResults; track c.id) {
-                    <button type="button" class="dropdown-item" (click)="selectClient(c)">
-                      {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
-                    </button>
-                  }
-                </div>
+              <div class="dropdown-results">
+                @for (c of clientResults; track c.id) {
+                <button type="button" class="dropdown-item" (click)="selectClient(c)">
+                  {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
+                </button>
+                }
+              </div>
               }
             </div>
 
             @if (form.value.clienteId) {
-              <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
-                Usa cliente non registrato
-              </button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
+              Usa cliente non registrato
+            </button>
             }
           </div>
 
@@ -144,10 +139,10 @@
           </div>
 
           @if (error) {
-            <div class="alert alert-error">{{ error }}</div>
+          <div class="alert alert-error">{{ error }}</div>
           }
           @if (ok) {
-            <div class="alert alert-ok">{{ ok }}</div>
+          <div class="alert alert-ok">{{ ok }}</div>
           }
 
           <button class="sr-only" type="submit"></button>

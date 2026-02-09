@@ -15,7 +15,7 @@ import { ListaMisurazioniComponent } from '../lista-misurazioni/lista-misurazion
 export class ClienteMisurazioniComponent {
   @Input() clienteId!: number;
   @Input() isDarkMode = false;
-  
+
   @ViewChild(ListaMisurazioniComponent) misurazioneList!: ListaMisurazioniComponent;
 
   onMisurazioneSalvata(): void {

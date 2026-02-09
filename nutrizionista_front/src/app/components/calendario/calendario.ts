@@ -59,45 +59,45 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
-calendarOptions: CalendarOptions = {
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  calendarOptions: CalendarOptions = {
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
 
-  locale: itLocale,
-  timeZone: 'Europe/Rome',
+    locale: itLocale,
+    timeZone: 'Europe/Rome',
 
-  initialView: 'timeGridWeek',
-  firstDay: 1,
+    initialView: 'timeGridWeek',
+    firstDay: 1,
 
-  weekNumbers: false,   // ❌ niente "Sm"
-  allDaySlot: false,    // ❌ niente "Tutto il giorno"
+    weekNumbers: false,   // ❌ niente "Sm"
+    allDaySlot: false,    // ❌ niente "Tutto il giorno"
 
-  selectable: true,
-  editable: true,
-  eventResizableFromStart: true,
-  nowIndicator: true,
-  height: 'auto',
+    selectable: true,
+    editable: true,
+    eventResizableFromStart: true,
+    nowIndicator: true,
+    height: 'auto',
 
-  // slotMinTime: '11:00:00',
-  // slotMaxTime: '23:00:00',
-  scrollTime: '08:00:00',
+    // slotMinTime: '11:00:00',
+    // slotMaxTime: '23:00:00',
+    scrollTime: '08:00:00',
 
-  slotLabelFormat: {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  },
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
 
-  eventTimeFormat: {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  },
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
 
-  headerToolbar: {
-    left: 'prev,next today',
-    center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-  },
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
 
 
     // carica eventi per range

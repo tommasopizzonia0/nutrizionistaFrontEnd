@@ -26,7 +26,8 @@ import {
   faArrowLeft, faUser, faIdCard, faEnvelope, faPhone,
   faCalendar, faWeight, faRuler, faHeartbeat,
   faRunning, faEdit, faInfoCircle,
-  faRulerVertical, faClipboardList, faPenRuler
+  faRulerVertical, faClipboardList, faPenRuler,
+  faPercent
 } from '@fortawesome/free-solid-svg-icons';
 
 interface NavItem {
@@ -87,6 +88,7 @@ export class ClienteDettaglioComponent implements OnInit {
   faWeight = faWeight;
   faRuler = faRuler;
   faIdCard = faIdCard;
+  faPercent= faPercent;
 
   // Inject services
   private schedaService = inject(SchedaService);
@@ -116,8 +118,8 @@ export class ClienteDettaglioComponent implements OnInit {
   inizializzaNavItems(): void {
     this.navItems = [
       { id: 'info', icon: faInfoCircle, label: 'Info', route: 'info' },
-      { id: 'nuova-misurazione', icon: faPenRuler, label: 'Nuova Misurazione', route: 'nuova-misurazione' },
-      { id: 'misurazioni', icon: faRulerVertical, label: 'Misurazioni', route: 'misurazioni' },
+      { id: 'misurazioni', icon: faRulerVertical, label: 'Misurazioni Antropometriche', route: 'misurazioni' },
+      { id: 'plicometria', icon: faPercent, label: 'Plicometria', route: 'plicometria' },
       { id: 'piano', icon: faClipboardList, label: 'Piano Alimentare', route: 'piano-alimentare' }
     ];
   }

@@ -12,7 +12,7 @@ import {
   faChevronLeft, faChevronRight, faUserPlus, faTimes, faSave,
   faIdCard, faHeartbeat, faRunning, faNotesMedical,
   faSearch,
-  faCalendarAlt, 
+  faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
@@ -70,7 +70,7 @@ export class ClienteComponent implements OnInit {
     private router: Router,
     public themeService: ThemeService,
     public sidebarService: SidebarService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.caricaClienti();
@@ -88,14 +88,14 @@ export class ClienteComponent implements OnInit {
   }
 
   formatDataNascita(value?: string): string {
-  if (!value) return '—';
+    if (!value) return '—';
 
-  const date = new Date(value.includes('T') ? value : `${value}T00:00:00`);
+    const date = new Date(value.includes('T') ? value : `${value}T00:00:00`);
 
-  if (isNaN(date.getTime())) return '—';
+    if (isNaN(date.getTime())) return '—';
 
-  return date.toLocaleDateString('it-IT');
-}
+    return date.toLocaleDateString('it-IT');
+  }
 
   vaiAvanti(): void {
     if (this.step < this.maxStep) this.step++;
@@ -111,14 +111,14 @@ export class ClienteComponent implements OnInit {
 
 
   get clientiFiltrati(): ClienteDto[] {
-  const q = (this.searchTerm || '').trim().toLowerCase();
-  if (!q) return this.clienti;
+    const q = (this.searchTerm || '').trim().toLowerCase();
+    if (!q) return this.clienti;
 
- 
-  return this.clienti.filter(c =>
-    (c.nome || '').toLowerCase().startsWith(q)
-  );
-}
+
+    return this.clienti.filter(c =>
+      (c.nome || '').toLowerCase().startsWith(q)
+    );
+  }
 
   apriModalCreazione(): void {
     this.isEdit = false;

@@ -11,12 +11,10 @@
 
 .section-divider {
   height: 2px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    #007bff,
-    transparent
-  );
+  background: linear-gradient(to right,
+      transparent,
+      #007bff,
+      transparent);
   margin: 20px 0;
   position: relative;
 }

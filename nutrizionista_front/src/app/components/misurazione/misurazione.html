@@ -146,39 +146,23 @@
           </div>
 
           <div class="row-value">
-          <div class="input-pill">
-            <button
-              type="button"
-              class="step-btn"
-              (click)="changeValue(mis.pathId, -0.1)"
-              [disabled]="salvataggioInCorso">
-              −
-            </button>
+            <div class="input-pill">
+              <button type="button" class="step-btn" (click)="changeValue(mis.pathId, -0.1)"
+                [disabled]="salvataggioInCorso">
+                −
+              </button>
 
-            <input
-              [id]="'input-' + mis.pathId"
-              type="number"
-              [formControlName]="mis.pathId"
-              (focus)="onFocusInput(mis.pathId)"
-              (blur)="onBlurInput()"
-              (keydown.enter)="focusNextInput(i, $event)"
-              placeholder="0"
-              min="0"
-              max="300"
-              step="0.1"
-              [disabled]="salvataggioInCorso"
-            />
+              <input [id]="'input-' + mis.pathId" type="number" [formControlName]="mis.pathId"
+                (focus)="onFocusInput(mis.pathId)" (blur)="onBlurInput()" (keydown.enter)="focusNextInput(i, $event)"
+                placeholder="0" min="0" max="300" step="0.1" [disabled]="salvataggioInCorso" />
 
-            <button
-              type="button"
-              class="step-btn"
-              (click)="changeValue(mis.pathId, +0.1)"
-              [disabled]="salvataggioInCorso">
-              +
-            </button>
+              <button type="button" class="step-btn" (click)="changeValue(mis.pathId, +0.1)"
+                [disabled]="salvataggioInCorso">
+                +
+              </button>
 
-            <span class="unita">{{ mis.unita }}</span>
-          </div>
+              <span class="unita">{{ mis.unita }}</span>
+            </div>
 
             @if (misurazioniForm.get(mis.pathId)?.invalid && misurazioniForm.get(mis.pathId)?.touched) {
             <div class="row-error">Valore non valido</div>

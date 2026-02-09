@@ -11,7 +11,7 @@
   background: var(--bg-surface);
   border-radius: var(--radius);
   box-shadow: var(--card-shadow);
-  border: 1px solid var(--border-color, rgba(0,0,0,0.12));
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -25,7 +25,7 @@
 .dark-mode :host ::ng-deep .fc {
   background: #2d2d2d;
   border-color: rgba(148, 163, 184, .25);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* ========================================================= */
@@ -97,7 +97,7 @@
 
 :host ::ng-deep .fc .fc-col-header-cell {
   background: rgba(16, 185, 129, .06);
-  border-color: var(--border-color, rgba(0,0,0,0.08));
+  border-color: var(--border-color, rgba(0, 0, 0, 0.08));
 }
 
 .dark-mode :host ::ng-deep .fc .fc-col-header-cell {
@@ -121,7 +121,7 @@
 /* ========================================================= */
 
 :host ::ng-deep .fc .fc-daygrid-day {
-  border-color: var(--border-color, rgba(0,0,0,0.06));
+  border-color: var(--border-color, rgba(0, 0, 0, 0.06));
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
@@ -150,6 +150,7 @@
 :host ::ng-deep .fc .fc-day-today {
   background: rgba(16, 185, 129, .10) !important;
 }
+
 :host ::ng-deep .fc .fc-day-today .fc-daygrid-day-number {
   color: var(--green-dark);
   opacity: 1;
@@ -157,11 +158,13 @@
 
 /* Fuori mese */
 :host ::ng-deep .fc .fc-day-other {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
+
 .dark-mode :host ::ng-deep .fc .fc-day-other {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
+
 :host ::ng-deep .fc .fc-day-other .fc-daygrid-day-number {
   opacity: .35;
 }
@@ -173,9 +176,9 @@
 :host ::ng-deep .fc .fc-event {
   border-radius: 12px;
   padding: 3px 6px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   font-weight: 800;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
 .dark-mode :host ::ng-deep .fc .fc-event {
@@ -202,10 +205,12 @@
 
 /* PROGRAMMATO */
 :host ::ng-deep .stato-programmato {
-  background: rgba(245, 158, 11, 0.18) !important; /* amber */
+  background: rgba(245, 158, 11, 0.18) !important;
+  /* amber */
   color: #92400e !important;
   border-color: rgba(245, 158, 11, 0.35) !important;
 }
+
 .dark-mode :host ::ng-deep .stato-programmato {
   background: rgba(245, 158, 11, 0.18) !important;
   color: #fbbf24 !important;
@@ -214,10 +219,12 @@
 
 /* CONFERMATO */
 :host ::ng-deep .stato-confermato {
-  background: rgba(16, 185, 129, 0.18) !important; /* green */
+  background: rgba(16, 185, 129, 0.18) !important;
+  /* green */
   color: var(--green-darker) !important;
   border-color: rgba(16, 185, 129, 0.35) !important;
 }
+
 .dark-mode :host ::ng-deep .stato-confermato {
   background: rgba(16, 185, 129, 0.16) !important;
   color: var(--green-light) !important;
@@ -226,12 +233,14 @@
 
 /* ANNULLATO */
 :host ::ng-deep .stato-annullato {
-  background: rgba(239, 68, 68, 0.14) !important; /* red */
+  background: rgba(239, 68, 68, 0.14) !important;
+  /* red */
   color: #b91c1c !important;
   border-color: rgba(239, 68, 68, 0.30) !important;
   text-decoration: line-through;
   opacity: 0.85;
 }
+
 .dark-mode :host ::ng-deep .stato-annullato {
   color: #fca5a5 !important;
 }
