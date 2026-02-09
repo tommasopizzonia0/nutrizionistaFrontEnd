@@ -1,35 +1,237 @@
+/* ========================================================= */
+/* FULLCALENDAR THEME - coerente con il tuo design system     */
+/* ========================================================= */
+
 .calendar-wrapper {
   padding: 12px;
 }
 
+/* Card container stile "header/section" */
 :host ::ng-deep .fc {
-  border-radius: 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color, rgba(0,0,0,0.12));
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: #fff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
+
+:host ::ng-deep .fc:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Dark mode container */
+.dark-mode :host ::ng-deep .fc {
+  background: #2d2d2d;
+  border-color: rgba(148, 163, 184, .25);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* ========================================================= */
+/* TOOLBAR                                                    */
+/* ========================================================= */
 
 :host ::ng-deep .fc-toolbar {
-  padding: 10px 12px;
+  padding: 14px 14px;
+  background: transparent;
+  gap: 10px;
 }
 
-:host ::ng-deep .fc-view-harness {
-  padding: 10px 12px;
+:host ::ng-deep .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--text-main);
 }
 
-:host ::ng-deep .fc-event {
-  border-radius: 10px;
-  padding: 2px 4px;
-  border-width: 1px;
+.dark-mode :host ::ng-deep .fc-toolbar-title {
+  color: #fff;
+}
+
+/* Bottoni stile "btn" */
+:host ::ng-deep .fc .fc-button {
+  border: none;
+  border-radius: var(--radius);
   font-weight: 700;
+  padding: 0.6rem 0.9rem;
+  background: var(--green-ultralight);
+  color: var(--green-dark);
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:host ::ng-deep .fc-event-title {
-  font-weight: 700;
+:host ::ng-deep .fc .fc-button:hover {
+  transform: translateY(-2px);
+  background: rgba(16, 185, 129, .12);
 }
 
-:host ::ng-deep .fc-event-time {
-  opacity: 0.9;
-  font-weight: 700;
+:host ::ng-deep .fc .fc-button:active {
+  transform: scale(0.98);
 }
 
+:host ::ng-deep .fc .fc-button:disabled {
+  opacity: .55;
+}
+
+/* Bottone "attivo" (vista selezionata) */
+:host ::ng-deep .fc .fc-button-primary:not(:disabled).fc-button-active,
+:host ::ng-deep .fc .fc-button-primary:not(:disabled):active {
+  background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+/* Dark mode bottoni */
+.dark-mode :host ::ng-deep .fc .fc-button {
+  background: rgba(16, 185, 129, .10);
+  color: var(--green-light);
+}
+
+.dark-mode :host ::ng-deep .fc .fc-button:hover {
+  background: rgba(16, 185, 129, .18);
+}
+
+/* ========================================================= */
+/* HEADER giorni settimana                                     */
+/* ========================================================= */
+
+:host ::ng-deep .fc .fc-col-header-cell {
+  background: rgba(16, 185, 129, .06);
+  border-color: var(--border-color, rgba(0,0,0,0.08));
+}
+
+.dark-mode :host ::ng-deep .fc .fc-col-header-cell {
+  background: rgba(16, 185, 129, .08);
+  border-color: rgba(148, 163, 184, .18);
+}
+
+:host ::ng-deep .fc .fc-col-header-cell-cushion {
+  padding: 10px 0;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.dark-mode :host ::ng-deep .fc .fc-col-header-cell-cushion {
+  color: #9ca3af;
+}
+
+/* ========================================================= */
+/* GRIGLIA giorni                                              */
+/* ========================================================= */
+
+:host ::ng-deep .fc .fc-daygrid-day {
+  border-color: var(--border-color, rgba(0,0,0,0.06));
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.dark-mode :host ::ng-deep .fc .fc-daygrid-day {
+  border-color: rgba(148, 163, 184, .14);
+}
+
+:host ::ng-deep .fc .fc-daygrid-day:hover {
+  background: rgba(16, 185, 129, .05);
+}
+
+/* Numero giorno */
+:host ::ng-deep .fc .fc-daygrid-day-number {
+  font-weight: 800;
+  padding: 8px;
+  color: var(--text-main);
+  opacity: .85;
+}
+
+.dark-mode :host ::ng-deep .fc .fc-daygrid-day-number {
+  color: #fff;
+  opacity: .9;
+}
+
+/* OGGI */
+:host ::ng-deep .fc .fc-day-today {
+  background: rgba(16, 185, 129, .10) !important;
+}
+:host ::ng-deep .fc .fc-day-today .fc-daygrid-day-number {
+  color: var(--green-dark);
+  opacity: 1;
+}
+
+/* Fuori mese */
+:host ::ng-deep .fc .fc-day-other {
+  background: rgba(0,0,0,0.02);
+}
+.dark-mode :host ::ng-deep .fc .fc-day-other {
+  background: rgba(255,255,255,0.03);
+}
+:host ::ng-deep .fc .fc-day-other .fc-daygrid-day-number {
+  opacity: .35;
+}
+
+/* ========================================================= */
+/* EVENTI: look "badge/pill"                                   */
+/* ========================================================= */
+
+:host ::ng-deep .fc .fc-event {
+  border-radius: 12px;
+  padding: 3px 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-weight: 800;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+
+.dark-mode :host ::ng-deep .fc .fc-event {
+  border-color: rgba(148, 163, 184, .22);
+  box-shadow: none;
+}
+
+:host ::ng-deep .fc .fc-event-title,
+:host ::ng-deep .fc .fc-event-time {
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* +n more */
+:host ::ng-deep .fc .fc-daygrid-more-link {
+  font-weight: 800;
+  color: var(--green-dark);
+  opacity: .8;
+}
+
+/* ========================================================= */
+/* EVENTI per STATO (usa classNames sugli eventi)              */
+/* ========================================================= */
+
+/* PROGRAMMATO */
+:host ::ng-deep .stato-programmato {
+  background: rgba(245, 158, 11, 0.18) !important; /* amber */
+  color: #92400e !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+.dark-mode :host ::ng-deep .stato-programmato {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+/* CONFERMATO */
+:host ::ng-deep .stato-confermato {
+  background: rgba(16, 185, 129, 0.18) !important; /* green */
+  color: var(--green-darker) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+.dark-mode :host ::ng-deep .stato-confermato {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: var(--green-light) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+/* ANNULLATO */
+:host ::ng-deep .stato-annullato {
+  background: rgba(239, 68, 68, 0.14) !important; /* red */
+  color: #b91c1c !important;
+  border-color: rgba(239, 68, 68, 0.30) !important;
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+.dark-mode :host ::ng-deep .stato-annullato {
+  color: #fca5a5 !important;
+}

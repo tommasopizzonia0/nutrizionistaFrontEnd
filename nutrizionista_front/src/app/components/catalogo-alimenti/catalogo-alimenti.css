@@ -1,0 +1,320 @@
+/* ====================== */
+/* CATALOGO ALIMENTI PANEL */
+/* ====================== */
+:root {
+  --proteine: #ef4444;
+  --carboidrati: #f59e0b;
+  --grassi: #3b82f6;
+}
+
+.catalogo-panel {
+  background: var(--surface, #fff);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid var(--green-primary, #10b981);
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.catalogo-panel.dark-mode {
+  background: #2d2d2d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.catalogo-head {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  margin-bottom: 1rem;
+}
+
+.catalogo-panel.dark-mode .catalogo-head {
+  border-bottom-color: #4b5563;
+}
+
+.kicker {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted, #6b7280);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.big {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text, #1f2937);
+  text-transform: uppercase;
+}
+
+.catalogo-panel.dark-mode .big {
+  color: #fff;
+}
+
+/* Search Box */
+.search-section {
+  margin-bottom: 1rem;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #6b7280);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  color: var(--text, #1f2937);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--green-primary, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  background: #fff;
+}
+
+.catalogo-panel.dark-mode .search-input {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #fff;
+}
+
+.catalogo-panel.dark-mode .search-input:focus {
+  background: #111827;
+}
+
+/* Body - Scrollable */
+.catalogo-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  max-height: 400px;
+}
+
+/* Empty State */
+.catalogo-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted, #6b7280);
+}
+
+.catalogo-empty-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.catalogo-empty-sub {
+  font-size: 0.9rem;
+}
+
+/* Alimenti List */
+.alimenti-catalogo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Catalogo Item */
+.catalogo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.catalogo-panel.dark-mode .catalogo-item {
+  background: #262626;
+  border-color: #404040;
+}
+
+.catalogo-item:hover {
+  border-color: var(--green-primary, #10b981);
+  transform: translateX(2px);
+  background: var(--green-ultralight, #ecfdf5);
+}
+
+.catalogo-panel.dark-mode .catalogo-item:hover {
+  background: #374151;
+}
+
+.catalogo-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.catalogo-nome {
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: block;
+  color: var(--text, #1f2937);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catalogo-panel.dark-mode .catalogo-nome {
+  color: #fff;
+}
+
+/* Macro Chips */
+.catalogo-macros {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.macro-chip {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #eee;
+}
+
+.macro-chip.p {
+  color: var(--proteine);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.macro-chip.c {
+  color: var(--carboidrati);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.macro-chip.g {
+  color: var(--grassi);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Add Button */
+.catalogo-action {
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green-ultralight, #ecfdf5);
+  color: var(--green-dark, #047857);
+  border: 1px solid var(--green-primary, #10b981);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-btn:hover {
+  background: var(--green-primary, #10b981);
+  color: #fff;
+}
+
+.catalogo-panel.dark-mode .add-btn {
+  background: #374151;
+  color: var(--green-light, #6ee7b7);
+}
+
+.catalogo-panel.dark-mode .add-btn:hover {
+  background: var(--green-primary, #10b981);
+  color: #fff;
+}
+
+/* Selected Pasto Indicator */
+.selected-pasto-indicator {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: var(--green-ultralight, #ecfdf5);
+  border: 1px solid var(--green-light, #6ee7b7);
+  color: var(--green-darker, #065f46);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.selected-pasto-indicator.warning {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
+.catalogo-panel.dark-mode .selected-pasto-indicator {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--green-light, #6ee7b7);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.catalogo-panel.dark-mode .selected-pasto-indicator.warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fcd34d;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+/* Spinner */
+.text-center {
+  text-align: center;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.spinner-border {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+  color: var(--green-primary, #10b981);
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.macro-chip.kcal {
+  color: var(--green-primary, #10b981);
+  background: rgba(16, 185, 129, 0.1);
+}

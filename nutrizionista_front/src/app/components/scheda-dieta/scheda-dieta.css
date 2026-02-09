@@ -334,11 +334,17 @@
   gap: 0.75rem;
 }
 
-/* Alimento Item (Mini Card) */
-.alimento-item {
+.alimento-node {
   display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Alimento Item (Mini Card) - Improved Grid Layout */
+.alimento-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -351,11 +357,342 @@
   border-color: #404040;
 }
 
+.alternatives {
+  position: relative;
+  padding: 16px 0.25rem 0.25rem;
+}
+
+.alternatives::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  transform: translateX(-50%);
+}
+
+.alternatives::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: var(--border);
+}
+
+.scheda-dieta-container.dark-mode .alternatives::before,
+.scheda-dieta-container.dark-mode .alternatives::after {
+  background: #404040;
+}
+
+.alternatives-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.alternative-card {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+
+.alternative-card::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 1px;
+  height: 10px;
+  background: var(--border);
+  transform: translateX(-50%);
+}
+
+.scheda-dieta-container.dark-mode .alternative-card {
+  background: #262626;
+  border-color: #404040;
+}
+
+.scheda-dieta-container.dark-mode .alternative-card::before {
+  background: #404040;
+}
+
+.alternative-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.alternative-title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scheda-dieta-container.dark-mode .alternative-title {
+  color: #fff;
+}
+
+.alternative-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.alternative-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.alternative-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(143, 216, 192, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+}
+
+.scheda-dieta-container.dark-mode .alternative-qty-row {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.alternative-qty-input {
+  width: 64px;
+  border: none;
+  background: transparent;
+  font-weight: 800;
+  text-align: right;
+  color: var(--text);
+  outline: none;
+  font-size: 0.85rem;
+}
+
+.scheda-dieta-container.dark-mode .alternative-qty-input {
+  color: #fff;
+}
+
+.alternative-qty-unit {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .alternative-qty-unit {
+  color: var(--green-light);
+}
+
+.alternative-mode-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+}
+
+.scheda-dieta-container.dark-mode .alternative-mode-select {
+  background: #1f1f1f;
+  color: #fff;
+  border-color: #404040;
+}
+
+.alternative-auto-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 900;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.alternative-auto-btn:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .alternative-auto-btn {
+  border-color: #404040;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scheda-dieta-container.dark-mode .alternative-auto-btn:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #fff;
+}
+
+.alternative-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: rgba(245, 158, 11, 1);
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.scheda-dieta-container.dark-mode .alternative-badge {
+  color: rgba(251, 191, 36, 1);
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.alternative-macros {
+  margin-top: 6px;
+}
+
+.alternative-add {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.75rem;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.alternative-add:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .alternative-add {
+  border-color: #404040;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scheda-dieta-container.dark-mode .alternative-add:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #fff;
+}
+
+.alternative-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alternative-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.alternative-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+}
+
+.scheda-dieta-container.dark-mode .alternative-input {
+  background: #1f1f1f;
+  color: #fff;
+  border-color: #404040;
+}
+
+.alternative-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 160px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem;
+  background: #ffffff;
+}
+
+.scheda-dieta-container.dark-mode .alternative-results {
+  background: #1f1f1f;
+  border-color: #404040;
+}
+
+.alternative-result {
+  text-align: left;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.alternative-result:hover {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.scheda-dieta-container.dark-mode .alternative-result {
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .alternative-result:hover {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.alternative-loading,
+.alternative-empty {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 0.15rem 0.1rem;
+}
+
+.scheda-dieta-container.dark-mode .alternative-loading,
+.scheda-dieta-container.dark-mode .alternative-empty {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.alimento-info {
+  min-width: 0;
+  /* Allows text truncation */
+}
+
 .alimento-nome {
   font-weight: 700;
   display: block;
   font-size: 0.95rem;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .scheda-dieta-container.dark-mode .alimento-nome {
@@ -367,6 +704,7 @@
   display: flex;
   gap: 6px;
   margin-top: 4px;
+  flex-wrap: wrap;
 }
 
 .macros-mini .macro {
@@ -374,22 +712,48 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background: #eee;
+  white-space: nowrap;
 }
 
 .macro.p {
   color: var(--proteine);
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .macro.c {
   color: var(--carboidrati);
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.15);
 }
 
 .macro.g {
   color: var(--grassi);
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.macro.kcal {
+  color: var(--kcal);
+  background: rgba(16, 185, 129, 0.15);
+}
+
+/* Dark Mode - Macro Chips keep their vivid colors */
+.scheda-dieta-container.dark-mode .macro.p {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.scheda-dieta-container.dark-mode .macro.c {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.scheda-dieta-container.dark-mode .macro.g {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.scheda-dieta-container.dark-mode .macro.kcal {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
 }
 
 /* Input Quantità (Stile Pill Medical) */
@@ -400,6 +764,7 @@
   border: 1px solid rgba(16, 185, 129, 0.3);
   padding: 0.25rem 0.5rem;
   border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .scheda-dieta-container.dark-mode .alimento-quantita {
@@ -911,4 +1276,8 @@
 .scheda-dieta-container.dark-mode .empty-alimenti {
   background: #262626;
   border-color: #404040;
+}
+
+.macro.kcal {
+  color: #ef4444;
 }

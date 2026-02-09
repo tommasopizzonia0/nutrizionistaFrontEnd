@@ -234,11 +234,11 @@ export class ClienteDettaglioComponent implements OnInit {
   }
 
   onRichiestaNuovaScheda(): void {
-    // 1. Prepariamo l'oggetto (data e nome)
+    // 1. Prepariamo l'oggetto (data e nome) - nuova scheda sempre attiva
     const nuovaScheda = {
       cliente: { id: this.clienteId },
       nome: 'Nuova Dieta ' + new Date().toLocaleDateString('it-IT'),
-      attiva: false
+      attiva: true  // Nuova scheda diventa automaticamente attiva
     };
 
     this.schedaService.create(nuovaScheda as any).subscribe({

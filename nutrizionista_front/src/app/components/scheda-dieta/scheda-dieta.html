@@ -41,7 +41,7 @@
                                 <h3>{{ pasto.nome }}</h3>
                                 <span class="pasto-orario">
                                     @if (pasto.orarioInizio && pasto.orarioFine) {
-                                    {{ pasto.orarioInizio }} - {{ pasto.orarioFine }}
+                                    {{ pasto.orarioInizio | slice:0:5 }} - {{ pasto.orarioFine | slice:0:5 }}
                                     } @else {
                                     Orario non impostato
                                     }
@@ -89,30 +89,142 @@
                             @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
                             <div class="alimenti-list">
                                 @for (alimentoPasto of pasto.alimentiPasto; track $index) {
-                                <div class="alimento-item">
-                                    <div class="alimento-info">
-                                        <span class="alimento-nome">{{ alimentoPasto.alimento.nome }}</span>
-                                        <div class="macros-mini">
-                                            <span class="macro p">P: {{ calcolaMacro(alimentoPasto, 'proteine')
-                                                }}g</span>
-                                            <span class="macro c">C: {{ calcolaMacro(alimentoPasto, 'carboidrati')
-                                                }}g</span>
-                                            <span class="macro g">G: {{ calcolaMacro(alimentoPasto, 'grassi') }}g</span>
+                                <div class="alimento-node">
+                                    <div class="alimento-item">
+                                        <div class="alimento-info">
+                                            <span class="alimento-nome">{{ alimentoPasto.alimento.nome }}</span>
+                                            <div class="macros-mini">
+                                                <span class="macro p">P: {{ calcolaMacro(alimentoPasto, 'proteine') |
+                                                    number:'1.0-2'}} g</span>
+                                                <span class="macro c">C: {{ calcolaMacro(alimentoPasto, 'carboidrati') |
+                                                    number:'1.0-2'}} g</span>
+                                                <span class="macro g">G: {{ calcolaMacro(alimentoPasto, 'grassi') |
+                                                    number:'1.0-2'}} g</span>
+                                                <span class="macro kcal">{{ calcolaMacro(alimentoPasto, 'calorie') |
+                                                    number:'1.0-0'}} kcal</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="alimento-quantita">
+                                            <input type="number" [ngModel]="alimentoPasto.quantita" #qtyInput
+                                                (change)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, qtyInput.valueAsNumber)"
+                                                min="1" class="quantita-input" />
+                                            <span class="unit">g</span>
+                                        </div>
+
+                                        <button class="icon-btn danger" type="button"
+                                            (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
+                                            title="Rimuovi">
+                                            <fa-icon [icon]="icons.trash"></fa-icon>
+                                        </button>
+                                    </div>
+
+                                    <div class="alternatives">
+                                        <div class="alternatives-row">
+                                            @for (slot of alternativeSlots; track slot) {
+                                            <div class="alternative-card">
+                                                @if (getAlternative(alimentoPasto.id, slot); as alt) {
+                                                <div class="alternative-header">
+                                                    <span class="alternative-title">{{ alt.alimento.nome }}</span>
+                                                    <div class="alternative-actions">
+                                                        <button class="icon-btn" type="button"
+                                                            (click)="startAlternativeEdit(alimentoPasto, slot)"
+                                                            title="Modifica">
+                                                            <fa-icon [icon]="icons.edit"></fa-icon>
+                                                        </button>
+                                                        <button class="icon-btn danger" type="button"
+                                                            (click)="removeAlternative(alimentoPasto.id, slot)"
+                                                            title="Elimina">
+                                                            <fa-icon [icon]="icons.trash"></fa-icon>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="alternative-controls">
+                                                    <div class="alternative-qty-row">
+                                                        <input class="alternative-qty-input" type="number" min="1"
+                                                            [ngModel]="alt.quantita" #altQtyInput
+                                                            (change)="updateAlternativeQuantity(alimentoPasto.id, slot, altQtyInput.valueAsNumber)" />
+                                                        <span class="alternative-qty-unit">g</span>
+                                                    </div>
+                                                    <select class="alternative-mode-select" [ngModel]="alt.mode"
+                                                        (ngModelChange)="updateAlternativeMode(alimentoPasto, slot, $event)">
+                                                        <option value="calorie">Kcal</option>
+                                                        <option value="proteine">Proteine</option>
+                                                        <option value="carboidrati">Carboidrati</option>
+                                                        <option value="grassi">Grassi</option>
+                                                    </select>
+                                                    <button class="alternative-auto-btn" type="button"
+                                                        (click)="resetAlternativeQuantity(alimentoPasto, slot)"
+                                                        title="Ricalcola suggerimento">
+                                                        Auto
+                                                    </button>
+                                                    @if (alt.manual) {
+                                                    <span class="alternative-badge">Manuale</span>
+                                                    }
+                                                </div>
+                                                <div class="macros-mini alternative-macros">
+                                                    <span class="macro p">{{ calcolaMacroDaAlimento(alt.alimento,
+                                                        alt.quantita, 'proteine') |
+                                                        number:'1.0-2'}} g</span>
+                                                    <span class="macro c">{{ calcolaMacroDaAlimento(alt.alimento,
+                                                        alt.quantita, 'carboidrati') |
+                                                        number:'1.0-2'}} g</span>
+                                                    <span class="macro g">{{ calcolaMacroDaAlimento(alt.alimento,
+                                                        alt.quantita, 'grassi') |
+                                                        number:'1.0-2'}} g</span>
+                                                    <span class="macro kcal">{{ calcolaMacroDaAlimento(alt.alimento,
+                                                        alt.quantita, 'calorie') |
+                                                        number:'1.0-0'}} kcal</span>
+                                                </div>
+                                                } @else {
+                                                @if (getAlternativeUi(alimentoPasto.id, slot).editing) {
+                                                <div class="alternative-editor">
+                                                    <div class="alternative-input-row">
+                                                        <input class="alternative-input" type="text"
+                                                            [ngModel]="getAlternativeUi(alimentoPasto.id, slot).query"
+                                                            (ngModelChange)="onAlternativeQueryChange(alimentoPasto, slot, $event)"
+                                                            placeholder="Cerca alternativa..." />
+                                                        <button class="icon-btn" type="button"
+                                                            (click)="closeAlternativeEdit(alimentoPasto.id, slot)"
+                                                            title="Chiudi">
+                                                            <fa-icon [icon]="icons.close"></fa-icon>
+                                                        </button>
+                                                    </div>
+
+                                                    @if (getAlternativeUi(alimentoPasto.id, slot).loading) {
+                                                    <div class="alternative-loading">Caricamento...</div>
+                                                    }
+
+                                                    @if (!getAlternativeUi(alimentoPasto.id, slot).loading &&
+                                                    getAlternativeUi(alimentoPasto.id, slot).results.length > 0) {
+                                                    <div class="alternative-results">
+                                                        @for (res of getAlternativeUi(alimentoPasto.id, slot).results;
+                                                        track res.id) {
+                                                        <button class="alternative-result" type="button"
+                                                            (click)="selectAlternative(alimentoPasto, slot, res)">
+                                                            {{ res.nome }}
+                                                        </button>
+                                                        }
+                                                    </div>
+                                                    } @else if (!getAlternativeUi(alimentoPasto.id, slot).loading &&
+                                                    (getAlternativeUi(alimentoPasto.id, slot).query || '').trim().length
+                                                    >
+                                                    0) {
+                                                    <div class="alternative-empty">Nessun risultato</div>
+                                                    }
+                                                </div>
+                                                } @else {
+                                                <button class="alternative-add" type="button"
+                                                    (click)="startAlternativeEdit(alimentoPasto, slot)">
+                                                    <fa-icon [icon]="icons.plus"></fa-icon>
+                                                    <span>Proponi alternativa</span>
+                                                </button>
+                                                }
+                                                }
+                                            </div>
+                                            }
                                         </div>
                                     </div>
-
-                                    <div class="alimento-quantita">
-                                        <input type="number" [ngModel]="alimentoPasto.quantita" #qtyInput
-                                            (change)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, qtyInput.valueAsNumber)"
-                                            min="1" class="quantita-input" />
-                                        <span class="unit">g</span>
-                                    </div>
-
-                                    <button class="icon-btn danger" type="button"
-                                        (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
-                                        title="Rimuovi">
-                                        <fa-icon [icon]="icons.trash"></fa-icon>
-                                    </button>
                                 </div>
                                 }
                             </div>
@@ -126,21 +238,23 @@
                             <div class="macro-totals">
                                 <div class="macro-total-card">
                                     <span class="macro-label">Proteine</span>
-                                    <span class="macro-value proteine">{{ calcolaTotaleMacro(pasto, 'proteine')
-                                        }} g</span>
+                                    <span class="macro-value proteine">{{ calcolaTotaleMacro(pasto, 'proteine') |
+                                        number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card">
                                     <span class="macro-label">Carboidrati</span>
-                                    <span class="macro-value carboidrati">{{ calcolaTotaleMacro(pasto, 'carboidrati')
-                                        }} g</span>
+                                    <span class="macro-value carboidrati">{{ calcolaTotaleMacro(pasto, 'carboidrati') |
+                                        number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card">
                                     <span class="macro-label">Grassi</span>
-                                    <span class="macro-value grassi">{{ calcolaTotaleMacro(pasto, 'grassi') }} g</span>
+                                    <span class="macro-value grassi">{{ calcolaTotaleMacro(pasto, 'grassi') |
+                                        number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card highlight">
                                     <span class="macro-label">Calorie</span>
-                                    <span class="macro-value kcal">{{ calcolaTotaleCalorico(pasto) }} kcal</span>
+                                    <span class="macro-value kcal">{{ calcolaTotaleCalorico(pasto) | number:'1.0-0'}}
+                                        kcal</span>
                                 </div>
                             </div>
                         </div>
@@ -161,7 +275,8 @@
                             <fa-icon [icon]="icons.dumbbell"></fa-icon>
                         </div>
                         <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('proteine') }} g</span>
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('proteine') | number:'1.0-2'}}
+                                g</span>
                             <span class="riepilogo-label">Proteine</span>
                         </div>
                     </div>
@@ -170,7 +285,8 @@
                             <fa-icon [icon]="icons.wheat"></fa-icon>
                         </div>
                         <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('carboidrati') }} g</span>
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('carboidrati') | number:'1.0-2'}}
+                                g</span>
                             <span class="riepilogo-label">Carboidrati</span>
                         </div>
                     </div>
@@ -179,7 +295,8 @@
                             <fa-icon [icon]="icons.droplet"></fa-icon>
                         </div>
                         <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('grassi') }} g</span>
+                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('grassi') | number:'1.0-2'}}
+                                g</span>
                             <span class="riepilogo-label">Grassi</span>
                         </div>
                     </div>
@@ -188,7 +305,7 @@
                             <fa-icon [icon]="icons.fire"></fa-icon>
                         </div>
                         <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleCalorieGiornaliere() }}</span>
+                            <span class="riepilogo-value">{{ calcolaTotaleCalorieGiornaliere() | number:'1.0-0'}}</span>
                             <span class="riepilogo-label">Calorie Totali</span>
                         </div>
                     </div>
@@ -197,74 +314,8 @@
             }
         </section>
 
-        <aside class="detail-panel">
-            <div class="detail-head">
-                <div class="detail-title">
-                    <div class="kicker">Aggiungi alimenti</div>
-                    <div class="big">Catalogo Alimenti</div>
-                </div>
-            </div>
-
-            <div class="search-section">
-                <div class="search-box">
-                    <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
-                    <input type="text" [(ngModel)]="searchQuery" (input)="onSearchAlimenti()"
-                        placeholder="Cerca alimento..." class="search-input" />
-                </div>
-            </div>
-
-            <div class="detail-body">
-                @if (loadingAlimenti) {
-                <div class="text-center p-4">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden"></span>
-                    </div>
-                </div>
-                }
-
-                @if (!loadingAlimenti && alimentiDisponibili.length === 0 && searchQuery.length >= 2) {
-                <div class="detail-empty">
-                    <div class="detail-empty-title">Nessun alimento trovato</div>
-                    <div class="detail-empty-sub">
-                        Prova a cercare con un termine diverso.
-                    </div>
-                </div>
-                }
-
-                @if (!loadingAlimenti && alimentiDisponibili.length > 0) {
-                <div class="alimenti-catalogo">
-                    @for (alimento of alimentiDisponibili; track alimento.id) {
-                    <div class="catalogo-item" (click)="onAggiungiAlimento(alimento)">
-                        <div class="catalogo-info">
-                            <span class="catalogo-nome">{{ alimento.nome }}</span>
-                            <div class="catalogo-macros">
-                                <span class="macro-chip p">P: {{ alimento.macroNutrienti.proteine }} g</span>
-                                <span class="macro-chip c">C: {{ alimento.macroNutrienti.carboidrati }} g</span>
-                                <span class="macro-chip g">G: {{ alimento.macroNutrienti.grassi }} g</span>
-                            </div>
-                        </div>
-                        <div class="catalogo-action">
-                            <button class="add-btn" type="button" title="Aggiungi">
-                                <fa-icon [icon]="icons.plus"></fa-icon>
-                            </button>
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
-            </div>
-
-            @if (pastoEspanso) {
-            <div class="selected-pasto-indicator">
-                <fa-icon [icon]="icons.arrowRight"></fa-icon>
-                Aggiungendo a: <strong>{{ pastoEspanso }}</strong>
-            </div>
-            } @else {
-            <div class="selected-pasto-indicator warning">
-                <fa-icon [icon]="icons.warning"></fa-icon>
-                Seleziona un pasto per aggiungere alimenti
-            </div>
-            }
-        </aside>
+        <app-catalogo-alimenti [pastoEspanso]="pastoEspanso" [schedaSalvata]="!!schedaId" [isDarkMode]="isDarkMode"
+            (alimentoSelezionato)="onAggiungiAlimento($event)">
+        </app-catalogo-alimenti>
     </div>
 </div>
