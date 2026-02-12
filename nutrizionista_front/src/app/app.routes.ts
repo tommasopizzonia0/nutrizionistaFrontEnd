@@ -17,6 +17,7 @@ import { SchedaDietaComponent } from './components/scheda-dieta/scheda-dieta';
 import { CalendarioComponent } from './components/calendario/calendario';
 import { AgendaComponent } from './components/agenda/agenda';
 import { Settings } from './components/settings/settings';
+import { PlicometriaComponent } from './components/plicometria/plicometria';
 
 export const routes: Routes = [
 
@@ -63,6 +64,10 @@ export const routes: Routes = [
       {
         path: 'scheda-dieta/:clienteId',
         component: SchedaDietaComponent
+      },
+      {
+        path: 'plicometria/:clienteId',
+        component: PlicometriaComponent
       },
       {
         path: 'profilo',

@@ -120,6 +120,11 @@
     </app-lista-misurazioni>
     }
 
+    @if (vistaCorrente === 'plicometria') {
+    <app-plicometria [clienteId]="clienteId" [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"></app-plicometria>
+    }
+
+
 
     @if (vistaCorrente === 'piano-alimentare') {
 

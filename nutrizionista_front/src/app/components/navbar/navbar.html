@@ -1,51 +1,41 @@
-<div class="sidebar"
-     [class.collapsed]="sidebarService.value"
-     [class.dark]="themeService.isDarkMode$ | async">
+<div class="sidebar" [class.collapsed]="sidebarService.value" [class.dark]="themeService.isDarkMode$ | async">
 
 
   <!-- ================= HEADER ================= -->
   <div class="sidebar-header">
     @if (utente$ | async; as utente) {
-      <div class="avatar-wrapper"
-           (click)="navigateToProfile()"
-           style="cursor: pointer;">
+    <div class="avatar-wrapper" (click)="navigateToProfile()" style="cursor: pointer;">
 
-        <img class="avatar"
-             [src]="utente.filePathLogo
+      <img class="avatar" [src]="utente.filePathLogo
                ? 'http://localhost:8080/' + utente.filePathLogo
-               : 'assets/default-avatar.png'"
-             alt="Avatar">
-      </div>
+               : 'assets/default-avatar.png'" alt="Avatar">
+    </div>
 
-      <div class="user-info"
-           (click)="navigateToProfile()"
-           style="cursor: pointer;">
-        <div class="user-name">
-          {{ (utente$ | async)?.nome }} {{ (utente$ | async)?.cognome }}
-        </div>
-        <div class="user-role">
-          {{ (utente$ | async)?.ruolo?.nome }}
-        </div>
+    <div class="user-info" (click)="navigateToProfile()" style="cursor: pointer;">
+      <div class="user-name">
+        {{ (utente$ | async)?.nome }} {{ (utente$ | async)?.cognome }}
       </div>
+      <div class="user-role">
+        {{ (utente$ | async)?.ruolo?.nome }}
+      </div>
+    </div>
     } @else {
-      <div class="loading-placeholder">
-        <div class="skeleton-avatar"></div>
-        <div class="skeleton-text"></div>
-      </div>
+    <div class="loading-placeholder">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-text"></div>
+    </div>
     }
   </div>
 
   <!-- ================= MENU ================= -->
   <div class="sidebar-menu">
     @for (item of menuItems; track item.id) {
-      <div class="menu-item"
-           [class.active]="activeItem === item.id"
-           (click)="setActiveItem(item.id, $event)">
+    <div class="menu-item" [class.active]="activeItem === item.id" (click)="setActiveItem(item.id, $event)">
 
-        <fa-icon [icon]="item.icon"></fa-icon>
-        <span>{{ item.label }}</span>
+      <fa-icon [icon]="item.icon"></fa-icon>
+      <span>{{ item.label }}</span>
 
-      </div>
+    </div>
     }
   </div>
 
@@ -61,26 +51,22 @@
     <!-- TOGGLE THEME -->
     <div class="toggle-theme">
 
-      <fa-icon
-        [icon]="getThemeIcon()"
-        (click)="toggleTheme()">
+      <fa-icon [icon]="getThemeIcon()" (click)="toggleTheme()">
       </fa-icon>
 
       @if (!sidebarService.value) {
-        <span>
-          {{
-            (themeService.isDarkMode$ | async)
-              ? 'Modalità Scura'
-              : 'Modalità Chiara'
-          }}
-        </span>
+      <span>
+        {{
+        (themeService.isDarkMode$ | async)
+        ? 'Modalità Scura'
+        : 'Modalità Chiara'
+        }}
+      </span>
 
-        <label class="switch">
-          <input type="checkbox"
-                 [checked]="themeService.isDarkMode$ | async"
-                 (change)="toggleTheme()">
-          <span class="slider"></span>
-        </label>
+      <label class="switch">
+        <input type="checkbox" [checked]="themeService.isDarkMode$ | async" (change)="toggleTheme()">
+        <span class="slider"></span>
+      </label>
       }
 
     </div>
@@ -88,8 +74,7 @@
     <!-- TOGGLE SIDEBAR -->
     <div class="toggle-collapse" (click)="toggleSidebar()">
 
-      <fa-icon
-        [icon]="sidebarService.value
+      <fa-icon [icon]="sidebarService.value
           ? faAngleDoubleRight
           : faAngleDoubleLeft">
       </fa-icon>
