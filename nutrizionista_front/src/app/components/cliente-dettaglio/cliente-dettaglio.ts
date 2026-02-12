@@ -29,6 +29,7 @@ import {
   faRulerVertical, faClipboardList, faPenRuler,
   faPercent
 } from '@fortawesome/free-solid-svg-icons';
+import { PlicometriaComponent } from '../plicometria/plicometria';
 
 interface NavItem {
   id: string;
@@ -48,7 +49,8 @@ interface NavItem {
     ListaMisurazioniComponent,
     ListaSchede,
     SchedaDietaComponent,
-    AnteprimaSchedaComponent
+    AnteprimaSchedaComponent,
+    PlicometriaComponent
   ],
   templateUrl: './cliente-dettaglio.html',
   styleUrls: ['./cliente-dettaglio.css']
