@@ -15,11 +15,17 @@
     </div>
 
     <div class="catalogo-body">
-        @if (loadingAlimenti) {
+        <!-- @if (loadingAlimenti) {
         <div class="text-center p-4">
             <div class="spinner-border" role="status">
                 <span class="visually-hidden">Caricamento...</span>
             </div>
+        </div>
+        } -->
+        @if (loadingAlimenti) {
+        <div class="text-center p-4 loader-container">
+            <img src="assets/img/LogoStateraGif-vmake-ezgif.com-video-to-gif-converter.gif" alt="Caricamento..."
+                class="logo-loader" />
         </div>
         }
 

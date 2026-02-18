@@ -8,6 +8,9 @@ import {
   SimpleChanges,
   ChangeDetectorRef,
   inject,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -16,8 +19,20 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { PlicometrieApiService } from '../../services/plicometria.service';
 import { PlicometriaDto, PlicometriaFormDto } from '../../dto/plicometria.dto';
 import { PageResponse } from '../../dto/page-response.dto';
-import { faCalendar, faChevronLeft, faChevronRight, faEdit, faFontAwesome, faPlus, faRuler, faTrash } from '@fortawesome/free-solid-svg-icons';
+
+import {
+  faCalendar,
+  faChevronLeft,
+  faChevronRight,
+  faEdit,
+  faPlus,
+  faRuler,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
+// ✅ Chart.js diretto (come il tuo ListaMisurazioniComponent)
+import { Chart } from 'chart.js/auto';
 
 type MetodoValue =
   | 'JACKSON_POLLOCK_3'
@@ -33,7 +48,7 @@ type MetodoValue =
   templateUrl: './plicometria.html',
   styleUrls: ['./plicometria.css'],
 })
-export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
+export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   private api = inject(PlicometrieApiService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -47,13 +62,16 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
   loading = false;
   saving = false;
 
-  // Icone disponibili nel template
+  // ultima misurazione mostrata nel grafico
+  selected: PlicometriaDto | null = null;
+
+  // Icone
   icCalendar = faCalendar;
   icEdit = faEdit;
   icTrash = faTrash;
   icChevronLeft = faChevronLeft;
   icChevronRight = faChevronRight;
-  icRuler = faRuler; 
+  icRuler = faRuler;
   icPlus = faPlus;
 
   // paginazione
@@ -62,8 +80,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
 
   // editing
   editingId: number | null = null;
-
-  // ✅ mostra/nasconde il form
   showForm = false;
 
   metodi: Array<{ value: MetodoValue; label: string }> = [
@@ -91,7 +107,11 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     note: [null as string | null],
   });
 
-  // ✅ Carica subito (utile se la tab crea il componente quando clienteId è già pronto)
+  // ===== Chart.js state =====
+  @ViewChild('plicoPie') plicoPie?: ElementRef<HTMLCanvasElement>;
+  chart?: Chart;
+  private viewReady = false;
+
   ngOnInit(): void {
     if (this.clienteId) {
       this.loadPage(0);
@@ -99,18 +119,35 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // ✅ Ricarica quando cambia clienteId (utile se la tab crea prima, poi arriva clienteId)
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['clienteId'] && this.clienteId) {
-      this.loadPage(0);
-      this.startCreate(false); // reset form senza aprirlo
+  ngAfterViewInit(): void {
+    this.viewReady = true;
+
+    // se ho già una selected (caso: dati arrivano prima del canvas), disegno
+    if (this.selected) {
+      setTimeout(() => this.renderPieFromSelected(), 0);
     }
   }
 
-  // ✅ Evita subscribe “appese” quando esci/rientri
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['clienteId'] && this.clienteId) {
+      this.loadPage(0);
+      this.startCreate(false);
+    }
+
+    // ✅ come fai tu: se cambia darkmode, aggiorna stile chart senza reload
+    if (changes['isDarkMode'] && !changes['isDarkMode'].firstChange) {
+      setTimeout(() => this.renderPieFromSelected(), 0);
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = undefined;
+    }
   }
 
   isEditing(): boolean {
@@ -118,32 +155,39 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // ===== LISTA =====
-  loadPage(pageIndex: number) {
-    if (!this.clienteId) return;
+loadPage(pageIndex: number) {
+  if (!this.clienteId) return;
 
-    this.loading = true;
-    this.cdr.markForCheck();
+  this.loading = true;
+  this.cdr.markForCheck();
 
-    this.api
-      .allByCliente(this.clienteId, pageIndex, this.dimensionePagina)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.loading = false;
-          this.cdr.markForCheck();
-        })
-      )
-      .subscribe({
-        next: (res) => {
-          this.page = res;
-          this.numeroPagina = res.numeroPagina;
-          this.cdr.markForCheck();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
-  }
+  this.api
+    .allByCliente(this.clienteId, pageIndex, this.dimensionePagina)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges(); 
+
+        
+        setTimeout(() => this.renderPieFromSelected(), 0);
+
+        this.cdr.markForCheck();
+      })
+    )
+    .subscribe({
+      next: (res) => {
+        this.page = res;
+        this.numeroPagina = res.numeroPagina;
+
+        this.selected = this.pickLatest(res.contenuto);
+
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error(err),
+    });
+}
+
 
   prevPage() {
     if (!this.page) return;
@@ -158,10 +202,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // ===== FORM =====
-  /**
-   * resetta il form.
-   * openForm=true => mostra il form (Nuova plicometria)
-   */
   startCreate(openForm = true) {
     this.editingId = null;
     this.showForm = openForm;
@@ -209,7 +249,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   cancelEdit() {
-    // chiude il form e resetta lo stato
     this.showForm = false;
     this.startCreate(false);
   }
@@ -257,18 +296,13 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
       )
       .subscribe({
         next: () => {
-          // dopo create: meglio tornare a pagina 0 (di solito l’ordine è per data desc)
           const pageToReload = this.isEditing() ? (this.page?.numeroPagina ?? 0) : 0;
-
           this.loadPage(pageToReload);
 
-          // chiudi form + reset
           this.showForm = false;
           this.startCreate(false);
         },
-        error: (err) => {
-          console.error(err);
-        },
+        error: (err) => console.error(err),
       });
   }
 
@@ -292,7 +326,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     const metodo = this.form.controls.metodo.value as MetodoValue | null;
     if (!metodo) return false;
 
-    // manuali: per ora non chiediamo pliche (se vuoi, puoi cambiarlo)
     if (metodo === 'PARILLO' || metodo === 'MISURAZIONE_LIBERA') return false;
 
     if (metodo === 'DURNIN_WOMERSLEY') {
@@ -300,7 +333,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (metodo === 'JACKSON_POLLOCK_3') {
-      // unione campi uomo/donna (non sappiamo sesso in FE)
       return ['pettorale', 'addominale', 'coscia', 'tricipite', 'sovrailiaca'].includes(field);
     }
 
@@ -319,6 +351,95 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     return false;
   }
 
+  // ===== Helpers: ultima misurazione + chart =====
+  private pickLatest(list: PlicometriaDto[] | null | undefined): PlicometriaDto | null {
+    if (!list?.length) return null;
+
+    return [...list].sort((a, b) => {
+      const da = new Date(a.dataMisurazione ?? '').getTime();
+      const db = new Date(b.dataMisurazione ?? '').getTime();
+      return db - da;
+    })[0];
+  }
+
+  private renderPieFromSelected(): void {
+    if (!this.viewReady) return;
+
+    const canvas = this.plicoPie?.nativeElement;
+    if (!canvas) return;
+
+    if (this.chart && this.chart.canvas !== canvas) {
+    this.chart.destroy();
+    this.chart = undefined;
+  }
+
+    const mg = this.selected?.massaGrassaKg ?? 0;
+    const mm = this.selected?.massaMagraKg ?? 0;
+
+    // ✅ dark mode come fai tu
+    const legendColor = this.isDarkMode ? '#cbd5e1' : '#334155';
+    const tooltipBg = this.isDarkMode ? '#0b1220' : '#ffffff';
+    const tooltipText = this.isDarkMode ? '#e5e7eb' : '#0f172a';
+    const tooltipBorder = this.isDarkMode
+      ? 'rgba(148,163,184,0.18)'
+      : 'rgba(15,23,42,0.10)';
+
+    const data = {
+      labels: ['Massa Grassa (kg)', 'Massa Magra (kg)'],
+      datasets: [
+        {
+          data: [mg, mm],
+
+          // coerenti con la tua UI (rosso delete + verde primary)
+          backgroundColor: [
+            'rgba(239, 68, 68, 0.55)',
+            'rgba(16, 185, 129, 0.55)',
+          ],
+          borderColor: [
+            'rgba(239, 68, 68, 0.95)',
+            'rgba(16, 185, 129, 0.95)',
+          ],
+          borderWidth: 1.5,
+        },
+      ],
+    };
+
+    const options: any = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: legendColor,
+            font: { weight: '900' },
+          },
+        },
+        tooltip: {
+          backgroundColor: tooltipBg,
+          titleColor: tooltipText,
+          bodyColor: tooltipText,
+          borderColor: tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label: (ctx: any) => {
+              const v = ctx.parsed ?? 0;
+              return `${ctx.label}: ${Number(v).toFixed(1)} kg`;
+            },
+          },
+        },
+      },
+    };
+
+    if (!this.chart) {
+      this.chart = new Chart(canvas, { type: 'pie', data: data as any, options });
+    } else {
+      this.chart.data = data as any;
+      this.chart.options = options;
+      this.chart.update();
+    }
+  }
+
   private todayIso(): string {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -326,4 +447,9 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy {
     const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
   }
+
+  onBackdrop(ev: MouseEvent) {
+  if (ev.target === ev.currentTarget) this.cancelEdit();
+}
+
 }
