@@ -14,7 +14,6 @@ export class ClienteService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    console.log('🔑 Token nel servizio:', token ? 'PRESENTE' : 'ASSENTE');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });

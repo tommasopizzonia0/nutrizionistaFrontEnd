@@ -1,0 +1,88 @@
+<div class="alternative-section" [class.dark-mode]="isDarkMode">
+    <div class="add-area">
+        @if (editingSlot !== null) {
+        <div class="search-panel">
+            <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchInput($event)"
+                placeholder="Cerca alimento alternativo..." class="search-input" autofocus />
+            <button class="btn-close" (click)="closeEditor()">
+                <fa-icon [icon]="icons.xmark"></fa-icon>
+            </button>
+
+            @if (searchLoading) {
+            <div class="search-loading">Ricerca...</div>
+            }
+
+            @if (searchResults.length > 0) {
+            <div class="search-results">
+                @for (alimento of searchResults; track alimento.id) {
+                <div class="result-item" (click)="selectAlternative(alimento)">
+                    <span class="result-nome">{{ alimento.nome }}</span>
+                    <span class="result-cal">{{ alimento.macroNutrienti.calorie }} kcal/{{ alimento.misuraInGrammi
+                        }}g</span>
+                </div>
+                }
+            </div>
+            }
+        </div>
+        } @else {
+        <button class="btn-add-alternative" (click)="openEditor(addSlot)">
+            <fa-icon [icon]="icons.plus"></fa-icon>
+            Aggiungi alternativa
+        </button>
+        }
+    </div>
+
+    <div class="alternatives-grid">
+        @for (entry of validAlternatives; track entry.alt.savedId ?? entry.index) {
+        <div class="alternative-card" [class.saving]="!!entry.alt.saving">
+            <div class="alternative-header">
+                <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
+                <div class="alternative-quantita">
+                    <input type="number" [ngModel]="entry.alt.quantita" [disabled]="!!entry.alt.saving"
+                        (ngModelChange)="onQuantitaChange(entry.index, $event)" min="1" class="quantita-input" />
+                    <span class="misura">g</span>
+                </div>
+            </div>
+
+            <div class="macro-badges">
+                <span class="badge proteine" title="Proteine">
+                    <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+                    {{ calcolaMacro(entry.alt, 'proteine') | number:'1.0-1' }}g
+                </span>
+                <span class="badge carboidrati" title="Carboidrati">
+                    <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+                    {{ calcolaMacro(entry.alt, 'carboidrati') | number:'1.0-1' }}g
+                </span>
+                <span class="badge grassi" title="Grassi">
+                    <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+                    {{ calcolaMacro(entry.alt, 'grassi') | number:'1.0-1' }}g
+                </span>
+                <span class="badge calorie" title="Calorie">
+                    <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
+                    {{ calcolaMacro(entry.alt, 'calorie') | number:'1.0-0' }}
+                </span>
+            </div>
+
+            <div class="alternative-actions">
+                <div class="mode-selector">
+                    @for (mode of modes; track mode) {
+                    <button class="mode-btn" [class.active]="entry.alt.mode === mode" [disabled]="!!entry.alt.saving"
+                        (click)="onModeChange(entry.index, mode)" [title]="mode">
+                        <fa-icon [icon]="getModeIcon(mode)" size="xs"></fa-icon>
+                    </button>
+                    }
+                </div>
+
+                <button class="btn-remove" [disabled]="!!entry.alt.saving"
+                    (click)="removeAlternative(entry.index, entry.alt.savedId)">
+                    <fa-icon [icon]="icons.xmark"></fa-icon>
+                </button>
+            </div>
+
+            @if (entry.alt.saving) {
+            <div class="alternative-sync">Sync...</div>
+            }
+        </div>
+        }
+    </div>
+</div>

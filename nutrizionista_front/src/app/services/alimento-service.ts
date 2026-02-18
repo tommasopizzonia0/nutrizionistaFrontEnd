@@ -41,6 +41,13 @@ export class AlimentoService {
   }
 
   /**
+   * Recupera il dettaglio completo (macro + micro e altri campi).
+   */
+  getDettaglio(id: number): Observable<AlimentoBaseDto> {
+    return this.http.get<AlimentoBaseDto>(`${this.apiUrl}/${id}/dettaglio`);
+  }
+
+  /**
    * Recupera un alimento cercando per nome esatto.
    */
   getByNome(nome: string): Observable<AlimentoBaseDto> {

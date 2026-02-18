@@ -121,7 +121,8 @@
     }
 
     @if (vistaCorrente === 'plicometria') {
-    <app-plicometria [clienteId]="clienteId" [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"></app-plicometria>
+    <app-plicometria [clienteId]="clienteId"
+      [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"></app-plicometria>
     }
 
 
@@ -138,7 +139,7 @@
         </button>
       </div>
 
-      <app-scheda-dieta [clienteId]="clienteId" [schedaId]="schedaSelezionataId"
+      <app-scheda-dieta [clienteId]="clienteId" [schedaId]="schedaSelezionataId" [schedaNome]="schedaSelezionataNome"
         [isDarkMode]="(themeService.isDarkMode$ | async) ?? false">
       </app-scheda-dieta>
     </div>
@@ -149,14 +150,15 @@
       <div class="master-panel">
         <app-lista-schede [clienteId]="clienteId" [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"
           (schedaPreview)="onPreviewScheda($event)" (schedaSelected)="onSchedaSelezionata($event)"
-          (createNew)="onRichiestaNuovaScheda()">
+          (createNew)="onRichiestaNuovaScheda()" (schedaRenamed)="onSchedaRinominata($event)">
         </app-lista-schede>
       </div>
 
       <div class="detail-panel">
         @if (schedaPreview) {
         <app-anteprima-scheda [scheda]="schedaPreview" [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"
-          (editRequested)="onSchedaSelezionata(schedaPreview)" (closeRequested)="chiudiPreview()">
+          (editRequested)="onSchedaSelezionata(schedaPreview)" (closeRequested)="chiudiPreview()"
+          (activated)="onSchedaAttivata($event)">
         </app-anteprima-scheda>
         } @else {
         <!-- EMPTY STATE -->

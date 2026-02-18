@@ -1,19 +1,29 @@
-import { AlimentoBaseDto } from "./alimento-base.dto";
-
 export interface MacroDto {
     id: number;
-    alimento: AlimentoBaseDto;
     calorie: number;
     grassi: number;
     proteine: number;
     carboidrati: number;
+    fibre?: number;
+    zuccheri?: number;
+    grassiSaturi?: number;
+    sodio?: number;
+    alcol?: number;
+    acqua?: number;
+    sale?: number;
 }
 
 export interface MacroFormDto {
     id?: number;
-    alimento: AlimentoBaseDto;
     calorie: number;
     grassi: number;
     proteine: number;
     carboidrati: number;
+    fibre?: number;
+    zuccheri?: number;
+    grassiSaturi?: number;
+    sodio?: number;
+    alcol?: number;
+    acqua?: number;
+    sale?: number;
 }

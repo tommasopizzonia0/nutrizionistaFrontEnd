@@ -1,10 +1,34 @@
 <div class="scheda-dieta-container" [class.dark-mode]="isDarkMode">
     <div class="header-section">
-        <h2>
+        <h2 class="scheda-title">
             <fa-icon [icon]="icons.book"></fa-icon>
-            Scheda Dieta Personalizzata
+            <span class="scheda-title-wrap" [class.editing]="editingNomeScheda">
+                @if (editingNomeScheda) {
+                <input class="scheda-title-input" [class.invalid]="!!editNomeSchedaError"
+                    [id]="'scheda-dieta-title-input-' + (scheda?.id ?? schedaId ?? 0)" [value]="editNomeScheda"
+                    [disabled]="savingNomeScheda || loading" aria-label="Modifica nome scheda"
+                    [attr.aria-invalid]="!!editNomeSchedaError" (input)="editNomeScheda = $any($event.target).value"
+                    (keydown.enter)="confirmRenameSchedaTitle($event)"
+                    (keydown.escape)="cancelRenameSchedaTitle($event)" (blur)="confirmRenameSchedaTitle($event)" />
+                @if (editNomeSchedaError) {
+                <span class="scheda-title-error" role="alert">{{ editNomeSchedaError }}</span>
+                }
+                } @else {
+                <span class="scheda-title-text" tabindex="0" role="button" aria-label="Modifica nome scheda"
+                    (dblclick)="startRenameSchedaTitle($event)" (keydown.enter)="startRenameSchedaTitle($event)"
+                    (keydown.f2)="startRenameSchedaTitle($event)">{{ scheda?.nome || schedaNome || 'Scheda Dieta'
+                    }}</span>
+                }
+            </span>
+            @if (savingNomeScheda) {
+            <fa-icon [icon]="icons.save" class="fa-spin scheda-title-spinner"></fa-icon>
+            }
         </h2>
         <div class="header-actions">
+            <button class="btn-primary" (click)="openCreateMeal()" [disabled]="saving || !schedaId">
+                <fa-icon [icon]="icons.plus"></fa-icon>
+                Nuovo Pasto
+            </button>
             <button class="btn-primary" (click)="onSalvaScheda()" [disabled]="saving || !schedaId">
                 <fa-icon [icon]="icons.save"></fa-icon>
                 {{ saving ? 'Salvataggio...' : 'Salva Scheda' }}
@@ -28,11 +52,38 @@
             </div>
             }
             @if (!loading) {
+            @if (showCreateMeal) {
+            <div class="macro-chart-panel" [class.dark-mode]="isDarkMode" style="margin-bottom: 1rem;">
+                <div class="section-title-inline">
+                    <fa-icon [icon]="icons.plus"></fa-icon>
+                    Nuovo Pasto
+                </div>
+                <div class="orari-section">
+                    <div class="orario-group" style="flex: 1;">
+                        <label>Nome</label>
+                        <input type="text" [(ngModel)]="createMealNome" class="time-input" />
+                    </div>
+                    <div class="orario-group" style="flex: 1;">
+                        <label>Descrizione</label>
+                        <input type="text" [(ngModel)]="createMealDescrizione" class="time-input" />
+                    </div>
+                    <div style="display:flex; gap: 0.5rem; align-items: center; justify-content: flex-end;">
+                        <button class="icon-btn" (click)="cancelCreateMeal()" title="Annulla">
+                            <fa-icon [icon]="icons.close"></fa-icon>
+                        </button>
+                        <button class="btn-primary" (click)="submitCreateMeal()">
+                            <fa-icon [icon]="icons.save"></fa-icon>
+                            Crea
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
             <div class="pasti-container">
-                @for (pasto of pasti; track pasto.nome) {
-                <div class="pasto-card" [class.expanded]="pastoEspanso === pasto.nome">
+                @for (pasto of pasti; track pastoKey(pasto)) {
+                <div class="pasto-card" [class.expanded]="pastoEspansoKey === pastoKey(pasto)">
 
-                    <div class="pasto-header" (click)="togglePasto(pasto.nome)">
+                    <div class="pasto-header" (click)="togglePasto(pasto)">
                         <div class="pasto-info">
                             <div class="pasto-icon">
                                 <fa-icon [icon]="getIconaPasto(pasto.nome)"></fa-icon>
@@ -57,14 +108,22 @@
                                 <span class="stat-value">{{ calcolaTotaleCalorico(pasto) }}</span>
                                 <span class="stat-label">kcal</span>
                             </div>
+                            @if (pasto.eliminabile) {
+                            <button class="icon-btn" (click)="onRinominaPasto(pasto, $event)" title="Rinomina">
+                                <fa-icon [icon]="icons.edit"></fa-icon>
+                            </button>
+                            <button class="icon-btn danger" (click)="onEliminaPasto(pasto, $event)" title="Elimina">
+                                <fa-icon [icon]="icons.trash"></fa-icon>
+                            </button>
+                            }
                             <span class="chev">
                                 <fa-icon
-                                    [icon]="pastoEspanso === pasto.nome ? icons.chevronDown : icons.chevronRight"></fa-icon>
+                                    [icon]="pastoEspansoKey === pastoKey(pasto) ? icons.chevronDown : icons.chevronRight"></fa-icon>
                             </span>
                         </div>
                     </div>
 
-                    @if (pastoEspanso === pasto.nome) {
+                    @if (pastoEspansoKey === pastoKey(pasto)) {
                     <div class="pasto-body">
 
                         <div class="orari-section">
@@ -90,141 +149,21 @@
                             <div class="alimenti-list">
                                 @for (alimentoPasto of pasto.alimentiPasto; track $index) {
                                 <div class="alimento-node">
-                                    <div class="alimento-item">
-                                        <div class="alimento-info">
-                                            <span class="alimento-nome">{{ alimentoPasto.alimento.nome }}</span>
-                                            <div class="macros-mini">
-                                                <span class="macro p">P: {{ calcolaMacro(alimentoPasto, 'proteine') |
-                                                    number:'1.0-2'}} g</span>
-                                                <span class="macro c">C: {{ calcolaMacro(alimentoPasto, 'carboidrati') |
-                                                    number:'1.0-2'}} g</span>
-                                                <span class="macro g">G: {{ calcolaMacro(alimentoPasto, 'grassi') |
-                                                    number:'1.0-2'}} g</span>
-                                                <span class="macro kcal">{{ calcolaMacro(alimentoPasto, 'calorie') |
-                                                    number:'1.0-0'}} kcal</span>
-                                            </div>
-                                        </div>
+                                    <!-- Alimento principale (extracted component) -->
+                                    <app-alimento-aggiunto [alimentoPasto]="alimentoPasto" [isDarkMode]="isDarkMode"
+                                        (quantitaChanged)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, $event)"
+                                        (removed)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
+                                        (displayNameChange)="onDisplayNameChange($event)">
+                                    </app-alimento-aggiunto>
 
-                                        <div class="alimento-quantita">
-                                            <input type="number" [ngModel]="alimentoPasto.quantita" #qtyInput
-                                                (change)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, qtyInput.valueAsNumber)"
-                                                min="1" class="quantita-input" />
-                                            <span class="unit">g</span>
-                                        </div>
-
-                                        <button class="icon-btn danger" type="button"
-                                            (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
-                                            title="Rimuovi">
-                                            <fa-icon [icon]="icons.trash"></fa-icon>
-                                        </button>
-                                    </div>
-
-                                    <div class="alternatives">
-                                        <div class="alternatives-row">
-                                            @for (slot of alternativeSlots; track slot) {
-                                            <div class="alternative-card">
-                                                @if (getAlternative(alimentoPasto.id, slot); as alt) {
-                                                <div class="alternative-header">
-                                                    <span class="alternative-title">{{ alt.alimento.nome }}</span>
-                                                    <div class="alternative-actions">
-                                                        <button class="icon-btn" type="button"
-                                                            (click)="startAlternativeEdit(alimentoPasto, slot)"
-                                                            title="Modifica">
-                                                            <fa-icon [icon]="icons.edit"></fa-icon>
-                                                        </button>
-                                                        <button class="icon-btn danger" type="button"
-                                                            (click)="removeAlternative(alimentoPasto.id, slot)"
-                                                            title="Elimina">
-                                                            <fa-icon [icon]="icons.trash"></fa-icon>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="alternative-controls">
-                                                    <div class="alternative-qty-row">
-                                                        <input class="alternative-qty-input" type="number" min="1"
-                                                            [ngModel]="alt.quantita" #altQtyInput
-                                                            (change)="updateAlternativeQuantity(alimentoPasto.id, slot, altQtyInput.valueAsNumber)" />
-                                                        <span class="alternative-qty-unit">g</span>
-                                                    </div>
-                                                    <select class="alternative-mode-select" [ngModel]="alt.mode"
-                                                        (ngModelChange)="updateAlternativeMode(alimentoPasto, slot, $event)">
-                                                        <option value="calorie">Kcal</option>
-                                                        <option value="proteine">Proteine</option>
-                                                        <option value="carboidrati">Carboidrati</option>
-                                                        <option value="grassi">Grassi</option>
-                                                    </select>
-                                                    <button class="alternative-auto-btn" type="button"
-                                                        (click)="resetAlternativeQuantity(alimentoPasto, slot)"
-                                                        title="Ricalcola suggerimento">
-                                                        Auto
-                                                    </button>
-                                                    @if (alt.manual) {
-                                                    <span class="alternative-badge">Manuale</span>
-                                                    }
-                                                </div>
-                                                <div class="macros-mini alternative-macros">
-                                                    <span class="macro p">{{ calcolaMacroDaAlimento(alt.alimento,
-                                                        alt.quantita, 'proteine') |
-                                                        number:'1.0-2'}} g</span>
-                                                    <span class="macro c">{{ calcolaMacroDaAlimento(alt.alimento,
-                                                        alt.quantita, 'carboidrati') |
-                                                        number:'1.0-2'}} g</span>
-                                                    <span class="macro g">{{ calcolaMacroDaAlimento(alt.alimento,
-                                                        alt.quantita, 'grassi') |
-                                                        number:'1.0-2'}} g</span>
-                                                    <span class="macro kcal">{{ calcolaMacroDaAlimento(alt.alimento,
-                                                        alt.quantita, 'calorie') |
-                                                        number:'1.0-0'}} kcal</span>
-                                                </div>
-                                                } @else {
-                                                @if (getAlternativeUi(alimentoPasto.id, slot).editing) {
-                                                <div class="alternative-editor">
-                                                    <div class="alternative-input-row">
-                                                        <input class="alternative-input" type="text"
-                                                            [ngModel]="getAlternativeUi(alimentoPasto.id, slot).query"
-                                                            (ngModelChange)="onAlternativeQueryChange(alimentoPasto, slot, $event)"
-                                                            placeholder="Cerca alternativa..." />
-                                                        <button class="icon-btn" type="button"
-                                                            (click)="closeAlternativeEdit(alimentoPasto.id, slot)"
-                                                            title="Chiudi">
-                                                            <fa-icon [icon]="icons.close"></fa-icon>
-                                                        </button>
-                                                    </div>
-
-                                                    @if (getAlternativeUi(alimentoPasto.id, slot).loading) {
-                                                    <div class="alternative-loading">Caricamento...</div>
-                                                    }
-
-                                                    @if (!getAlternativeUi(alimentoPasto.id, slot).loading &&
-                                                    getAlternativeUi(alimentoPasto.id, slot).results.length > 0) {
-                                                    <div class="alternative-results">
-                                                        @for (res of getAlternativeUi(alimentoPasto.id, slot).results;
-                                                        track res.id) {
-                                                        <button class="alternative-result" type="button"
-                                                            (click)="selectAlternative(alimentoPasto, slot, res)">
-                                                            {{ res.nome }}
-                                                        </button>
-                                                        }
-                                                    </div>
-                                                    } @else if (!getAlternativeUi(alimentoPasto.id, slot).loading &&
-                                                    (getAlternativeUi(alimentoPasto.id, slot).query || '').trim().length
-                                                    >
-                                                    0) {
-                                                    <div class="alternative-empty">Nessun risultato</div>
-                                                    }
-                                                </div>
-                                                } @else {
-                                                <button class="alternative-add" type="button"
-                                                    (click)="startAlternativeEdit(alimentoPasto, slot)">
-                                                    <fa-icon [icon]="icons.plus"></fa-icon>
-                                                    <span>Proponi alternativa</span>
-                                                </button>
-                                                }
-                                                }
-                                            </div>
-                                            }
-                                        </div>
-                                    </div>
+                                    <!-- Alternative (extracted component) -->
+                                    <app-lista-alternative [alimentoPasto]="alimentoPasto"
+                                        [alternatives]="getAlternatives(alimentoPasto.id)" [isDarkMode]="isDarkMode"
+                                        (alternativeSelected)="onAlternativeFromComponent(alimentoPasto, $event)"
+                                        (alternativeRemoved)="onAlternativeRemovedFromComponent(alimentoPasto.id, $event)"
+                                        (quantitaChanged)="onAlternativeQuantitaFromComponent(alimentoPasto.id, $event)"
+                                        (modeChanged)="onAlternativeModeFromComponent(alimentoPasto, $event)">
+                                    </app-lista-alternative>
                                 </div>
                                 }
                             </div>
@@ -264,58 +203,55 @@
                 }
             </div>
 
-            <div class="riepilogo-giornata">
-                <div class="section-title-inline">
-                    <fa-icon [icon]="icons.chart"></fa-icon>
-                    Riepilogo Giornaliero
-                </div>
-                <div class="riepilogo-grid">
-                    <div class="riepilogo-card">
-                        <div class="riepilogo-icon proteine">
-                            <fa-icon [icon]="icons.dumbbell"></fa-icon>
-                        </div>
-                        <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('proteine') | number:'1.0-2'}}
-                                g</span>
-                            <span class="riepilogo-label">Proteine</span>
-                        </div>
-                    </div>
-                    <div class="riepilogo-card">
-                        <div class="riepilogo-icon carboidrati">
-                            <fa-icon [icon]="icons.wheat"></fa-icon>
-                        </div>
-                        <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('carboidrati') | number:'1.0-2'}}
-                                g</span>
-                            <span class="riepilogo-label">Carboidrati</span>
-                        </div>
-                    </div>
-                    <div class="riepilogo-card">
-                        <div class="riepilogo-icon grassi">
-                            <fa-icon [icon]="icons.droplet"></fa-icon>
-                        </div>
-                        <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleGiornaliero('grassi') | number:'1.0-2'}}
-                                g</span>
-                            <span class="riepilogo-label">Grassi</span>
-                        </div>
-                    </div>
-                    <div class="riepilogo-card highlight">
-                        <div class="riepilogo-icon kcal">
-                            <fa-icon [icon]="icons.fire"></fa-icon>
-                        </div>
-                        <div class="riepilogo-content">
-                            <span class="riepilogo-value">{{ calcolaTotaleCalorieGiornaliere() | number:'1.0-0'}}</span>
-                            <span class="riepilogo-label">Calorie Totali</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Riepilogo Giornaliero (extracted component) -->
+            <app-calcolo-macro [pasti]="pasti" [isDarkMode]="isDarkMode"></app-calcolo-macro>
             }
         </section>
 
-        <app-catalogo-alimenti [pastoEspanso]="pastoEspanso" [schedaSalvata]="!!schedaId" [isDarkMode]="isDarkMode"
-            (alimentoSelezionato)="onAggiungiAlimento($event)">
-        </app-catalogo-alimenti>
+        <div class="scheda-sidebar">
+            <app-catalogo-alimenti [pastoEspanso]="pastoEspansoLabel" [schedaSalvata]="!!schedaId"
+                [isDarkMode]="isDarkMode" (alimentoSelezionato)="onAggiungiAlimento($event)"
+                (alimentoDettaglioRichiesto)="onDettaglioAlimento($event)">
+            </app-catalogo-alimenti>
+
+            <aside class="macro-chart-panel" [class.dark-mode]="isDarkMode">
+                <div class="chart-title">Media percentuale macronutrienti (scheda)</div>
+                @if (!macroChartHasData) {
+                <div class="chart-empty">Dati insufficienti per calcolare le percentuali.</div>
+                } @else {
+                <div class="chart-wrapper">
+                    <canvas #macroPieChart role="img"
+                        [attr.aria-label]="'Distribuzione macronutrienti: Proteine, Carboidrati e Grassi'"></canvas>
+                </div>
+                }
+            </aside>
+
+            <aside class="macro-chart-panel" [class.dark-mode]="isDarkMode">
+                <div class="chart-title">Distribuzione calorie per pasto</div>
+                @if (!mealChartHasData) {
+                <div class="chart-empty">Dati insufficienti per calcolare le percentuali.</div>
+                } @else {
+                <div class="chart-wrapper">
+                    <canvas #mealDonutChart role="img"
+                        [attr.aria-label]="'Distribuzione calorie per pasto: Colazione, Pranzo, Cena e Spuntini'"></canvas>
+                </div>
+                <div class="chart-legend" role="list" aria-label="Legenda pasti">
+                    @for (item of mealBreakdown; track item.label) {
+                    <button type="button" class="legend-item" role="listitem"
+                        [attr.aria-pressed]="!isMealLegendHidden(item.index)" (click)="toggleMealLegend(item.index)">
+                        <span class="legend-dot" [style.background]="item.color"></span>
+                        <span class="legend-text">{{ item.label }}</span>
+                        <span class="legend-value">{{ item.pct.toFixed(2).replace('.', ',') }}%</span>
+                    </button>
+                    }
+                </div>
+                }
+            </aside>
+        </div>
     </div>
+
+    <app-modal-alimento [open]="modalAlimentoOpen" [loading]="modalAlimentoLoading" [alimento]="modalAlimento"
+        [pastoTargetLabel]="pastoEspansoLabel" [quantita]="modalQuantita" [isDarkMode]="isDarkMode"
+        (closed)="closeModalAlimento()" (addRequested)="onModalAddRequested($event)">
+    </app-modal-alimento>
 </div>

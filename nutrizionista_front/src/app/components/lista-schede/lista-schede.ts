@@ -12,6 +12,7 @@ import {
 import { SchedaDto } from '../../dto/scheda.dto';
 import { PageResponse } from '../../dto/page-response.dto';
 import { SchedaService } from '../../services/scheda-service';
+import { SchedaCacheService } from '../../services/scheda-cache.service';
 
 @Component({
   selector: 'app-lista-schede',
@@ -27,8 +28,10 @@ export class ListaSchede implements OnChanges {
   @Output() schedaSelected = new EventEmitter<SchedaDto>();
   @Output() schedaPreview = new EventEmitter<SchedaDto>();
   @Output() createNew = new EventEmitter<void>();
+  @Output() schedaRenamed = new EventEmitter<SchedaDto>();
 
   private schedaService = inject(SchedaService);
+  private schedaCache = inject(SchedaCacheService);
   private cdr = inject(ChangeDetectorRef);
 
   loading = false;
@@ -39,6 +42,12 @@ export class ListaSchede implements OnChanges {
   totalePagine = 0;
   totaleElementi = 0;
   page$!: Observable<PageResponse<SchedaDto>>;
+
+  editingSchedaId?: number;
+  editNome = '';
+  editNomeOriginale = '';
+  editError = '';
+  savingNome = false;
 
   // Icone aggiornate per il layout "Tabella"
   icTrash = faTrash;
@@ -114,6 +123,107 @@ export class ListaSchede implements OnChanges {
   onSelezionaScheda(scheda: SchedaDto): void { this.schedaSelected.emit(scheda); }
   onPreviewScheda(scheda: SchedaDto): void { this.schedaPreview.emit(scheda); }
   onCreaNuova(): void { this.createNew.emit(); }
+
+  startRename(scheda: SchedaDto, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.savingNome) return;
+    if (!scheda?.id) return;
+
+    this.editingSchedaId = scheda.id;
+    this.editNomeOriginale = scheda.nome ?? '';
+    this.editNome = this.editNomeOriginale;
+    this.editError = '';
+    this.cdr.detectChanges();
+
+    const elId = `scheda-name-input-${scheda.id}`;
+    setTimeout(() => {
+      const input = document.getElementById(elId) as HTMLInputElement | null;
+      input?.focus();
+      input?.select();
+    }, 0);
+  }
+
+  cancelRename(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    if (this.savingNome) return;
+    this.editingSchedaId = undefined;
+    this.editNome = '';
+    this.editNomeOriginale = '';
+    this.editError = '';
+    this.cdr.detectChanges();
+  }
+
+  confirmRename(scheda: SchedaDto, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.savingNome) return;
+    if (!scheda?.id) return;
+
+    const trimmed = (this.editNome ?? '').trim();
+    const validation = this.validateNome(trimmed);
+    if (validation) {
+      this.editError = validation;
+      this.cdr.detectChanges();
+      const input = document.getElementById(`scheda-name-input-${scheda.id}`) as HTMLInputElement | null;
+      input?.focus();
+      input?.select();
+      return;
+    }
+
+    if (trimmed === (this.editNomeOriginale ?? '').trim()) {
+      this.cancelRename(event);
+      return;
+    }
+
+    this.savingNome = true;
+    this.editError = '';
+    this.cdr.detectChanges();
+
+    const clienteId = scheda?.cliente?.id ?? this.clienteId;
+    this.schedaService.update({
+      id: scheda.id,
+      nome: trimmed,
+      cliente: { id: clienteId },
+      attiva: scheda.attiva,
+      dataCreazione: scheda.dataCreazione
+    } as any).subscribe({
+      next: (updated) => {
+        this.savingNome = false;
+        this.editingSchedaId = undefined;
+        this.schede = (this.schede ?? []).map((s) =>
+          s.id === updated.id
+            ? { ...s, ...updated, pasti: (updated as any)?.pasti ?? s.pasti }
+            : s
+        );
+        this.schedaCache.invalidate(updated.id);
+        this.cdr.detectChanges();
+        this.schedaRenamed.emit(updated);
+      },
+      error: (err) => {
+        this.savingNome = false;
+        this.editError = err?.error?.message || 'Impossibile salvare il nome';
+        this.cdr.detectChanges();
+        const input = document.getElementById(`scheda-name-input-${scheda.id}`) as HTMLInputElement | null;
+        input?.focus();
+        input?.select();
+      }
+    });
+  }
+
+  isEditing(schedaId: number | undefined): boolean {
+    return !!schedaId && this.editingSchedaId === schedaId;
+  }
+
+  private validateNome(value: string): string {
+    if (!value) return 'Il nome non può essere vuoto';
+    if (value.length < 3) return 'Minimo 3 caratteri';
+    if (value.length > 50) return 'Massimo 50 caratteri';
+    return '';
+  }
 
   onEliminaScheda(scheda: SchedaDto, event: Event): void {
     event.stopPropagation();

@@ -10,7 +10,7 @@ describe('CatalogoAlimenti', () => {
     await TestBed.configureTestingModule({
       imports: [CatalogoAlimenti]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(CatalogoAlimenti);
     component = fixture.componentInstance;
@@ -19,5 +19,17 @@ describe('CatalogoAlimenti', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('ordina alfabeticamente ignorando maiuscole', () => {
+    const items = [
+      { nome: 'banana' },
+      { nome: 'Apple' },
+      { nome: 'carota' }
+    ] as any;
+
+    const sorted = (component as any).sortByNome(items);
+
+    expect(sorted.map((x: any) => x.nome)).toEqual(['Apple', 'banana', 'carota']);
   });
 });
