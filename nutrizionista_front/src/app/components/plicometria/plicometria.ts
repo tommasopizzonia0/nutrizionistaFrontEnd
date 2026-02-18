@@ -154,7 +154,6 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
     return this.editingId !== null;
   }
 
-  // ===== LISTA =====
 loadPage(pageIndex: number) {
   if (!this.clienteId) return;
 
@@ -167,9 +166,9 @@ loadPage(pageIndex: number) {
       takeUntil(this.destroy$),
       finalize(() => {
         this.loading = false;
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges(); // ✅ forza il DOM a renderizzare il canvas
 
-        
+        // ✅ ORA il canvas esiste (perché !loading)
         setTimeout(() => this.renderPieFromSelected(), 0);
 
         this.cdr.markForCheck();
@@ -180,6 +179,7 @@ loadPage(pageIndex: number) {
         this.page = res;
         this.numeroPagina = res.numeroPagina;
 
+        // ✅ seleziona ultima misurazione
         this.selected = this.pickLatest(res.contenuto);
 
         this.cdr.markForCheck();
@@ -368,10 +368,11 @@ loadPage(pageIndex: number) {
     const canvas = this.plicoPie?.nativeElement;
     if (!canvas) return;
 
-    if (this.chart && this.chart.canvas !== canvas) {
+      if (this.chart && this.chart.canvas !== canvas) {
     this.chart.destroy();
     this.chart = undefined;
   }
+
 
     const mg = this.selected?.massaGrassaKg ?? 0;
     const mm = this.selected?.massaMagraKg ?? 0;
