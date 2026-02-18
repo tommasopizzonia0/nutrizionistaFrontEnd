@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PlicometriaComponent } from './plicometria';
 
-describe('PlicometriaComponent', () => {
+describe('Plicometria', () => {
   let component: PlicometriaComponent;
   let fixture: ComponentFixture<PlicometriaComponent>;
 

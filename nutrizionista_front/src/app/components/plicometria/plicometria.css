@@ -9,10 +9,12 @@
 
 .lista-container {
     padding: 0;
-    max-width: 1100px;
+    width: 100%;
+    max-width: 100%;
     color: var(--text);
     margin-top: 1.5rem;
 }
+
 
 .lista-container.dark-mode {
     color: #fff;
@@ -85,6 +87,17 @@
 .dark-mode .btn-new:hover {
     background: rgba(16, 185, 129, .20);
     border-color: rgba(16, 185, 129, .45);
+}
+
+/* ========================================================= */
+/* LAYOUT TABELLA + GRAFICO */
+/* ========================================================= */
+.plico-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+    gap: 14px;
+    align-items: start;
+    width: 100%;
 }
 
 /* ========================================================= */
@@ -379,7 +392,82 @@
 }
 
 /* ========================================================= */
-/* FORM MODALE */
+/* GRAFICO A DESTRA */
+/* ========================================================= */
+.chart-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 14px;
+}
+
+.dark-mode .chart-card {
+    background: #191c20;
+    border-color: rgba(16, 185, 129, .25);
+    box-shadow: var(--shadow-strong);
+}
+
+.chart-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.chart-title {
+    font-weight: 950;
+    color: var(--text);
+}
+
+.dark-mode .chart-title {
+    color: #fff;
+}
+
+.chart-sub {
+    font-size: .9rem;
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.dark-mode .chart-sub {
+    color: #cbd5e1;
+}
+
+.chart-wrap {
+    height: 240px;
+}
+
+.chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.chart-metrics {
+    margin-top: 10px;
+    display: grid;
+    gap: 6px;
+    color: var(--text);
+    font-weight: 850;
+}
+
+.dark-mode .chart-metrics {
+    color: #fff;
+}
+
+.chart-metrics .k {
+    color: var(--muted);
+    font-weight: 950;
+    margin-right: 6px;
+}
+
+.dark-mode .chart-metrics .k {
+    color: #cbd5e1;
+}
+
+/* ========================================================= */
+/* FORM */
 /* ========================================================= */
 .form-container {
     background: var(--surface);
@@ -572,4 +660,97 @@
     .plicometria-table tbody td {
         padding: 8px;
     }
+
+    .plico-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-wrap {
+        height: 220px;
+    }
 }
+
+/* =========================
+   OVERLAY MODAL PLICO
+   ========================= */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.overlay-card {
+  width: min(900px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+  padding: 16px;
+}
+
+.dark-mode .overlay-card {
+  background: #191c20;
+  border-color: rgba(16, 185, 129, .25);
+}
+
+.overlay-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(229, 231, 235, .9);
+}
+
+.dark-mode .overlay-head {
+  border-bottom-color: rgba(148, 163, 184, .18);
+}
+
+.overlay-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overlay-title .kicker {
+  font-size: .8rem;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dark-mode .overlay-title .kicker {
+  color: #cbd5e1;
+}
+
+.overlay-title strong {
+  font-size: 1.3rem;
+  font-weight: 950;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(229,231,235,.9);
+  background: #fff;
+  cursor: pointer;
+}
+
+.dark-mode .icon-btn {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(148,163,184,.18);
+  color: #fff;
+}
+
