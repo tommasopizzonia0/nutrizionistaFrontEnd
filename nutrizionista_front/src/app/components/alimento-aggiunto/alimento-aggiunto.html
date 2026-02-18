@@ -1,0 +1,57 @@
+<div class="alimento-item" [class.dark-mode]="isDarkMode">
+    <div class="alimento-info">
+        <div class="alimento-header">
+            <div class="alimento-title">
+                @if (editingNome) {
+                <div class="nome-edit-row">
+                    <input #nomeInput type="text" class="nome-input" [(ngModel)]="editNomeValue"
+                        (keydown)="onNomeKeydown($event)" (blur)="confirmEditNome()" />
+                    <button class="btn-inline confirm" (mousedown)="$event.preventDefault(); confirmEditNome()"
+                        title="Conferma" aria-label="Conferma">
+                        <fa-icon [icon]="icons.confirm"></fa-icon>
+                    </button>
+                    <button class="btn-inline cancel" (mousedown)="$event.preventDefault(); cancelEditNome()"
+                        title="Annulla" aria-label="Annulla">
+                        <fa-icon [icon]="icons.cancel"></fa-icon>
+                    </button>
+                </div>
+                } @else {
+                <span class="alimento-nome" (dblclick)="startEditNome()" title="Doppio click per modificare">{{ nome
+                    }}</span>
+                <button class="btn-edit" (click)="startEditNome()" title="Modifica nome visualizzato"
+                    aria-label="Modifica nome visualizzato">
+                    <fa-icon [icon]="icons.edit"></fa-icon>
+                </button>
+                }
+            </div>
+            <div class="alimento-quantita">
+                <input type="number" [ngModel]="quantita" (ngModelChange)="onQuantitaChange($event)" min="1"
+                    class="quantita-input" />
+                <span class="misura">{{ misura }}</span>
+            </div>
+        </div>
+
+        <div class="macro-badges">
+            <span class="badge proteine" title="Proteine">
+                <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+                {{ calcolaMacro('proteine') | number:'1.0-1' }}g
+            </span>
+            <span class="badge carboidrati" title="Carboidrati">
+                <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+                {{ calcolaMacro('carboidrati') | number:'1.0-1' }}g
+            </span>
+            <span class="badge grassi" title="Grassi">
+                <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+                {{ calcolaMacro('grassi') | number:'1.0-1' }}g
+            </span>
+            <span class="badge calorie" title="Calorie">
+                <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
+                {{ calcolaMacro('calorie') | number:'1.0-0' }}
+            </span>
+        </div>
+    </div>
+
+    <button class="btn-remove" (click)="onRemove()" title="Rimuovi alimento">
+        <fa-icon [icon]="icons.trash"></fa-icon>
+    </button>
+</div>

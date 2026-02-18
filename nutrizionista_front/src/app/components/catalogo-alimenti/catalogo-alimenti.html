@@ -9,8 +9,8 @@
     <div class="search-section">
         <div class="search-box">
             <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
-            <input type="text" [(ngModel)]="searchQuery" (input)="onSearchAlimenti()" placeholder="Cerca alimento..."
-                class="search-input" />
+            <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchQueryChange($event)"
+                placeholder="Cerca alimento..." class="search-input" />
         </div>
     </div>
 
@@ -29,7 +29,7 @@
         </div>
         }
 
-        @if (!loadingAlimenti && alimentiDisponibili.length === 0 && searchQuery.length > 0) {
+        @if (!loadingAlimenti && alimentiDisponibili.length === 0 && (searchQuery.length > 0 || totalElements === 0)) {
         <div class="catalogo-empty">
             <div class="catalogo-empty-title">Nessun alimento trovato</div>
             <div class="catalogo-empty-sub">
@@ -46,15 +46,27 @@
                     <span class="catalogo-nome">{{ alimento.nome }}</span>
                     @if (alimento.macroNutrienti) {
                     <div class="catalogo-macros">
-                        <span class="macro-chip p">P: {{ alimento.macroNutrienti.proteine }} g</span>
-                        <span class="macro-chip c">C: {{ alimento.macroNutrienti.carboidrati }} g</span>
-                        <span class="macro-chip g">G: {{ alimento.macroNutrienti.grassi }} g</span>
-                        <span class="macro-chip kcal">{{ alimento.macroNutrienti.calorie }} kcal</span>
+                        <span class="macro-chip p" title="Proteine">
+                            <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+                            {{ alimento.macroNutrienti.proteine | number:'1.0-1' }}g
+                        </span>
+                        <span class="macro-chip c" title="Carboidrati">
+                            <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+                            {{ alimento.macroNutrienti.carboidrati | number:'1.0-1' }}g
+                        </span>
+                        <span class="macro-chip g" title="Grassi">
+                            <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+                            {{ alimento.macroNutrienti.grassi | number:'1.0-1' }}g
+                        </span>
+                        <span class="macro-chip kcal" title="Calorie">
+                            <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
+                            {{ alimento.macroNutrienti.calorie | number:'1.0-0' }}
+                        </span>
                     </div>
                     }
                 </div>
                 <div class="catalogo-action">
-                    <button class="add-btn" type="button" title="Aggiungi">
+                    <button class="add-btn" type="button" title="Aggiungi" (click)="onAddAlimento(alimento, $event)">
                         <fa-icon [icon]="icons.plus"></fa-icon>
                     </button>
                 </div>
@@ -63,6 +75,26 @@
         </div>
         }
     </div>
+
+    @if (totalPages > 1) {
+    <div class="pagination-pro">
+        <button class="page-btn" (click)="cambiaPagina(currentPage - 1)" [disabled]="currentPage === 0"
+            aria-label="Pagina precedente">
+            <fa-icon [icon]="icons.chevronLeft"></fa-icon>
+        </button>
+
+        <div class="page-indicator pill-indicator">
+            <span class="page-current">{{ paginaCorrente }}</span>
+            <span class="page-sep">/</span>
+            <span class="page-total">{{ totalPages }}</span>
+        </div>
+
+        <button class="page-btn" (click)="cambiaPagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1"
+            aria-label="Pagina successiva">
+            <fa-icon [icon]="icons.chevronRight"></fa-icon>
+        </button>
+    </div>
+    }
 
     <!-- Indicatore pasto selezionato -->
     @if (pastoEspanso) {

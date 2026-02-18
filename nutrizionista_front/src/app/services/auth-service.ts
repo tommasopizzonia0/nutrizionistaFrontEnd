@@ -49,7 +49,6 @@ export class AuthService implements OnDestroy {
       if (!this.isTokenExpired(token)) {
         this.token = token;
         let jsonToken = this.getDecodedAccessToken(token);
-        console.log(jsonToken)
         // this.ruolo = jsonToken.role;
         // this.email = jsonToken.email;
         // this.nome = jsonToken.nome;

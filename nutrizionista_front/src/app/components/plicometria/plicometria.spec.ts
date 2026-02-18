@@ -10,7 +10,7 @@ describe('Plicometria', () => {
     await TestBed.configureTestingModule({
       imports: [PlicometriaComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(PlicometriaComponent);
     component = fixture.componentInstance;

@@ -30,6 +30,7 @@ export class Login {
   submitted: boolean = false;
   timeoutId: any;
   checked: any; //da usare per il ricordami
+  errorMessage = '';
 
 
 
@@ -49,8 +50,10 @@ export class Login {
   }
   async login() {
     this.submitted = true;
+    this.errorMessage = '';
 
     if (this.authService.isNullOrVoid(this.email) || this.authService.isNullOrVoid(this.password)) {
+      this.errorMessage = 'Inserisci email e password.';
       return;
     }
     var send = {
@@ -73,7 +76,16 @@ export class Login {
 
       }
     } catch (error) {
-
+      const err: any = error;
+      const status = err?.status;
+      const body = err?.error;
+      if (status === 401) {
+        this.errorMessage = 'Credenziali non valide.';
+      } else if (typeof body === 'string' && body.trim()) {
+        this.errorMessage = body;
+      } else {
+        this.errorMessage = 'Errore durante il login.';
+      }
     }
   }
 

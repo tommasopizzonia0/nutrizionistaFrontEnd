@@ -277,6 +277,7 @@ app-navbar {
 
 /* card di ricerca */
 .search-card {
+  position: relative;
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -349,6 +350,16 @@ app-navbar {
 .dark-mode .search-clear:hover {
   background: rgba(16, 185, 129, 0.18);
   color: var(--green-light);
+}
+
+.search-logo {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 130px;
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 /* Responsive: stats in colonna */
