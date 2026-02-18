@@ -12,7 +12,8 @@ export class ThemeService {
     if (savedTheme !== null) {
       return savedTheme === 'dark';
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const mm = typeof window !== 'undefined' ? (window as any).matchMedia : undefined;
+    return typeof mm === 'function' ? mm('(prefers-color-scheme: dark)').matches : false;
   }
 
   toggleTheme(): void {

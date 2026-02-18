@@ -163,6 +163,17 @@
   padding: 0 6px;
 }
 
+.error-box{
+  width: 100%;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, .28);
+  background: rgba(254, 226, 226, .85);
+  color: #991b1b;
+  font-weight: 700;
+  font-size: .95rem;
+}
+
 /* Field row */
 .email, .password{
   width: 100%;

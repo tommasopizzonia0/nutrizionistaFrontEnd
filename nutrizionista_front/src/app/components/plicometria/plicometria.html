@@ -22,228 +22,174 @@
   </div>
   }
 
-  @if (page.contenuto?.length) {
+    @if (page.contenuto?.length) {
+      <div class="table-responsive">
+        <table class="plicometria-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Metodo</th>
+              <th>% MG</th>
+              <th>MG (kg)</th>
+              <th>MM (kg)</th>
+              <th class="text-right">Azioni</th>
+            </tr>
+          </thead>
 
-  <div class="plico-layout">
+          <tbody>
+            @for (p of page.contenuto; track p.id) {
+              <tr>
+                <td>
+                  <div class="data-info">
+                    <fa-icon [icon]="icCalendar"></fa-icon>
+                    {{ p.dataMisurazione | date:'dd MMMM yyyy' }}
+                  </div>
+                </td>
+                <td>
+                  <span class="metodo-badge">{{ p.metodo }}</span>
+                </td>
+                <td>
+                  <span class="valore-dato">{{ p.percentualeMassaGrassa | number:'1.1-1' }}%</span>
+                </td>
+                <td>
+                  <span class="valore-dato">{{ p.massaGrassaKg | number:'1.1-1' }}</span>
+                </td>
+                <td>
+                  <span class="valore-dato">{{ p.massaMagraKg | number:'1.1-1' }}</span>
+                </td>
+                <td class="text-right">
+                  <div class="actions-group">
+                    <button class="btn-icon edit" (click)="startEdit(p)" title="Modifica">
+                      <fa-icon [icon]="icEdit"></fa-icon>
+                    </button>
+                    <button class="btn-icon delete" (click)="delete(p)" title="Elimina">
+                      <fa-icon [icon]="icTrash"></fa-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
 
-    <!-- SINISTRA: TABELLA -->
-    <div class="table-responsive">
-      <table class="plicometria-table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Metodo</th>
-            <th>% MG</th>
-            <th>MG (kg)</th>
-            <th>MM (kg)</th>
-            <th class="text-right">Azioni</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (p of page.contenuto; track p.id) {
-          <tr>
-            <td>
-              <div class="data-info">
-                <fa-icon [icon]="icCalendar"></fa-icon>
-                {{ p.dataMisurazione | date:'dd MMMM yyyy' }}
-              </div>
-            </td>
-
-            <td>
-              <span class="metodo-badge">{{ p.metodo }}</span>
-            </td>
-
-            <td>
-              <span class="valore-dato">{{ p.percentualeMassaGrassa | number:'1.1-1' }}%</span>
-            </td>
-
-            <td>
-              <span class="valore-dato">{{ p.massaGrassaKg | number:'1.1-1' }}</span>
-            </td>
-
-            <td>
-              <span class="valore-dato">{{ p.massaMagraKg | number:'1.1-1' }}</span>
-            </td>
-
-            <td class="text-right">
-              <div class="actions-group">
-                <button class="btn-icon edit" (click)="startEdit(p)" title="Modifica">
-                  <fa-icon [icon]="icEdit"></fa-icon>
-                </button>
-                <button class="btn-icon delete" (click)="delete(p)" title="Elimina">
-                  <fa-icon [icon]="icTrash"></fa-icon>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-
-      @if (page.totalePagine > 1) {
-      <div class="pagination-controls">
-        <button [disabled]="page.numeroPagina === 0" (click)="prevPage()">
-          <fa-icon [icon]="icChevronLeft"></fa-icon>
-        </button>
-        <span>Pagina {{ page.numeroPagina + 1 }} di {{ page.totalePagine }}</span>
-        <button [disabled]="page.ultima" (click)="nextPage()">
-          <fa-icon [icon]="icChevronRight"></fa-icon>
-        </button>
+        @if (page.totalePagine > 1) {
+          <div class="pagination-controls">
+            <button [disabled]="page.numeroPagina === 0" (click)="prevPage()">
+              <fa-icon [icon]="icChevronLeft"></fa-icon>
+            </button>
+            <span>Pagina {{ page.numeroPagina + 1 }} di {{ page.totalePagine }}</span>
+            <button [disabled]="page.ultima" (click)="nextPage()">
+              <fa-icon [icon]="icChevronRight"></fa-icon>
+            </button>
+          </div>
+        }
       </div>
-      }
-    </div>
-
-    <!-- DESTRA: GRAFICO -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">Composizione corporea</div>
-        <div class="chart-sub">
-          @if (selected?.dataMisurazione) {
-          {{ selected?.dataMisurazione | date:'dd MMM yyyy' }}
-          } @else {
-          Nessun dato
-          }
-        </div>
-      </div>
-
-      <div class="chart-wrap">
-        <canvas #plicoPie></canvas>
-      </div>
-
-      @if (selected) {
-      <div class="chart-metrics">
-        <div><span class="k">MG:</span> <span class="v">{{ selected.massaGrassaKg | number:'1.1-1' }} kg</span></div>
-        <div><span class="k">MM:</span> <span class="v">{{ selected.massaMagraKg | number:'1.1-1' }} kg</span></div>
-      </div>
-      }
-    </div>
-
-  </div>
-  }
+    }
   }
 
   <!-- OVERLAY MODAL -->
   @if (showForm) {
-  <div class="overlay" (mousedown)="onBackdrop($event)">
-
-
-    <div class="overlay-card" (click)="$event.stopPropagation()">
-
-      <div class="overlay-head">
-        <div class="overlay-title">
-          <span class="kicker">{{ isEditing() ? 'Modifica plicometria' : 'Nuova plicometria' }}</span>
-          <strong>Compila e salva</strong>
-        </div>
-
-        <button class="icon-btn" type="button" (click)="cancelEdit()" title="Chiudi">
-          ✕
-        </button>
-      </div>
-
-      <!-- FORM -->
+    <div class="form-container">
+      <h3>{{ isEditing() ? 'Modifica' : 'Nuova' }} plicometria</h3>
+      
       <form [formGroup]="form" (ngSubmit)="save()">
         <div class="form-grid">
-
+          
           <div class="form-field">
             <label>Metodo</label>
             <select formControlName="metodo">
               <option [ngValue]="null">Seleziona...</option>
               @for (m of metodi; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
+                <option [value]="m.value">{{ m.label }}</option>
               }
             </select>
           </div>
 
-          <div class="form-field">
-            <label>Data Misurazione</label>
-            <input type="date" formControlName="dataMisurazione" />
-          </div>
+        <div class="form-field">
+          <label>Data Misurazione</label>
+          <input type="date" formControlName="dataMisurazione" />
+        </div>
 
           @if (show('tricipite')) {
-          <div class="form-field">
-            <label>Tricipite (mm)</label>
-            <input type="number" formControlName="tricipite" />
-          </div>
+            <div class="form-field">
+              <label>Tricipite (mm)</label>
+              <input type="number" formControlName="tricipite" />
+            </div>
           }
 
           @if (show('bicipite')) {
-          <div class="form-field">
-            <label>Bicipite (mm)</label>
-            <input type="number" formControlName="bicipite" />
-          </div>
+            <div class="form-field">
+              <label>Bicipite (mm)</label>
+              <input type="number" formControlName="bicipite" />
+            </div>
           }
 
           @if (show('sottoscapolare')) {
-          <div class="form-field">
-            <label>Sottoscapolare (mm)</label>
-            <input type="number" formControlName="sottoscapolare" />
-          </div>
+            <div class="form-field">
+              <label>Sottoscapolare (mm)</label>
+              <input type="number" formControlName="sottoscapolare" />
+            </div>
           }
 
           @if (show('sovrailiaca')) {
-          <div class="form-field">
-            <label>Sovrailiaca (mm)</label>
-            <input type="number" formControlName="sovrailiaca" />
-          </div>
+            <div class="form-field">
+              <label>Sovrailiaca (mm)</label>
+              <input type="number" formControlName="sovrailiaca" />
+            </div>
           }
 
           @if (show('addominale')) {
-          <div class="form-field">
-            <label>Addominale (mm)</label>
-            <input type="number" formControlName="addominale" />
-          </div>
+            <div class="form-field">
+              <label>Addominale (mm)</label>
+              <input type="number" formControlName="addominale" />
+            </div>
           }
 
           @if (show('coscia')) {
-          <div class="form-field">
-            <label>Coscia (mm)</label>
-            <input type="number" formControlName="coscia" />
-          </div>
+            <div class="form-field">
+              <label>Coscia (mm)</label>
+              <input type="number" formControlName="coscia" />
+            </div>
           }
 
           @if (show('pettorale')) {
-          <div class="form-field">
-            <label>Pettorale (mm)</label>
-            <input type="number" formControlName="pettorale" />
-          </div>
+            <div class="form-field">
+              <label>Pettorale (mm)</label>
+              <input type="number" formControlName="pettorale" />
+            </div>
           }
 
           @if (show('ascellare')) {
-          <div class="form-field">
-            <label>Ascellare (mm)</label>
-            <input type="number" formControlName="ascellare" />
-          </div>
+            <div class="form-field">
+              <label>Ascellare (mm)</label>
+              <input type="number" formControlName="ascellare" />
+            </div>
           }
 
           @if (show('polpaccio')) {
-          <div class="form-field">
-            <label>Polpaccio (mm)</label>
-            <input type="number" formControlName="polpaccio" />
-          </div>
+            <div class="form-field">
+              <label>Polpaccio (mm)</label>
+              <input type="number" formControlName="polpaccio" />
+            </div>
           }
 
-          <div class="form-field full-width">
-            <label>Note</label>
-            <textarea formControlName="note"></textarea>
-          </div>
+        <div class="form-field full-width">
+          <label>Note</label>
+          <textarea formControlName="note"></textarea>
+        </div>
 
           <div class="form-actions">
             <button type="submit" class="btn-submit" [disabled]="saving">
               {{ isEditing() ? 'Aggiorna' : 'Crea' }}
             </button>
-
             <button type="button" class="btn-cancel" (click)="cancelEdit()" [disabled]="saving">
               Annulla
             </button>
           </div>
-
+          
         </div>
       </form>
-
-
     </div>
-  </div>
   }
 
 </div>

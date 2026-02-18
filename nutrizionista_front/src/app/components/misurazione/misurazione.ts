@@ -29,7 +29,7 @@ export class MisurazioneComponent implements OnInit {
 
   misurazioni: MisurazioneDto[] = [
     { nome: 'Torace', valore: null, unita: 'cm', pathId: 'torace' },
-    { nome: 'Addome', valore: null, unita: 'cm', pathId: 'addome' },
+    { nome: 'Vita', valore: null, unita: 'cm', pathId: 'addome' },
     { nome: 'Fianchi', valore: null, unita: 'cm', pathId: 'fianchi' },
     { nome: 'Spalle', valore: null, unita: 'cm', pathId: 'spalle' },
     { nome: 'Bicipite Destro', valore: null, unita: 'cm', pathId: 'bicipiteDx' },

@@ -309,6 +309,52 @@ label {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card{
+  width: min(560px, 92vw);
+  background: var(--panel, #fff);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-header h3{
+  margin: 0 0 6px 0;
+}
+
+.modal-header p{
+  margin: 0;
+  opacity: .8;
+}
+
+.modal-body{
+  margin-top: 12px;
+}
+
+.modal-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.checkbox{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1100px) {

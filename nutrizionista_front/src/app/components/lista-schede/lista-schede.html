@@ -8,7 +8,7 @@
     </div>
 
 
-    <div class="table-responsive">
+    <div class="table-responsive" [class.is-loading]="loading" [attr.aria-busy]="loading">
         <table class="schede-table">
             <thead>
                 <tr>
@@ -23,7 +23,25 @@
                 <tr class="scheda-row" (click)="onPreviewScheda(scheda)">
                     <td>
                         <div class="scheda-info">
-                            <span class="scheda-nome">{{ scheda.nome }}</span>
+                            <div class="scheda-nome-wrap" [class.editing]="isEditing(scheda.id)">
+                                @if (isEditing(scheda.id)) {
+                                <input class="scheda-nome-input" [class.invalid]="!!editError"
+                                    [id]="'scheda-name-input-' + scheda.id" [value]="editNome"
+                                    [attr.aria-label]="'Modifica nome scheda ' + (scheda.nome ?? '')"
+                                    [attr.aria-invalid]="!!editError" [disabled]="savingNome"
+                                    (click)="$event.stopPropagation()" (input)="editNome = $any($event.target).value"
+                                    (keydown.enter)="confirmRename(scheda, $event)"
+                                    (keydown.escape)="cancelRename($event)" (blur)="cancelRename($event)" />
+                                @if (editError) {
+                                <div class="scheda-nome-error" role="alert">{{ editError }}</div>
+                                }
+                                } @else {
+                                <span class="scheda-nome" tabindex="0" role="button" aria-label="Modifica nome scheda"
+                                    (click)="$event.stopPropagation()" (dblclick)="startRename(scheda, $event)"
+                                    (keydown.enter)="startRename(scheda, $event)"
+                                    (keydown.f2)="startRename(scheda, $event)">{{ scheda.nome }}</span>
+                                }
+                            </div>
                             <span class="scheda-data">
                                 <fa-icon [icon]="icCalendar"></fa-icon>
                                 {{ scheda.dataCreazione | date:'dd MMMM yyyy' }}
@@ -65,7 +83,7 @@
         </table>
 
         @if (loading) {
-        <div class="spinner-wrapper">
+        <div class="spinner-wrapper" role="status" aria-label="Caricamento schede">
             <div class="custom-loader"></div>
         </div>
         }

@@ -1,0 +1,40 @@
+<div class="macro-summary" [class.dark-mode]="isDarkMode">
+    <h3 class="summary-title">
+        <fa-icon [icon]="icons.chart"></fa-icon>
+        Riepilogo Giornaliero
+    </h3>
+
+    <div class="macro-grid">
+        <div class="macro-card proteine">
+            <fa-icon [icon]="icons.dumbbell" class="macro-icon"></fa-icon>
+            <div class="macro-content">
+                <span class="macro-label">Proteine</span>
+                <span class="macro-value">{{ calcolaTotaleGiornaliero('proteine') | number:'1.0-1' }} g</span>
+            </div>
+        </div>
+
+        <div class="macro-card carboidrati">
+            <fa-icon [icon]="icons.wheat" class="macro-icon"></fa-icon>
+            <div class="macro-content">
+                <span class="macro-label">Carboidrati</span>
+                <span class="macro-value">{{ calcolaTotaleGiornaliero('carboidrati') | number:'1.0-1' }} g</span>
+            </div>
+        </div>
+
+        <div class="macro-card grassi">
+            <fa-icon [icon]="icons.droplet" class="macro-icon"></fa-icon>
+            <div class="macro-content">
+                <span class="macro-label">Grassi</span>
+                <span class="macro-value">{{ calcolaTotaleGiornaliero('grassi') | number:'1.0-1' }} g</span>
+            </div>
+        </div>
+
+        <div class="macro-card calorie highlight">
+            <fa-icon [icon]="icons.fire" class="macro-icon"></fa-icon>
+            <div class="macro-content">
+                <span class="macro-label">Calorie Totali</span>
+                <span class="macro-value">{{ calcolaTotaleCalorieGiornaliere() | number:'1.0-0' }} kcal</span>
+            </div>
+        </div>
+    </div>
+</div>

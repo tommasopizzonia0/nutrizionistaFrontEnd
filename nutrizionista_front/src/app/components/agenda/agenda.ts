@@ -10,9 +10,11 @@ import { SidebarService } from '../../services/navbar.service';
 import { AgendaStateService } from '../../services/agenda-state.service';
 import { AppuntamentiApiService } from '../../services/appuntamenti.service';
 import { CalendarRefreshService } from '../../services/calendar-refresh.service';
+import { OrariStudioApiService } from '../../services/orari-studio.service';
 
 // DTO
 import { AppuntamentoFormDto, OpenAgendaPayload } from '../../dto/appuntamento.dto';
+import { OrariStudioDto, OrariStudioFormDto } from '../../dto/orari-studio.dto';
 
 // ✅ Reuse calendario
 import { CalendarioComponent } from '../calendario/calendario';
@@ -23,6 +25,14 @@ type ClienteDropdown = {
   cognome: string;
   dataNascita: string;
   email: string;
+};
+
+type CalendarAvailability = {
+  slotMinTime: string;   // "09:00:00"
+  slotMaxTime: string;   // "19:00:00"
+  hiddenDays: number[];  // [0] o [0,6]
+  pausaInizio: string | null; // "13:00:00"
+  pausaFine: string | null;   // "14:00:00"
 };
 
 @Component({
@@ -50,6 +60,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   private agendaState = inject(AgendaStateService);
   private api = inject(AppuntamentiApiService);
   private calendarRefresh = inject(CalendarRefreshService);
+  private orariApi = inject(OrariStudioApiService);
   private cdr = inject(ChangeDetectorRef);
 
   public themeService = inject(ThemeService);
@@ -59,13 +70,28 @@ export class AgendaComponent implements OnInit, OnDestroy {
   clientResults: ClienteDropdown[] = [];
   showClientDropdown = false;
 
+  // ✅ Modal orari
+  showOrariModal = false;
+  orari?: OrariStudioDto;
+
+  calendarAvailability?: CalendarAvailability;
+
+  // ✅ Form orari studio (modal)
+  orariForm = this.fb.group({
+    oraApertura: ['09:00', Validators.required],
+    oraChiusura: ['19:00', Validators.required],
+    pausaInizio: ['13:00'],
+    pausaFine: ['14:00'],
+    lavoraSabato: [false]
+  });
+
   form = this.fb.group({
     data: ['', Validators.required],
     ora: ['', Validators.required],
     descrizioneAppuntamento: ['', Validators.required],
 
     modalita: ['ONLINE', Validators.required],
-    stato: ['PROGRAMMATO'], // ✅ allineato all'enum backend
+    stato: ['PROGRAMMATO'],
 
     luogo: [''],
 
@@ -80,6 +106,9 @@ export class AgendaComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // ✅ carica orari studio (se non esistono -> modal)
+    this.loadOrariStudio();
+
     // ascolta comandi da Calendario
     this.sub = this.agendaState.open$.subscribe((payload) => this.open(payload));
 
@@ -116,6 +145,115 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
+  // =========================
+  // ✅ Orari studio (modal)
+  // =========================
+
+  private loadOrariStudio(): void {
+    this.orariApi.getMe().subscribe({
+      next: (dto) => {
+        this.orari = dto;
+
+        // precompila form modal se vuoi “modificare” in futuro
+        this.orariForm.patchValue({
+          oraApertura: this.normalizeTime(dto.oraApertura) ?? '09:00',
+          oraChiusura: this.normalizeTime(dto.oraChiusura) ?? '19:00',
+          pausaInizio: this.normalizeTime(dto.pausaInizio ?? null) ?? '',
+          pausaFine: this.normalizeTime(dto.pausaFine ?? null) ?? '',
+          lavoraSabato: dto.lavoraSabato
+        }, { emitEvent: false });
+
+        this.showOrariModal = false;
+        this.applyOrariToCalendar(dto);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // se 404 o errore, chiedi setup
+        this.showOrariModal = true;
+        // set default availability (così il calendario è comunque usabile)
+        this.calendarAvailability = {
+          slotMinTime: '08:00:00',
+          slotMaxTime: '20:00:00',
+          hiddenDays: [0, 6],
+          pausaInizio: null,
+          pausaFine: null
+        };
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  saveOrari(): void {
+    this.error = '';
+    this.ok = '';
+
+    if (this.orariForm.invalid) {
+      this.error = 'Compila correttamente gli orari obbligatori.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const v: any = this.orariForm.getRawValue();
+
+    const payload: OrariStudioFormDto = {
+      oraApertura: v.oraApertura,
+      oraChiusura: v.oraChiusura,
+      pausaInizio: (v.pausaInizio ?? '').trim() ? v.pausaInizio : null,
+      pausaFine: (v.pausaFine ?? '').trim() ? v.pausaFine : null,
+      lavoraSabato: !!v.lavoraSabato
+    };
+
+    // mini-validazione FE su pausa (evita errori banali)
+    if ((payload.pausaInizio && !payload.pausaFine) || (!payload.pausaInizio && payload.pausaFine)) {
+      this.error = 'Inserisci sia inizio che fine pausa (oppure lascia entrambi vuoti).';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.orariApi.upsertMe(payload).subscribe({
+      next: (dto) => {
+        this.orari = dto;
+        this.showOrariModal = false;
+        this.applyOrariToCalendar(dto);
+        this.calendarRefresh.requestRefresh(); // ✅ ricarica eventi e pausa
+        this.ok = 'Orari studio salvati';
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.error = e?.error?.error ?? 'Errore salvataggio orari studio';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private normalizeTime(hhmmOrHhmmss: string | null | undefined): string | null {
+    if (!hhmmOrHhmmss) return null;
+    return hhmmOrHhmmss.length >= 5 ? hhmmOrHhmmss.substring(0, 5) : hhmmOrHhmmss;
+  }
+
+  private applyOrariToCalendar(dto: OrariStudioDto): void {
+    const apertura = this.normalizeTime(dto.oraApertura) ?? '08:00';
+    const chiusura = this.normalizeTime(dto.oraChiusura) ?? '20:00';
+
+    const pausaInizio = this.normalizeTime(dto.pausaInizio ?? null);
+    const pausaFine = this.normalizeTime(dto.pausaFine ?? null);
+
+    // Domenica sempre nascosta. Sabato nascosto se lavoraSabato=false.
+    const hiddenDays = dto.lavoraSabato ? [0] : [0, 6];
+
+    this.calendarAvailability = {
+      slotMinTime: `${apertura}:00`,
+      slotMaxTime: `${chiusura}:00`,
+      hiddenDays,
+      pausaInizio: pausaInizio ? `${pausaInizio}:00` : null,
+      pausaFine: pausaFine ? `${pausaFine}:00` : null
+    };
+  }
+
+  // =========================
+  // ✅ Apertura form da calendario
+  // =========================
+
   private open(payload: OpenAgendaPayload): void {
     this.error = '';
     this.ok = '';
@@ -141,7 +279,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
     this.api.getById(this.currentId).subscribe({
       next: (dto) => {
-        // NB: se cliente registrato, patchiamo anche search per mostrare label
         const searchLabel = dto?.clienteId
           ? `${dto.clienteNome ?? ''} ${dto.clienteCognome ?? ''}`
           : '';
@@ -163,7 +300,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
           clienteSearch: searchLabel
         });
 
-        // forza validatori in base a clienteId (perché patchValue non sempre triggera bene)
         if (dto.clienteId) this.setRegisteredValidators();
         else this.setGuestValidators();
 
@@ -215,7 +351,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   onSearchBlur(): void {
-    // piccolo delay per consentire click sugli item
     setTimeout(() => {
       this.showClientDropdown = false;
       this.cdr.detectChanges();
@@ -259,7 +394,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
     cognome.clearValidators();
     email.clearValidators();
 
-    // disabilita inserimento manuale per evitare modifiche superflue
     nome.disable({ emitEvent: false });
     cognome.disable({ emitEvent: false });
     email.disable({ emitEvent: false });
@@ -282,7 +416,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ include anche campi disabilitati
     const v: any = this.form.getRawValue();
 
     const payload: AppuntamentoFormDto = {
@@ -370,9 +503,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       clienteSearch: ''
     });
 
-    
     this.setGuestValidators();
-
     this.cdr.detectChanges();
   }
 }

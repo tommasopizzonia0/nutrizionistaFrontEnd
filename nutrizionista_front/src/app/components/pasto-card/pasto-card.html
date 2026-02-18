@@ -1,0 +1,55 @@
+<div class="pasto-card" [class.expanded]="isExpanded" [class.dark-mode]="isDarkMode">
+
+    <!-- Header -->
+    <div class="pasto-header" (click)="onToggle()">
+        <div class="pasto-info">
+            <div class="pasto-icon">
+                <fa-icon [icon]="icon"></fa-icon>
+            </div>
+            <div class="pasto-details">
+                <h3>{{ pasto.nome }}</h3>
+                <span class="pasto-orario">{{ orarioDisplay }}</span>
+            </div>
+        </div>
+        <div class="pasto-summary">
+            <span class="calorie-badge">{{ totaleCalorico }} kcal</span>
+            <fa-icon [icon]="isExpanded ? icons.chevronDown : icons.chevronRight" class="chevron"></fa-icon>
+        </div>
+    </div>
+
+    <!-- Content (expanded) -->
+    @if (isExpanded) {
+    <div class="pasto-content">
+
+        <!-- Lista alimenti -->
+        @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
+        <div class="alimenti-list">
+            @for (ap of pasto.alimentiPasto; track ap.id) {
+            <div class="alimento-wrapper">
+                <app-alimento-aggiunto [alimentoPasto]="ap" [isDarkMode]="isDarkMode"
+                    (quantitaChanged)="onQuantitaChange(ap.alimento?.id ?? 0, $event)"
+                    (removed)="onRemoveAlimento(ap.alimento?.id ?? 0)"></app-alimento-aggiunto>
+
+                <!-- Alternative per questo alimento -->
+                <app-lista-alternative [alimentoPasto]="ap" [alternatives]="getAlternatives(ap.id)"
+                    [isDarkMode]="isDarkMode" (alternativeSelected)="onAlternativeSelected(ap.id, $event)"
+                    (alternativeRemoved)="onAlternativeRemoved(ap.id, $event)"
+                    (quantitaChanged)="onAlternativeQuantitaChanged(ap.id, $event)"
+                    (modeChanged)="onAlternativeModeChanged(ap.id, $event)"></app-lista-alternative>
+            </div>
+            }
+        </div>
+        } @else {
+        <p class="empty-message">Nessun alimento aggiunto</p>
+        }
+
+        <!-- Bottone aggiungi -->
+        @if (showAddButton) {
+        <button class="btn-add-alimento" (click)="onAddAlimento()">
+            <fa-icon [icon]="icons.plus"></fa-icon>
+            Aggiungi alimento
+        </button>
+        }
+    </div>
+    }
+</div>

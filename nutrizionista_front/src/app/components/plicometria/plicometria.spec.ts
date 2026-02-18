@@ -3,14 +3,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlicometriaComponent } from './plicometria';
 
 describe('Plicometria', () => {
-  let component: PlicometriaComponent;
-  let fixture: ComponentFixture<PlicometriaComponent>;
+  let component: Plicometria;
+  let fixture: ComponentFixture<Plicometria>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PlicometriaComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(PlicometriaComponent);
     component = fixture.componentInstance;

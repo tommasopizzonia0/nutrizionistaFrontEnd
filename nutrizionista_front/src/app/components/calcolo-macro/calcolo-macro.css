@@ -1,0 +1,149 @@
+.macro-summary {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.macro-summary.dark-mode {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.summary-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 1.25rem;
+}
+
+.dark-mode .summary-title {
+  color: #e2e8f0;
+}
+
+.macro-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+}
+
+.macro-grid::-webkit-scrollbar {
+  height: 10px;
+}
+
+.macro-grid::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+}
+
+.macro-grid::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.7);
+  border-radius: 999px;
+}
+
+.macro-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.9);
+}
+
+.macro-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex: 0 0 auto;
+}
+
+.macro-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .macro-card {
+  background: #334155;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.macro-icon {
+  font-size: 1.5rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .macro-icon {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.macro-card.proteine .macro-icon {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.macro-card.carboidrati .macro-icon {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.macro-card.grassi .macro-icon {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.macro-card.calorie .macro-icon {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.macro-card.highlight {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.macro-card.highlight .macro-icon {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.macro-card.highlight .macro-label,
+.macro-card.highlight .macro-value {
+  color: white;
+}
+
+.macro-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.macro-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dark-mode .macro-label {
+  color: #94a3b8;
+}
+
+.macro-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.dark-mode .macro-value {
+  color: #f1f5f9;
+}

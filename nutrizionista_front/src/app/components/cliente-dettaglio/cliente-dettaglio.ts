@@ -69,6 +69,7 @@ export class ClienteDettaglioComponent implements OnInit {
 
   // Stato per la selezione della dieta (undefined = mostra lista)
   schedaSelezionataId?: number;
+  schedaSelezionataNome?: string;
   // Stato per anteprima (senza entrare in full screen)
   schedaPreview?: SchedaDto;
 
@@ -90,7 +91,7 @@ export class ClienteDettaglioComponent implements OnInit {
   faWeight = faWeight;
   faRuler = faRuler;
   faIdCard = faIdCard;
-  faPercent= faPercent;
+  faPercent = faPercent;
 
   // Inject services
   private schedaService = inject(SchedaService);
@@ -226,6 +227,7 @@ export class ClienteDettaglioComponent implements OnInit {
     // Cliccando matita, attivo la vista modifica full screen
     this.schedaPreview = undefined;
     this.schedaSelezionataId = scheda.id;
+    this.schedaSelezionataNome = scheda.nome;
   }
 
   onPreviewScheda(scheda: SchedaDto): void {
@@ -235,6 +237,21 @@ export class ClienteDettaglioComponent implements OnInit {
 
   chiudiPreview(): void {
     this.schedaPreview = undefined;
+  }
+
+  onSchedaAttivata(scheda: SchedaDto): void {
+    this.schedaPreview = scheda;
+    if (this.listaSchedeComponent) {
+      this.listaSchedeComponent.loadSchede();
+    }
+    this.cdr.detectChanges();
+  }
+
+  onSchedaRinominata(scheda: SchedaDto): void {
+    if (this.schedaPreview?.id === scheda.id) {
+      this.schedaPreview = { ...this.schedaPreview, nome: scheda.nome } as any;
+    }
+    this.cdr.detectChanges();
   }
 
   onRichiestaNuovaScheda(): void {
@@ -254,6 +271,7 @@ export class ClienteDettaglioComponent implements OnInit {
 
         // 3. Impostiamo l'ID per passare alla vista dettaglio
         this.schedaSelezionataId = schedaCreata.id;
+        this.schedaSelezionataNome = schedaCreata.nome;
 
         // --- FIX FONDAMENTALE ---
         // Forziamo Angular a "disegnare" subito il componente dettaglio
@@ -267,6 +285,7 @@ export class ClienteDettaglioComponent implements OnInit {
   tornaAllaLista(): void {
     this.schedaSelezionataId = undefined;
     this.schedaPreview = undefined;
+    this.schedaSelezionataNome = undefined;
     // Ricarica la lista per mostrare eventuali modifiche (es. nome o data ultima modifica)
     // Nota: usando @if nel template, il componente ListaSchede viene distrutto e ricreato, 
     // quindi si ricaricherà da solo tramite ngOnInit/ngOnChanges.

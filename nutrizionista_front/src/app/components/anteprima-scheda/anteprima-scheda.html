@@ -16,26 +16,45 @@
 
     @if (scheda) {
     <div class="anteprima-body">
-        <div class="scheda-info-card">
-            <div class="info-row">
-                <span class="info-label">Nome</span>
-                <span class="info-value nome">{{ scheda.nome }}</span>
+        <div class="scheda-dashboard" [class.loading]="loading">
+            <div class="scheda-dashboard-top">
+                <div class="kcal-card" role="group" aria-label="Kcal totali e indicatore">
+                    <div class="kcal-header">
+                        <div class="kcal-label">
+                            Kcal totali
+                            @if (loading) {
+                            <fa-icon [icon]="icSpinner" class="kcal-spinner fa-spin"></fa-icon>
+                            }
+                        </div>
+                        <div class="kcal-value">
+                            <fa-icon [icon]="icFire"></fa-icon>
+                            {{ formatKcal(nutritionTotals.kcal) }}
+                        </div>
+                    </div>
+                    <div class="kcal-bar" [attr.aria-valuenow]="nutritionTotals.kcal" aria-valuemin="0"
+                        aria-valuemax="3000" role="progressbar">
+                        <div class="kcal-bar-fill" [style.width.%]="kcalBarPercent(nutritionTotals.kcal)"></div>
+                    </div>
+                </div>
             </div>
-            <div class="info-row">
-                <span class="info-label">
-                    <fa-icon [icon]="icCalendar"></fa-icon> Data Creazione
-                </span>
-                <span class="info-value">{{ scheda.dataCreazione | date:'dd MMMM yyyy' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Stato</span>
-                <span class="status-badge" [class.active]="scheda.attiva">
-                    @if (scheda.attiva) {
-                    <fa-icon [icon]="icCheck"></fa-icon> Attiva
-                    } @else {
-                    <fa-icon [icon]="icBan"></fa-icon> Non Attiva
-                    }
-                </span>
+
+            <div class="scheda-dashboard-bottom" role="group"
+                [attr.aria-label]="'Distribuzione macronutrienti: Proteine ' + nutritionPct.proteinePct.toFixed(1) + ' percento, Carboidrati ' + nutritionPct.carboidratiPct.toFixed(1) + ' percento, Grassi ' + nutritionPct.grassiPct.toFixed(1) + ' percento'">
+                <div class="donut-wrap">
+                    <div class="donut-canvas">
+                        <canvas #macroDonutChart></canvas>
+                    </div>
+                    <div class="donut-center" [class.placeholder]="!macroChartHasData">
+                        <div class="donut-center-title">Macro</div>
+                        @if (loading) {
+                        <div class="donut-center-sub">Aggiornamento...</div>
+                        } @else if (macroChartHasData) {
+                        <div class="donut-center-sub">{{ formatKcal(nutritionTotals.kcal) }} kcal</div>
+                        } @else {
+                        <div class="donut-center-sub">N/D</div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -54,23 +73,19 @@
                 @for (pasto of schedaDettagliata!.pasti!; track pasto.nome) {
                 <div class="pasto-row">
                     <span class="pasto-nome">{{ pasto.nome }}</span>
-                    <div class="pasto-stats">
-                        <span class="stat alimenti">{{ pasto.alimentiPasto?.length || 0 }} alimenti</span>
-                        <span class="stat calorie">
-                            <fa-icon [icon]="icFire"></fa-icon>
-                            {{ calcolaTotaleCalorico(pasto) }} kcal
+                    <div class="pasto-progress-wrap">
+                        <div class="pasto-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                            [attr.aria-valuenow]="calcolaPercentualeCaloriePasto(pasto)"
+                            [attr.aria-label]="pasto.nome + ': ' + calcolaPercentualeCaloriePasto(pasto).toFixed(2).replace('.', ',') + '% del totale giornaliero'">
+                            <div class="pasto-progress-fill" [style.width.%]="calcolaPercentualeCaloriePasto(pasto)">
+                            </div>
+                        </div>
+                        <span class="pasto-progress-pct">
+                            {{ calcolaPercentualeCaloriePasto(pasto).toFixed(2).replace('.', ',') }}%
                         </span>
                     </div>
                 </div>
                 }
-            </div>
-
-            <div class="totale-giornaliero">
-                <span class="totale-label">Totale Giornaliero</span>
-                <span class="totale-value">
-                    <fa-icon [icon]="icFire"></fa-icon>
-                    {{ calcolaTotaleCalorieGiornaliere() }} kcal
-                </span>
             </div>
             } @else {
             <div class="empty-pasti">
@@ -80,6 +95,16 @@
         </div>
 
         <div class="anteprima-footer">
+            @if (!(schedaDettagliata?.attiva ?? scheda.attiva)) {
+            <button class="btn-activate" (click)="onActivate()" [disabled]="activating">
+                @if (activating) {
+                <fa-icon [icon]="icSpinner" class="fa-spin"></fa-icon>
+                } @else {
+                <fa-icon [icon]="icCheck"></fa-icon>
+                }
+                Attiva Dieta
+            </button>
+            }
             <button class="btn-edit-full" (click)="onEdit()">
                 <fa-icon [icon]="icEdit"></fa-icon>
                 Modifica Scheda
