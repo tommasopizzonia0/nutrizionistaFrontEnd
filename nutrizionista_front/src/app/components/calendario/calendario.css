@@ -244,3 +244,13 @@
 .dark-mode :host ::ng-deep .stato-annullato {
   color: #fca5a5 !important;
 }
+
+:host ::ng-deep .fc .lunch-break{
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 193, 7, 0.25),
+    rgba(255, 193, 7, 0.25) 8px,
+    rgba(255, 193, 7, 0.15) 8px,
+    rgba(255, 193, 7, 0.15) 16px
+  ) !important;
+}
