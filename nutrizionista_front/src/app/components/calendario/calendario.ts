@@ -22,20 +22,17 @@ import { AgendaStateService } from '../../services/agenda-state.service';
 import { CalendarRefreshService } from '../../services/calendar-refresh.service';
 
 type CalendarAvailability = {
-  slotMinTime: string;   // "09:00:00"
-  slotMaxTime: string;   // "19:00:00"
-  hiddenDays: number[];  // [0] o [0,6]
-  pausaInizio: string | null; // "13:00:00"
-  pausaFine: string | null;   // "14:00:00"
+  slotMinTime: string;
+  slotMaxTime: string;
+  hiddenDays: number[];
+  pausaInizio: string | null;
+  pausaFine: string | null;
 };
 
 @Component({
   selector: 'calendario',
   standalone: true,
-  imports: [
-    CommonModule,
-    FullCalendarModule
-  ],
+  imports: [CommonModule, FullCalendarModule],
   templateUrl: './calendario.html',
   styleUrls: ['./calendario.css']
 })
@@ -43,7 +40,6 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
-  // ✅ arriva da Agenda (orari studio)
   @Input() availability?: CalendarAvailability;
 
   private api = inject(AppuntamentiApiService);
@@ -53,15 +49,13 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
   private sub?: Subscription;
 
   constructor() {
-    // ascolta i refresh richiesti da altre rotte (Agenda)
     this.sub = this.calendarRefresh.refresh$.subscribe(() => {
-      const calApi = this.calendarComponent?.getApi?.();
-      calApi?.refetchEvents();
+      this.calendarComponent?.getApi?.()?.refetchEvents();
     });
   }
 
   ngAfterViewInit(): void {
-    this.applyAvailabilityToCalendar(); // ✅ applica appena montato
+    this.applyAvailabilityToCalendar();
     this.calendarComponent.getApi().refetchEvents();
   }
 
@@ -69,29 +63,21 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
-  // =========================
-  // ✅ Helpers availability
-  // =========================
-
   private applyAvailabilityToCalendar(): void {
     if (!this.availability || !this.calendarComponent?.getApi) return;
 
     const calApi = this.calendarComponent.getApi();
     const a = this.availability;
 
-    // setOption aggiorna dinamicamente senza ricreare tutto
     calApi.setOption('slotMinTime', a.slotMinTime);
     calApi.setOption('slotMaxTime', a.slotMaxTime);
     calApi.setOption('hiddenDays', a.hiddenDays);
-
-    // (opzionale) scrollTime = apertura
     calApi.setOption('scrollTime', a.slotMinTime);
   }
 
   private buildLunchBreakBackgroundEvent(a?: CalendarAvailability) {
     if (!a?.pausaInizio || !a?.pausaFine) return null;
 
-    // lun-ven sempre, + sabato se non è nascosto
     const workingDays = a.hiddenDays.includes(6) ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6];
 
     return {
@@ -100,7 +86,7 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       startTime: a.pausaInizio,
       endTime: a.pausaFine,
       display: 'background',
-      classNames: ['lunch-break'],
+      classNames: ['lunch-break-strip'],
       editable: false,
       overlap: false
     };
@@ -108,26 +94,17 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
 
   private isInLunchBreak(date: Date, a?: CalendarAvailability): boolean {
     if (!a?.pausaInizio || !a?.pausaFine) return false;
-
-    const hhmmss = (d: Date) => d.toTimeString().substring(0, 8); // "HH:MM:SS"
-    const t = hhmmss(date);
-
+    const t = date.toTimeString().substring(0, 8);
     return t >= a.pausaInizio && t < a.pausaFine;
   }
 
-  // =========================
-  // ✅ Calendar options
-  // =========================
-
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-
     locale: itLocale,
     timeZone: 'Europe/Rome',
 
     initialView: 'timeGridWeek',
     firstDay: 1,
-
     weekNumbers: false,
     allDaySlot: false,
 
@@ -137,22 +114,12 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     nowIndicator: true,
     height: 'auto',
 
-    // ✅ default, poi verrà sovrascritto via availability se presente
     slotMinTime: '08:00:00',
     slotMaxTime: '20:00:00',
     scrollTime: '08:00:00',
 
-    slotLabelFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
-
-    eventTimeFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
+    slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
 
     headerToolbar: {
       left: 'prev,next today',
@@ -160,19 +127,29 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
 
-    // ✅ blocca selezione in pausa pranzo (UI)
-    selectAllow: (selectInfo) => {
-      return !this.isInLunchBreak(selectInfo.start, this.availability);
+    selectAllow: (selectInfo) => !this.isInLunchBreak(selectInfo.start, this.availability),
+
+    // ✅ icona watermark nella fascia (background event)
+    eventDidMount: (info) => {
+      if (info.event.id !== 'lunch-break') return;
+
+      const el = info.el as HTMLElement;
+      if (el.querySelector('.lb-strip-icon')) return;
+
+      const icon = document.createElement('div');
+      icon.className = 'lb-strip-icon';
+      icon.title = 'Pausa pranzo';
+      icon.innerHTML = `<i class="fa-solid fa-utensils"></i>`;
+
+      el.appendChild(icon);
     },
 
-    // carica eventi per range
     events: (info, successCallback, failureCallback) => {
       const start = info.startStr.substring(0, 10);
       const end = info.endStr.substring(0, 10);
 
       this.api.getMyEvents(start, end).subscribe({
         next: (events: any[]) => {
-
           const mapped = events.map(e => {
             const stato = e?.extendedProps?.stato ?? e?.stato ?? null;
 
@@ -187,23 +164,15 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
             return {
               ...e,
               id: String(e.id),
-
               backgroundColor: c?.bg,
               borderColor: c?.border,
               textColor: c?.text,
-
-              extendedProps: {
-                ...(e.extendedProps ?? {}),
-                stato: stato
-              }
+              extendedProps: { ...(e.extendedProps ?? {}), stato }
             };
           });
 
-          // ✅ aggiungi pausa pranzo come background event
           const lunch = this.buildLunchBreakBackgroundEvent(this.availability);
-          const out = lunch ? [...mapped, lunch] : mapped;
-
-          successCallback(out as any);
+          successCallback((lunch ? [...mapped, lunch] : mapped) as any);
         },
         error: (err) => failureCallback(err)
       });
@@ -215,9 +184,7 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     },
 
     select: (arg: DateSelectArg) => {
-      // se click in pausa: non aprire form (extra safety)
       if (this.isInLunchBreak(arg.start, this.availability)) return;
-
       this.agendaState.openCreate(arg.startStr);
     },
 
@@ -225,7 +192,6 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       const id = Number(arg.event.id);
       const startStr = arg.event.startStr;
       const endStr = arg.event.endStr ?? null;
-
       if (!startStr) return;
 
       this.api.move(id, startStr, endStr).subscribe({
@@ -238,7 +204,6 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       const id = Number(arg.event.id);
       const startStr = arg.event.startStr;
       const endStr = arg.event.endStr ?? null;
-
       if (!startStr) return;
 
       this.api.move(id, startStr, endStr).subscribe({
