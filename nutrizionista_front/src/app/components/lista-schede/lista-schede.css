@@ -97,6 +97,7 @@
     border: 1px solid var(--border);
     padding: 14px;
     overflow-x: auto;
+    position: relative;
 }
 
 .dark-mode .table-responsive {
@@ -178,10 +179,67 @@
     gap: 4px;
 }
 
+.scheda-nome-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.scheda-nome-wrap.editing {
+    transform: translateY(-1px);
+}
+
 .scheda-nome {
     font-weight: 950;
     font-size: 1rem;
     color: var(--text);
+}
+
+.scheda-nome[role="button"] {
+    cursor: text;
+}
+
+.scheda-nome:focus-visible {
+    outline: 2px solid rgba(16, 185, 129, .45);
+    outline-offset: 3px;
+    border-radius: 8px;
+}
+
+.scheda-nome-input {
+    font: inherit;
+    font-weight: 950;
+    font-size: 1rem;
+    color: var(--text);
+    background: rgba(255, 255, 255, .9);
+    border: 1px solid rgba(16, 185, 129, .35);
+    border-radius: 10px;
+    padding: 6px 10px;
+    width: min(520px, 100%);
+    box-sizing: border-box;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+
+.dark-mode .scheda-nome-input {
+    color: #fff;
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(16, 185, 129, .30);
+}
+
+.scheda-nome-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .18);
+}
+
+.scheda-nome-input.invalid {
+    border-color: rgba(239, 68, 68, .7);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
+}
+
+.scheda-nome-error {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ef4444;
 }
 
 .dark-mode .scheda-nome {
@@ -315,6 +373,28 @@
     display: flex;
     justify-content: center;
     padding: 2rem 0;
+}
+
+.table-responsive.is-loading .schede-table {
+    opacity: 0.55;
+    transition: opacity 160ms ease;
+    pointer-events: none;
+}
+
+.table-responsive.is-loading .spinner-wrapper {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .55);
+    border-radius: var(--radius);
+    backdrop-filter: blur(2px);
+}
+
+.dark-mode .table-responsive.is-loading .spinner-wrapper {
+    background: rgba(17, 24, 39, .55);
 }
 
 .custom-loader {

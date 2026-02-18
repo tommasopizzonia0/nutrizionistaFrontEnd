@@ -41,6 +41,11 @@
   gap: 12px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .header-section h2 {
   margin: 0;
   font-size: 1.5rem;
@@ -61,6 +66,78 @@
   color: #fff;
 }
 
+.scheda-title {
+  flex-wrap: wrap;
+}
+
+.scheda-title-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.scheda-title-wrap.editing {
+  transform: translateY(-1px);
+  transition: transform 200ms ease;
+}
+
+.scheda-title-text {
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: text;
+  word-break: break-word;
+}
+
+.scheda-title-text:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, .45);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.scheda-title-input {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1f2937;
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(16, 185, 129, .35);
+  border-radius: 12px;
+  padding: 6px 10px;
+  width: min(560px, 100%);
+  box-sizing: border-box;
+  transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+
+.scheda-title-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .18);
+}
+
+.scheda-title-input.invalid {
+  border-color: rgba(239, 68, 68, .7);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
+}
+
+.scheda-title-error {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ef4444;
+  text-transform: none;
+}
+
+.scheda-title-spinner {
+  color: var(--green-primary);
+}
+
+.scheda-dieta-container.dark-mode .scheda-title-input {
+  color: #fff;
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(16, 185, 129, .30);
+}
+
 /* ===== Grid Layout ===== */
 .content-layout {
   display: grid;
@@ -69,10 +146,133 @@
   align-items: start;
 }
 
+.content-layout>* {
+  min-width: 0;
+}
+
 @media (max-width: 1024px) {
   .content-layout {
     grid-template-columns: 1fr;
   }
+}
+
+.scheda-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.macro-chart-panel {
+  background: var(--surface, #fff);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-subtle);
+  border-left: 4px solid var(--green-primary, #10b981);
+}
+
+.macro-chart-panel.dark-mode {
+  background: #2d2d2d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.chart-title {
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted, #6b7280);
+  margin-bottom: 0.5rem;
+}
+
+.scheda-dieta-container.dark-mode .chart-title {
+  color: #9ca3af;
+}
+
+.chart-wrapper {
+  width: 100%;
+  height: clamp(160px, 22vw, 220px);
+  position: relative;
+}
+
+.chart-empty {
+  font-size: 0.9rem;
+  color: var(--text-muted, #6b7280);
+  padding: 0.5rem 0;
+}
+
+.scheda-dieta-container.dark-mode .chart-empty {
+  color: #9ca3af;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.legend-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(229, 231, 235, .9);
+  background: rgba(255, 255, 255, .75);
+  cursor: pointer;
+  transition: all 160ms ease;
+  text-align: left;
+}
+
+.legend-item:hover {
+  background: rgba(16, 185, 129, .06);
+  border-color: rgba(16, 185, 129, .25);
+}
+
+.legend-item[aria-pressed="false"] {
+  opacity: 0.55;
+}
+
+.scheda-dieta-container.dark-mode .legend-item {
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(148, 163, 184, .18);
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode .legend-item:hover {
+  background: rgba(16, 185, 129, .10);
+  border-color: rgba(16, 185, 129, .28);
+}
+
+.legend-item:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, .45);
+  outline-offset: 3px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.legend-text {
+  font-weight: 850;
+  color: var(--text);
+}
+
+.scheda-dieta-container.dark-mode .legend-text {
+  color: #fff;
+}
+
+.legend-value {
+  font-weight: 900;
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .legend-value {
+  color: #d1fae5;
 }
 
 /* ====================== */
@@ -360,6 +560,8 @@
 .alternatives {
   position: relative;
   padding: 16px 0.25rem 0.25rem;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .alternatives::before {
@@ -391,15 +593,21 @@
 .alternatives-row {
   display: flex;
   gap: 0.75rem;
-  justify-content: space-between;
-  padding-bottom: 10px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 10px 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
 }
 
 .alternative-card {
   position: relative;
-  flex: 1;
-  min-width: 200px;
+  flex: 0 0 260px;
+  min-width: 260px;
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -424,6 +632,36 @@
 
 .scheda-dieta-container.dark-mode .alternative-card::before {
   background: #404040;
+}
+
+.alternative-plus {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  align-self: center;
+}
+
+.alternative-plus:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: var(--green-darker);
+}
+
+.scheda-dieta-container.dark-mode .alternative-plus {
+  border-color: #404040;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scheda-dieta-container.dark-mode .alternative-plus:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #fff;
 }
 
 .alternative-header {
@@ -884,6 +1122,25 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 1457px) {
+  .riepilogo-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 180px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+  }
+
+  .riepilogo-card {
+    width: 180px;
+  }
 }
 
 .riepilogo-card {
@@ -894,6 +1151,7 @@
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid var(--border);
+  min-width: 180px;
 }
 
 .scheda-dieta-container.dark-mode .riepilogo-card {

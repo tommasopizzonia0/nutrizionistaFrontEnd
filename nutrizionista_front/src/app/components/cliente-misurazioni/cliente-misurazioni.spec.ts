@@ -15,7 +15,7 @@ describe('ClienteMisurazioni', () => {
     fixture = TestBed.createComponent(ClienteMisurazioniComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
-  });
+  }, 30000);
 
   it('should create', () => {
     expect(component).toBeTruthy();

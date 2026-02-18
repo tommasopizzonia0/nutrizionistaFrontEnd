@@ -1,0 +1,154 @@
+@if (open) {
+<div class="modal-backdrop" (click)="onBackdropClick()" aria-hidden="true">
+    <section class="modal" [class.dark-mode]="isDarkMode" role="dialog" aria-modal="true"
+        (click)="onDialogClick($event)" #dialog>
+        <header class="modal-header">
+            <div class="modal-title">
+                @if (loading) {
+                <div class="skeleton skeleton-title"></div>
+                } @else {
+                <div class="title-row">
+                    <div class="name">{{ alimento?.nome || 'N.D.' }}</div>
+                    <div class="category">
+                        <fa-icon [icon]="icons.info"></fa-icon>
+                        <span>Categoria: {{ alimento?.categoria || 'N.D.' }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+            <button #closeBtn type="button" class="icon-btn" (click)="close()" aria-label="Chiudi">
+                <fa-icon [icon]="icons.close"></fa-icon>
+            </button>
+        </header>
+
+        <div class="modal-body">
+            @if (loading) {
+            <div class="grid">
+                <div class="panel">
+                    <div class="panel-title skeleton skeleton-line"></div>
+                    <div class="macro-grid">
+                        @for (_ of [1,2,3,4]; track $index) {
+                        <div class="macro-card">
+                            <div class="skeleton skeleton-chip"></div>
+                            <div class="skeleton skeleton-value"></div>
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title skeleton skeleton-line"></div>
+                    @for (_ of [1,2,3,4,5]; track $index) {
+                    <div class="skeleton skeleton-line"></div>
+                    }
+                </div>
+            </div>
+            } @else {
+            <div class="grid">
+                <!-- ========== COLONNA SINISTRA: Macro ========== -->
+                <div class="col-left">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <fa-icon [icon]="icons.fire"></fa-icon>
+                            Macro principali
+                        </div>
+                        <div class="macro-grid">
+                            @for (m of macroItems; track m.key) {
+                            <div class="macro-card">
+                                <div class="macro-label">{{ m.label }}</div>
+                                <div class="macro-value">{{ m.value }} <span class="unit">{{ m.unit }}</span></div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">
+                            <fa-icon [icon]="icons.info"></fa-icon>
+                            Dettaglio macro
+                        </div>
+                        <div class="kv">
+                            @for (i of extendedMacroItems; track i.key) {
+                            <div class="kv-row">
+                                <div class="k">{{ i.label }}</div>
+                                <div class="v">{{ i.value }} <span class="unit">{{ i.unit }}</span></div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (alimento && alimento.tracce && alimento.tracce.length > 0) {
+                    <div class="panel">
+                        <div class="panel-title">
+                            <fa-icon [icon]="icons.portion"></fa-icon>
+                            Tracce
+                        </div>
+                        <div class="tracce-list">
+                            @for (t of alimento!.tracce!; track t) {
+                            <span class="tracce-chip">{{ t }}</span>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <!-- ========== COLONNA DESTRA: Micro ========== -->
+                <div class="col-right">
+                    <div class="panel">
+                        <div class="panel-title">
+                            <fa-icon [icon]="icons.micro"></fa-icon>
+                            Micronutrienti (VNR)
+                        </div>
+
+                        @if (microCategories.length === 0) {
+                        <div class="micro-empty">Nessun micronutriente disponibile per questo alimento.</div>
+                        } @else {
+                        @for (cat of microCategories; track cat.name) {
+                        <div class="micro-section">
+                            <div class="micro-title">{{ cat.name }}</div>
+                            @for (m of cat.items; track m.label) {
+                            <div class="micro-row">
+                                <div class="micro-name">{{ m.label }}</div>
+                                <div class="micro-value">{{ m.value }} <span class="unit">{{ m.unit }}</span></div>
+                                @if (m.pct !== undefined) {
+                                <div class="bar" aria-hidden="true">
+                                    <div class="fill" [style.width.%]="m.pct"></div>
+                                </div>
+                                <div class="micro-pct">{{ m.pct.toFixed(1).replace('.', ',') }}%</div>
+                                } @else {
+                                <div class="micro-nd"></div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <footer class="modal-footer">
+            <div class="footer-left">
+                <div class="hint">
+                    @if (pastoTargetLabel) {
+                    Aggiungi a: <strong>{{ pastoTargetLabel }}</strong>
+                    } @else {
+                    Seleziona un pasto per aggiungere alimenti
+                    }
+                </div>
+            </div>
+            <div class="footer-right">
+                <div class="qty">
+                    <label for="qtyInput">Grammi</label>
+                    <input id="qtyInput" type="number" min="1" step="1" [(ngModel)]="qty" [disabled]="loading" />
+                </div>
+                <button type="button" class="btn-primary" (click)="requestAdd()"
+                    [disabled]="loading || !alimento || !pastoTargetLabel">
+                    Aggiungi alimento
+                </button>
+            </div>
+        </footer>
+    </section>
+</div>
+}

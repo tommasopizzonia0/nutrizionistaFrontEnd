@@ -128,64 +128,206 @@
     gap: 20px;
 }
 
-/* Info Card */
-.scheda-info-card {
+/* Dashboard */
+.scheda-dashboard {
     background: rgba(16, 185, 129, .04);
     border-radius: 14px;
-    padding: 16px;
+    padding: 14px;
     border: 1px solid rgba(16, 185, 129, .12);
+    position: relative;
+    transition: opacity 400ms ease, transform 400ms ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.dark-mode .scheda-info-card {
+.dark-mode .scheda-dashboard {
     background: rgba(16, 185, 129, .08);
     border-color: rgba(16, 185, 129, .2);
 }
 
-.info-row {
+.scheda-dashboard.loading {
+    opacity: 0.85;
+}
+
+.scheda-dashboard-top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+.scheda-title {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scheda-name {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--green-darker);
+    word-break: break-word;
+}
+
+.dark-mode .scheda-name {
+    color: #d1fae5;
+}
+
+.scheda-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(229, 231, 235, .5);
 }
 
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.dark-mode .info-row {
-    border-bottom-color: rgba(148, 163, 184, .1);
-}
-
-.info-label {
-    display: flex;
+.meta-item {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-weight: 700;
+    font-weight: 750;
     color: var(--muted);
     font-size: 0.9rem;
 }
 
-.dark-mode .info-label {
+.dark-mode .meta-item {
     color: #94a3b8;
 }
 
-.info-value {
+.kcal-card {
+    background: rgba(255, 255, 255, .6);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    width: 100%;
+    width: 100%;
+}
+
+.dark-mode .kcal-card {
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(148, 163, 184, .12);
+}
+
+.kcal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    gap: 10px;
+}
+
+.kcal-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-weight: 800;
+
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.dark-mode .kcal-label {
+    color: #cbd5e1;
+}
+
+.kcal-spinner {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.dark-mode .kcal-spinner {
+    color: #cbd5e1;
+}
+
+.kcal-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 950;
     color: var(--text);
+    font-size: 1.15rem;
 }
 
-.info-value.nome {
-    font-size: 1.1rem;
-    color: var(--green-darker);
+.kcal-value fa-icon {
+    color: #f59e0b;
 }
 
-.dark-mode .info-value {
+.dark-mode .kcal-value {
     color: #fff;
 }
 
-.dark-mode .info-value.nome {
-    color: #d1fae5;
+.kcal-bar {
+    margin-top: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(107, 114, 128, .15);
+    overflow: hidden;
+}
+
+.dark-mode .kcal-bar {
+    background: rgba(148, 163, 184, .14);
+}
+
+.kcal-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(245, 158, 11, .9), rgba(16, 185, 129, .9));
+    transition: width 400ms ease;
+}
+
+.scheda-dashboard-bottom {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.donut-wrap {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.donut-canvas {
+    height: clamp(160px, 22vw, 220px);
+    position: relative;
+}
+
+.donut-canvas canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+}
+
+.donut-center-title {
+    font-weight: 900;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.dark-mode .donut-center-title {
+    color: #fff;
+}
+
+.donut-center-sub {
+    font-weight: 800;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.dark-mode .donut-center-sub {
+    color: #cbd5e1;
 }
 
 /* Status Badge */
@@ -218,6 +360,22 @@
     background: rgba(16, 185, 129, .16);
     color: #d1fae5;
     border-color: rgba(16, 185, 129, .35);
+}
+
+@media (min-width: 520px) {
+    .scheda-dashboard-top {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .scheda-dashboard-bottom {
+        grid-template-columns: 1fr;
+        align-items: center;
+    }
+
+    .donut-wrap {
+        margin: 0;
+    }
 }
 
 /* Pasti Preview */
@@ -254,6 +412,7 @@
     border-radius: 12px;
     border: 1px solid var(--border);
     transition: all 160ms ease;
+    gap: 12px;
 }
 
 .pasto-row:hover {
@@ -280,78 +439,57 @@
     color: #fff;
 }
 
-.pasto-stats {
-    display: flex;
-    gap: 12px;
-}
-
-.stat {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--muted);
-}
-
-.stat.calorie {
+/* Pasti progress */
+.pasto-progress-wrap {
     display: flex;
     align-items: center;
-    gap: 4px;
-    color: var(--green-darker);
+    gap: 10px;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
 }
 
-.stat.calorie fa-icon {
-    color: #f59e0b;
-    font-size: 0.8rem;
+.pasto-progress {
+    flex: 1;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(107, 114, 128, .15);
+    overflow: hidden;
 }
 
-.dark-mode .stat {
-    color: #94a3b8;
+.dark-mode .pasto-progress {
+    background: rgba(148, 163, 184, .14);
 }
 
-.dark-mode .stat.calorie {
-    color: #d1fae5;
+.pasto-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(245, 158, 11, .9), rgba(16, 185, 129, .9));
+    transition: width 400ms ease;
 }
 
-/* Totale Giornaliero */
-.totale-giornaliero {
-    margin-top: 16px;
-    padding: 14px 16px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, .1), rgba(16, 185, 129, .05));
-    border-radius: 14px;
-    border: 1px solid rgba(16, 185, 129, .2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.dark-mode .totale-giornaliero {
-    background: linear-gradient(135deg, rgba(16, 185, 129, .15), rgba(16, 185, 129, .08));
-    border-color: rgba(16, 185, 129, .3);
-}
-
-.totale-label {
-    font-weight: 800;
+.pasto-progress-pct {
+    min-width: 64px;
+    text-align: right;
+    font-weight: 900;
     color: var(--text);
+    font-size: 0.9rem;
 }
 
-.dark-mode .totale-label {
+.dark-mode .pasto-progress-pct {
     color: #fff;
 }
 
-.totale-value {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 1.2rem;
-    font-weight: 900;
-    color: var(--green-darker);
-}
+@media (max-width: 420px) {
+    .pasto-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-.totale-value fa-icon {
-    color: #f59e0b;
-}
-
-.dark-mode .totale-value {
-    color: #d1fae5;
+    .pasto-progress-wrap {
+        width: 100%;
+    }
 }
 
 /* Empty State */
@@ -375,6 +513,57 @@
 .anteprima-footer {
     margin-top: auto;
     padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-activate {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid rgba(16, 185, 129, .45);
+    background: rgba(16, 185, 129, .16);
+    color: var(--green-darker);
+    transition: all 160ms ease;
+}
+
+.btn-activate fa-icon {
+    color: var(--green-primary);
+}
+
+.btn-activate:hover {
+    background: rgba(16, 185, 129, .22);
+    border-color: rgba(16, 185, 129, .60);
+    transform: translateY(-2px);
+}
+
+.btn-activate:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.dark-mode .btn-activate {
+    background: rgba(16, 185, 129, .18);
+    border-color: rgba(16, 185, 129, .40);
+    color: #d1fae5;
+}
+
+.dark-mode .btn-activate fa-icon {
+    color: #a7f3d0;
+}
+
+.dark-mode .btn-activate:hover {
+    background: rgba(16, 185, 129, .24);
+    border-color: rgba(16, 185, 129, .55);
 }
 
 .btn-edit-full {

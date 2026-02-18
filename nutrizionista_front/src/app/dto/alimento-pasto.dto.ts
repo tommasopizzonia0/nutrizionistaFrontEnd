@@ -5,8 +5,10 @@ import { PastoDto } from "./pasto.dto";
 export interface AlimentoPastoDto {
     id: number;
     alimento: AlimentoBaseDto; // Qui serve l'oggetto completo per mostrare il nome
-    pasto: PastoDto;
+    pasto?: PastoDto;
     quantita: number;
+    nomeCustom?: string | null;
+    nomeVisualizzato?: string | null;
 }
 
 // PER SCRITTURA (Input verso il server - Create/Update)
