@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, SimpleChanges, inject, ChangeDetectorRef, HostListener, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject, Subscription, forkJoin, of } from 'rxjs';
 import { debounceTime, switchMap, tap, catchError, finalize, timeout } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
@@ -12,7 +12,8 @@ import {
   faBook, faFloppyDisk, faUtensils, faSun, faMoon, faMugHot,
   faAppleWhole, faTrash, faChevronRight, faChevronDown,
   faChartPie, faDumbbell, faWheatAlt, faDroplet, faFire,
-  faPlus, faEdit, faXmark
+  faPlus, faEdit, faXmark, faToggleOn, faToggleOff, faCalendarDays,
+  faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons';
 
 import { SchedaDto } from '../../dto/scheda.dto';
@@ -28,12 +29,16 @@ import { AlimentoPastoService } from '../../services/alimento-pasto-service';
 import { AlimentoPastoDisplayNameService } from '../../services/alimento-pasto-display-name.service';
 import { AlimentoService } from '../../services/alimento-service';
 import { AlimentoAlternativoService } from '../../services/alimento-alternativo.service';
+import { AlimentoDaEvitareService } from '../../services/alimento-da-evitare-service';
 import { AlimentoAlternativoDto, AlimentoAlternativoUpsertDto, AlternativeModeDto } from '../../dto/alimento-alternativo.dto';
+import { AlimentoDaEvitareDto } from '../../dto/alimento-da-evitare.dto';
 import { CatalogoAlimenti } from '../catalogo-alimenti/catalogo-alimenti';
 import { CalcoloMacro } from '../calcolo-macro/calcolo-macro';
 import { AlimentoAggiunto } from '../alimento-aggiunto/alimento-aggiunto';
 import { ListaAlternative } from '../lista-alternative/lista-alternative';
 import { ModalAlimento } from '../modal-alimento/modal-alimento';
+import { ObiettivoNutrizionale } from '../obiettivo-nutrizionale/obiettivo-nutrizionale';
+import { ModalDatiMancanti } from '../modal-dati-mancanti/modal-dati-mancanti';
 import { Chart } from 'chart.js/auto';
 
 type MacroType = 'proteine' | 'carboidrati' | 'grassi' | 'calorie';
@@ -53,7 +58,7 @@ type AlternativeEntry = { index: number; alt: AlternativeProposal };
 @Component({
   selector: 'app-scheda-dieta',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule, CatalogoAlimenti, CalcoloMacro, AlimentoAggiunto, ListaAlternative, ModalAlimento],
+  imports: [CommonModule, FormsModule, FontAwesomeModule, CatalogoAlimenti, CalcoloMacro, AlimentoAggiunto, ListaAlternative, ModalAlimento, ObiettivoNutrizionale, ModalDatiMancanti],
   templateUrl: './scheda-dieta.html',
   styleUrls: ['./scheda-dieta.css']
 })
@@ -64,6 +69,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   @Input() isDarkMode = false;
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private schedaService = inject(SchedaService);
   private schedaCache = inject(SchedaCacheService);
@@ -73,6 +79,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   private alimentoPastoDisplayNameService = inject(AlimentoPastoDisplayNameService);
   private alimentoService = inject(AlimentoService);
   private alternativoService = inject(AlimentoAlternativoService);
+  private alimentoDaEvitareService = inject(AlimentoDaEvitareService);
 
   loading = false;
   saving = false;
@@ -100,6 +107,16 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   editNomeSchedaError = '';
   savingNomeScheda = false;
 
+  // Obiettivo - missing data modal
+  modalDatiMancanti = false;
+  campiMancanti: string[] = [];
+  alimentiDaEvitare: AlimentoDaEvitareDto[] = [];
+
+  // Catalogo drawer
+  catalogoDrawerOpen = false;
+  editingAlimentoPastoId: number | null = null;
+  editNomeValue = '';
+
   @ViewChild('macroPieChart') macroPieChart?: ElementRef<HTMLCanvasElement>;
   @ViewChild('mealDonutChart') mealDonutChart?: ElementRef<HTMLCanvasElement>;
   macroChart?: Chart;
@@ -114,11 +131,14 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     coffee: faMugHot, apple: faAppleWhole, trash: faTrash, chevronRight: faChevronRight,
     chevronDown: faChevronDown, chart: faChartPie, dumbbell: faDumbbell,
     wheat: faWheatAlt, droplet: faDroplet, fire: faFire,
-    plus: faPlus, edit: faEdit, close: faXmark
+    plus: faPlus, edit: faEdit, close: faXmark,
+    toggleOn: faToggleOn, toggleOff: faToggleOff, calendar: faCalendarDays,
+    search: faMagnifyingGlass
   };
 
   defaultAlternativeMode: AlternativeMode = 'calorie';
   alternativeByAlimentoPastoId: Record<number, (AlternativeProposal | null)[]> = {};
+  alternativeByPastoId: Record<number, (AlternativeProposal | null)[]> = {};
   alternativeUi: Record<string, { editing: boolean; query: string; loading: boolean; results: AlimentoBaseDto[] }> = {};
   private alternativeSearchTimers: Record<string, number> = {};
 
@@ -140,6 +160,17 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       this.loadScheda();
     } else {
       this.initializePastiVuoti();
+    }
+
+    // Load alimenti da evitare per il cliente (Features 6, 10)
+    if (this.clienteId) {
+      this.alimentoDaEvitareService.getAllByCliente(this.clienteId, 0, 100).subscribe({
+        next: (resp) => {
+          this.alimentiDaEvitare = resp.contenuto || [];
+          this.cdr.detectChanges();
+        },
+        error: () => { /* silently ignore */ }
+      });
     }
 
     // Setup debounce for alimento quantity updates
@@ -443,8 +474,129 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     return '';
   }
 
+  toggleAttiva(): void {
+    if (!this.scheda?.id) return;
+    const wasActive = this.scheda.attiva;
+
+    if (!wasActive) {
+      // Activate (backend will deactivate others)
+      this.schedaService.activate(this.scheda.id).subscribe({
+        next: (updated) => {
+          if (this.scheda) this.scheda.attiva = true;
+          this.successMessage = 'Scheda attivata';
+          this.cdr.detectChanges();
+          setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 2500);
+        },
+        error: () => {
+          this.errorMessage = 'Errore nell\'attivazione';
+          this.cdr.detectChanges();
+          setTimeout(() => { this.errorMessage = ''; this.cdr.detectChanges(); }, 3000);
+        }
+      });
+    } else {
+      // Deactivate via update
+      this.schedaService.update({
+        id: this.scheda.id,
+        nome: this.scheda.nome,
+        cliente: { id: this.clienteId },
+        attiva: false
+      }).subscribe({
+        next: () => {
+          if (this.scheda) this.scheda.attiva = false;
+          this.successMessage = 'Scheda archiviata';
+          this.cdr.detectChanges();
+          setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 2500);
+        },
+        error: () => {
+          this.errorMessage = 'Errore nella disattivazione';
+          this.cdr.detectChanges();
+          setTimeout(() => { this.errorMessage = ''; this.cdr.detectChanges(); }, 3000);
+        }
+      });
+    }
+  }
+
   pastoKey(pasto: PastoDto): string {
     return pasto.id && pasto.id > 0 ? String(pasto.id) : pasto.nome;
+  }
+
+  /** Feature 13: Drag & Drop meal reorder */
+  dragIndex: number | null = null;
+  dropIndex: number | null = null;
+
+  onDragStart(index: number): void {
+    this.dragIndex = index;
+  }
+
+  onDragOver(event: DragEvent, index: number): void {
+    event.preventDefault();
+    this.dropIndex = index;
+  }
+
+  onDrop(event: DragEvent, index: number): void {
+    event.preventDefault();
+    if (this.dragIndex !== null && this.dragIndex !== index) {
+      const moved = this.pasti.splice(this.dragIndex, 1)[0];
+      this.pasti.splice(index, 0, moved);
+      this.cdr.detectChanges();
+    }
+    this.dragIndex = null;
+    this.dropIndex = null;
+  }
+
+  onDragEnd(): void {
+    this.dragIndex = null;
+    this.dropIndex = null;
+  }
+
+  openCatalogoDrawer(): void {
+    if (!this.pastoEspansoKey) return; // serve un pasto espanso
+    this.catalogoDrawerOpen = true;
+  }
+
+  closeCatalogoDrawer(): void {
+    this.catalogoDrawerOpen = false;
+  }
+
+  // Inline rename for compact table
+  startInlineRename(ap: AlimentoPastoDto): void {
+    this.editingAlimentoPastoId = ap.id;
+    this.editNomeValue = ap.nomeCustom || ap.alimento?.nome || '';
+    this.cdr.detectChanges();
+    // Focus the input after render
+    setTimeout(() => {
+      const input = document.querySelector('.inline-nome-input') as HTMLInputElement;
+      input?.focus();
+      input?.select();
+    }, 0);
+  }
+
+  confirmInlineRename(): void {
+    if (this.editingAlimentoPastoId === null) return;
+    const nome = this.editNomeValue.trim();
+    const ap = this.pasti.flatMap(p => p.alimentiPasto || []).find(a => a.id === this.editingAlimentoPastoId);
+    const catalogo = (ap?.alimento?.nome || '').trim();
+    const finalNome = (!nome || nome === catalogo) ? null : nome;
+
+    this.onDisplayNameChange({ alimentoPastoId: this.editingAlimentoPastoId, nome: finalNome });
+    this.editingAlimentoPastoId = null;
+    this.editNomeValue = '';
+  }
+
+  cancelInlineRename(): void {
+    this.editingAlimentoPastoId = null;
+    this.editNomeValue = '';
+    this.cdr.detectChanges();
+  }
+
+  onInlineRenameKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.confirmInlineRename();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.cancelInlineRename();
+    }
   }
 
   private getPastoByKey(key: string): PastoDto | undefined {
@@ -801,6 +953,10 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     });
   }
 
+  navigateToCliente(): void {
+    this.router.navigate(['/clienti', this.clienteId]);
+  }
+
   // --- CALCOLI (Invariati) ---
   calcolaMacro(ap: AlimentoPastoDto, macro: MacroType): number {
     const macros = ap.alimento?.macroNutrienti;
@@ -823,6 +979,22 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   }
   calcolaTotaleCalorieGiornaliere(): number {
     return this.pasti.reduce((sum, pasto) => sum + this.calcolaTotaleCalorico(pasto), 0);
+  }
+
+  /** Feature 11: Total food items across all meals */
+  get totalAlimentiCount(): number {
+    return this.pasti.reduce((sum, pasto) => sum + (pasto.alimentiPasto?.length || 0), 0);
+  }
+
+  /** Feature 12: Macro percentage (proportion of total grams) */
+  macroPercentage(macro: MacroType): number {
+    const p = this.calcolaTotaleGiornaliero('proteine');
+    const c = this.calcolaTotaleGiornaliero('carboidrati');
+    const g = this.calcolaTotaleGiornaliero('grassi');
+    const total = p + c + g;
+    if (total === 0) return 0;
+    const val = macro === 'proteine' ? p : macro === 'carboidrati' ? c : g;
+    return (val / total) * 100;
   }
 
   calcolaMacroDaAlimento(alimento: AlimentoBaseDto, quantita: number, macro: MacroType): number {
@@ -1082,6 +1254,17 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         this.recomputeAlternativesForAlimentoPasto(id);
       }
     }
+
+    // Also load per-pasto alternatives
+    const pastoIds = new Set<number>();
+    for (const pasto of this.pasti) {
+      if (typeof pasto?.id === 'number' && pasto.id > 0) pastoIds.add(pasto.id);
+    }
+    for (const pastoId of pastoIds) {
+      if (!this.alternativeByPastoId[pastoId]) {
+        this.loadAlternativesForPasto(pastoId);
+      }
+    }
   }
 
   private loadAlternativesFromBackend(alimentoPastoId: number): void {
@@ -1107,6 +1290,30 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       error: () => {
         // Fallback to empty state on error
         this.alternativeByAlimentoPastoId[alimentoPastoId] = [null];
+      }
+    });
+  }
+
+  private loadAlternativesForPasto(pastoId: number): void {
+    this.alternativoService.listByPasto(pastoId).subscribe({
+      next: (alternatives) => {
+        if (alternatives.length > 0) {
+          this.alternativeByPastoId[pastoId] = alternatives.map(alt => ({
+            alimento: alt.alimentoAlternativo,
+            quantita: alt.quantita,
+            mode: this.fromBackendMode(alt.mode),
+            manual: alt.manual ?? true,
+            savedId: alt.id,
+            saving: false
+          }));
+          this.alternativeByPastoId[pastoId].push(null);
+        } else {
+          this.alternativeByPastoId[pastoId] = [null];
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.alternativeByPastoId[pastoId] = [null];
       }
     });
   }
@@ -1717,5 +1924,247 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     event: { slot: number; mode: AlternativeMode }
   ): void {
     this.updateAlternativeMode(alimentoPasto, event.slot, event.mode);
+  }
+
+  // === COMPACT TABLE HELPERS ===
+
+  isAlimentoDaEvitare(ap: AlimentoPastoDto): boolean {
+    const alimentoId = ap?.alimento?.id;
+    if (!alimentoId || !this.alimentiDaEvitare?.length) return false;
+    return this.alimentiDaEvitare.some(e => e.alimento?.id === alimentoId);
+  }
+
+  getTopMicroTooltip(ap: AlimentoPastoDto): string {
+    const micros = ap?.alimento?.micronutrienti;
+    if (!micros?.length) return '';
+    return micros
+      .slice()
+      .sort((a: any, b: any) => (b.valore || 0) - (a.valore || 0))
+      .slice(0, 3)
+      .map((m: any) => `${m.micronutriente?.nome || '?'}: ${m.valore}${m.micronutriente?.unita || ''}`)
+      .join(' · ');
+  }
+
+  // === AGGREGATED ALTERNATIVES PER PASTO ===
+
+  getAggregatedAlternatives(pasto: PastoDto): (AlternativeProposal | null)[] {
+    // Read directly from per-pasto map
+    const list = this.alternativeByPastoId[pasto.id];
+    if (!list) return [];
+    return list.filter(a => a !== null) as AlternativeProposal[];
+  }
+
+  addAggregatedAlternativeSlot(pasto: PastoDto): void {
+    if (!this.alternativeByPastoId[pasto.id]) {
+      this.alternativeByPastoId[pasto.id] = [null];
+    }
+    const list = this.alternativeByPastoId[pasto.id];
+    const existingNull = list.findIndex(v => v === null);
+    if (existingNull === -1) {
+      list.push(null);
+    }
+    this.cdr.detectChanges();
+  }
+
+  onAggregatedAlternativeSelected(
+    pasto: PastoDto,
+    event: { alimento: AlimentoBaseDto; quantita: number; slot: number }
+  ): void {
+    if (!this.alternativeByPastoId[pasto.id]) {
+      this.alternativeByPastoId[pasto.id] = [];
+    }
+    const list = this.alternativeByPastoId[pasto.id];
+    const mode = this.defaultAlternativeMode;
+
+    // Use first food in meal for quantity suggestion
+    const firstAp = pasto.alimentiPasto?.[0];
+    const suggested = firstAp ? this.suggestAlternativeQuantity(firstAp, event.alimento, mode) : null;
+    const quantita = suggested ?? event.quantita ?? 100;
+
+    // Optimistic UI: add to per-pasto list
+    const proposal: AlternativeProposal = {
+      alimento: event.alimento,
+      quantita,
+      mode,
+      manual: false,
+      saving: true
+    };
+
+    // Replace null slot or append
+    const nullIdx = list.findIndex(v => v === null);
+    if (nullIdx !== -1) {
+      list[nullIdx] = proposal;
+    } else {
+      list.push(proposal);
+    }
+    const insertedIdx = nullIdx !== -1 ? nullIdx : list.length - 1;
+    this.cdr.detectChanges();
+
+    // Persist via per-pasto endpoint
+    const body: AlimentoAlternativoUpsertDto = {
+      alimentoAlternativoId: event.alimento.id!,
+      quantita: null,
+      priorita: insertedIdx + 1,
+      mode: this.toBackendMode(mode),
+      manual: false,
+      note: null
+    };
+    this.alternativoService.createForPasto(pasto.id, body).pipe(
+      timeout(8000)
+    ).subscribe({
+      next: (saved) => {
+        const current = list[insertedIdx];
+        if (current) {
+          list[insertedIdx] = {
+            ...current,
+            savedId: saved.id,
+            quantita: saved.quantita,
+            manual: saved.manual ?? current.manual,
+            mode: this.fromBackendMode(saved.mode),
+            saving: false
+          };
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Errore salvataggio alternativa per pasto:', err);
+        this.showAlternativeHttpError(err, 'Errore nel salvataggio dell\'alternativa');
+        // Rollback
+        list[insertedIdx] = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onAggregatedAlternativeRemoved(
+    pasto: PastoDto,
+    event: { index: number; savedId?: number }
+  ): void {
+    const list = this.alternativeByPastoId[pasto.id];
+    if (!list) return;
+    // Find the real index: event.index is index among non-null items
+    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
+    if (event.index < 0 || event.index >= nonNullItems.length) return;
+    const realIndex = nonNullItems[event.index].i;
+    const toRemove = list[realIndex];
+    const savedId = toRemove?.savedId;
+
+    // Optimistic UI
+    list.splice(realIndex, 1);
+    if (list.length === 0 || list.every(v => v === null && list.length === 0)) {
+      this.alternativeByPastoId[pasto.id] = [null];
+    }
+    this.cdr.detectChanges();
+
+    // Delete from backend
+    if (savedId) {
+      this.alternativoService.deleteForPasto(pasto.id, savedId).subscribe({
+        error: (err: any) => {
+          console.error('Errore eliminazione alternativa per pasto:', err);
+          this.showAlternativeHttpError(err, 'Errore nell\'eliminazione dell\'alternativa');
+        }
+      });
+    }
+  }
+
+  onAggregatedAlternativeQuantita(
+    pasto: PastoDto,
+    event: { slot: number; quantita: number }
+  ): void {
+    const list = this.alternativeByPastoId[pasto.id];
+    if (!list) return;
+    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
+    if (event.slot < 0 || event.slot >= nonNullItems.length) return;
+    const realIndex = nonNullItems[event.slot].i;
+    const proposal = list[realIndex];
+    if (!proposal || !event.quantita || event.quantita <= 0) return;
+
+    // Optimistic UI
+    list[realIndex] = { ...proposal, quantita: event.quantita, manual: true };
+    this.cdr.detectChanges();
+
+    // Save to backend
+    if (proposal.savedId) {
+      const body: AlimentoAlternativoUpsertDto = {
+        id: proposal.savedId,
+        alimentoAlternativoId: proposal.alimento.id!,
+        quantita: event.quantita,
+        priorita: event.slot + 1,
+        mode: this.toBackendMode(proposal.mode),
+        manual: true,
+        note: null
+      };
+      this.alternativoService.updateForPasto(pasto.id, proposal.savedId, body).pipe(
+        timeout(8000)
+      ).subscribe({
+        next: (saved) => {
+          const current = list[realIndex];
+          if (current) {
+            list[realIndex] = {
+              ...current,
+              quantita: saved.quantita,
+              manual: saved.manual ?? current.manual,
+              mode: this.fromBackendMode(saved.mode),
+              saving: false
+            };
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.showAlternativeHttpError(err, 'Errore nel salvataggio della quantità alternativa');
+        }
+      });
+    }
+  }
+
+  onAggregatedAlternativeMode(
+    pasto: PastoDto,
+    event: { slot: number; mode: AlternativeMode }
+  ): void {
+    const list = this.alternativeByPastoId[pasto.id];
+    if (!list) return;
+    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
+    if (event.slot < 0 || event.slot >= nonNullItems.length) return;
+    const realIndex = nonNullItems[event.slot].i;
+    const proposal = list[realIndex];
+    if (!proposal) return;
+
+    // For per-pasto, suggest quantity using first food in meal
+    const firstAp = pasto.alimentiPasto?.[0];
+    const suggested = firstAp ? this.suggestAlternativeQuantity(firstAp, proposal.alimento, event.mode) : null;
+    list[realIndex] = { ...proposal, mode: event.mode, manual: false, quantita: suggested ?? proposal.quantita };
+    this.cdr.detectChanges();
+
+    if (proposal.savedId) {
+      const body: AlimentoAlternativoUpsertDto = {
+        id: proposal.savedId,
+        alimentoAlternativoId: proposal.alimento.id!,
+        quantita: null,
+        priorita: event.slot + 1,
+        mode: this.toBackendMode(event.mode),
+        manual: false,
+        note: null
+      };
+      this.alternativoService.updateForPasto(pasto.id, proposal.savedId, body).pipe(
+        timeout(8000)
+      ).subscribe({
+        next: (saved) => {
+          const current = list[realIndex];
+          if (current) {
+            list[realIndex] = {
+              ...current,
+              quantita: saved.quantita,
+              manual: saved.manual ?? current.manual,
+              mode: this.fromBackendMode(saved.mode),
+              saving: false
+            };
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          this.showAlternativeHttpError(err, 'Errore nel salvataggio della modalità alternativa');
+        }
+      });
+    }
   }
 }

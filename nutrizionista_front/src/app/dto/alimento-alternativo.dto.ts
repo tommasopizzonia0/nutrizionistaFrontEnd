@@ -6,6 +6,7 @@ export type AlternativeModeDto = 'CALORIE' | 'PROTEINE' | 'CARBOIDRATI' | 'GRASS
 export interface AlimentoAlternativoDto {
     id: number;
     alimentoPasto?: AlimentoPastoDto;
+    pastoId?: number;
     alimentoAlternativo: AlimentoBaseDto;
     quantita: number;
     priorita: number;

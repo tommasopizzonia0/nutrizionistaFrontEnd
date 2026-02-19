@@ -143,8 +143,8 @@
               <div class="form-group">
                 <label for="sesso">Sesso *</label>
                 <select id="sesso" name="sesso" class="form-control" [(ngModel)]="nuovoCliente.sesso" required>
-                  <option value="MASCHIO">Maschio</option>
-                  <option value="FEMMINA">Femmina</option>
+                  <option value="Maschio">Maschio</option>
+                  <option value="Femmina">Femmina</option>
                 </select>
               </div>
 
@@ -207,9 +207,16 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label for="numAllenamentiSett">Allenamenti Settimanali</label>
-                <input type="text" id="numAllenamentiSett" name="numAllenamentiSett" class="form-control"
-                  [(ngModel)]="nuovoCliente.numAllenamentiSett" placeholder="3-4 volte">
+                <label for="livelloDiAttivita">Livello di Attività</label>
+                <select id="livelloDiAttivita" name="livelloDiAttivita" class="form-control"
+                  [(ngModel)]="nuovoCliente.livelloDiAttivita">
+                  <option [ngValue]="undefined">-- Seleziona --</option>
+                  <option value="SEDENTARIO">Sedentario</option>
+                  <option value="LEGGERMENTE_ATTIVO">Leggermente attivo (1-2 gg/sett)</option>
+                  <option value="MODERATAMENTE_ATTIVO">Moderatamente attivo (3-4 gg/sett)</option>
+                  <option value="MOLTO_ATTIVO">Molto attivo (5-6 gg/sett)</option>
+                  <option value="ESTREMAMENTE_ATTIVO">Estremamente attivo (7 gg/sett)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -232,6 +239,13 @@
                 <label class="checkbox-label">
                   <input type="checkbox" id="beveAlcol" name="beveAlcol" [(ngModel)]="nuovoCliente.beveAlcol">
                   Consuma Alcolici
+                </label>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="fuma" name="fuma" [(ngModel)]="nuovoCliente.fuma">
+                  Fuma
                 </label>
               </div>
             </div>

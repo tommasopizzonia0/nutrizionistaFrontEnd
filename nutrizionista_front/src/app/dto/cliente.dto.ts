@@ -2,6 +2,7 @@ import { AlimentoDaEvitareDto } from "./alimento-da-evitare.dto";
 import { MisurazioneAntropometricaDto } from "./misurazione-antropometrica.dto";
 import { SchedaDto } from "./scheda.dto";
 import { UtenteDto } from "./utente.dto";
+import { LivelloDiAttivita } from "./obiettivo-nutrizionale.dto";
 
 export interface ClienteDto {
   id?: number;
@@ -14,13 +15,14 @@ export interface ClienteDto {
   dataNascita?: string;
   peso?: number;
   altezza?: number;
-  numAllenamentiSett?: string;
+  livelloDiAttivita?: LivelloDiAttivita;
   intolleranze?: string;
   funzioniIntestinali?: string;
   problematicheSalutari?: string;
   quantitaEQualitaDelSonno?: string;
   assunzioneFarmaci?: string;
   beveAlcol?: boolean;
+  fuma?: boolean;
   alimentiDaEvitare?: AlimentoDaEvitareDto[];
   misurazioni?: MisurazioneAntropometricaDto[];
   schede?: SchedaDto[];
@@ -40,13 +42,14 @@ export interface ClienteFormDto {
   dataNascita?: string;
   peso?: number;
   altezza?: number;
-  numAllenamentiSett?: string;
+  livelloDiAttivita?: LivelloDiAttivita;
   intolleranze?: string;
   funzioniIntestinali?: string;
   problematicheSalutari?: string;
   quantitaEQualitaDelSonno?: string;
   assunzioneFarmaci?: string;
   beveAlcol?: boolean;
+  fuma?: boolean;
 }
 
 export interface ClienteDropdownDto {
@@ -54,5 +57,5 @@ export interface ClienteDropdownDto {
   nome: string;
   cognome: string;
   dataNascita: string; // ISO: yyyy-mm-dd
-  email : string;
+  email: string;
 }

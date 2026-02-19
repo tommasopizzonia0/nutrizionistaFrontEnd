@@ -12,7 +12,7 @@ app-navbar {
 
 .home-container {
   display: flex;
-  min-height: 100vh; 
+  min-height: 100vh;
   background-color: transparent;
 }
 
@@ -26,8 +26,8 @@ app-navbar {
 /* MAIN CONTENT */
 /* ====================== */
 .main-content {
-  flex: 1;                   
-  padding: 0;               
+  flex: 1;
+  padding: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -37,7 +37,7 @@ app-navbar {
 /* ====================== */
 /* WRAPPER PER IL CONTENUTO INTERNO */
 .content-wrapper {
-  padding: 0;          
+  padding: 0;
   max-width: none;
   margin: 0;
   width: 100%;
@@ -46,29 +46,35 @@ app-navbar {
   flex-direction: column;
 }
 
-.sidebar.collapsed .containers-grid{
+.sidebar.collapsed .containers-grid {
   margin-left: none;
 }
+
 /* Nuovo layout per l'header */
 .header-flex {
   display: flex;
-  align-items: center; /* Allinea verticalmente al centro */
-  gap: 20px;           /* Spazio tra logo e testo */
-  padding: 20px;       /* Padding interno se necessario */
+  align-items: center;
+  /* Allinea verticalmente al centro */
+  gap: 20px;
+  /* Spazio tra logo e testo */
+  padding: 20px;
+  /* Padding interno se necessario */
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
-  text-align: left;    /* Allinea il testo a sinistra */
+  text-align: left;
+  /* Allinea il testo a sinistra */
 }
 
 /* Modifica la dimensione del logo se risulta troppo grande nel nuovo layout */
 .animazione {
-  max-width: 150px;    /* Ridotto leggermente per stare meglio a fianco del testo */
+  max-width: 150px;
+  /* Ridotto leggermente per stare meglio a fianco del testo */
   width: 100%;
   cursor: pointer;
-  filter: drop-shadow(0 20px 40px rgba(15,23,42,.18));
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, .18));
   transition: transform .25s ease, filter .25s ease;
 }
 
@@ -78,6 +84,7 @@ app-navbar {
     flex-direction: column;
     text-align: center;
   }
+
   .header-text {
     text-align: center;
   }
@@ -94,7 +101,7 @@ app-navbar {
   height: 100%;
   overflow: hidden;
   padding: 10px 10px 20px 10px;
-  
+
 }
 
 /* Singolo contenitore */
@@ -120,6 +127,37 @@ app-navbar {
 .content-box.dark-box:hover {
   background: #353535 !important;
   border-color: #10b981;
+}
+
+/* Miglioramento leggibilità testo in modalità dark */
+.content-box.dark-box h3 {
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+}
+
+.content-box.dark-box p {
+  color: #e8e8e8 !important;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 400;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Effetto hover per migliorare ulteriormente la leggibilità */
+.content-box.dark-box:hover h3 {
+  color: #f0f0f0 !important;
+}
+
+.content-box.dark-box:hover p {
+  color: #ffffff !important;
+  opacity: 1;
 }
 
 /* ====================== */

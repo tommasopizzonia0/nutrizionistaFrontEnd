@@ -2,8 +2,10 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Change
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faTrash, faDumbbell, faWheatAlt, faDroplet, faFire, faPen, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faDumbbell, faWheatAlt, faDroplet, faFire, faPen, faCheck, faXmark, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { AlimentoPastoDto } from '../../dto/alimento-pasto.dto';
+import { AlimentoDaEvitareDto } from '../../dto/alimento-da-evitare.dto';
+import { ValoreMicroDto } from '../../dto/valore-micro.dto';
 
 type MacroType = 'proteine' | 'carboidrati' | 'grassi' | 'calorie';
 
@@ -18,6 +20,7 @@ type MacroType = 'proteine' | 'carboidrati' | 'grassi' | 'calorie';
 export class AlimentoAggiunto {
   @Input() alimentoPasto!: AlimentoPastoDto;
   @Input() isDarkMode = false;
+  @Input() alimentiDaEvitare: AlimentoDaEvitareDto[] = [];
 
   @Output() quantitaChanged = new EventEmitter<number>();
   @Output() removed = new EventEmitter<void>();
@@ -38,7 +41,8 @@ export class AlimentoAggiunto {
     dumbbell: faDumbbell,
     wheat: faWheatAlt,
     droplet: faDroplet,
-    fire: faFire
+    fire: faFire,
+    warning: faTriangleExclamation
   };
 
   get nome(): string {
@@ -51,6 +55,30 @@ export class AlimentoAggiunto {
 
   get misura(): string {
     return 'g';
+  }
+
+  /** Feature 5: Chip della categoria */
+  get categoria(): string | undefined {
+    return this.alimentoPasto?.alimento?.categoria;
+  }
+
+  /** Feature 6: Warning se l'alimento è nella lista da evitare */
+  get evitareWarning(): AlimentoDaEvitareDto | undefined {
+    const alimentoId = this.alimentoPasto?.alimento?.id;
+    if (!alimentoId || !this.alimentiDaEvitare?.length) return undefined;
+    return this.alimentiDaEvitare.find(e => e.alimento?.id === alimentoId);
+  }
+
+  /** Feature 7: Top-3 micronutrienti per tooltip */
+  get topMicroTooltip(): string {
+    const micros = this.alimentoPasto?.alimento?.micronutrienti;
+    if (!micros?.length) return '';
+    return micros
+      .slice()
+      .sort((a, b) => (b.valore || 0) - (a.valore || 0))
+      .slice(0, 3)
+      .map(m => `${m.micronutriente?.nome || '?'}: ${m.valore}${m.micronutriente?.unita || ''}`)
+      .join(' · ');
   }
 
   calcolaMacro(macro: MacroType): number {

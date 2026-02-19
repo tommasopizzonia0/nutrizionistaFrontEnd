@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faMagnifyingGlass, faPlus, faArrowRight, faTriangleExclamation, faChevronLeft, faChevronRight,
-  faDumbbell, faWheatAlt, faDroplet, faFire
+  faDumbbell, faWheatAlt, faDroplet, faFire, faFilter, faChevronDown, faXmark
 } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, Subscription, combineLatest, of, timer } from 'rxjs';
 import { catchError, debounce, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
+import { AlimentoDaEvitareDto } from '../../dto/alimento-da-evitare.dto';
 import { AlimentoService } from '../../services/alimento-service';
 
 @Component({
@@ -29,9 +30,16 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
   /** Se true, usa tema scuro */
   @Input() isDarkMode = false;
 
+  /** Feature 10: Alimenti da evitare */
+  @Input() alimentiDaEvitare: AlimentoDaEvitareDto[] = [];
+
+  /** Drawer mode: quando usato come slide panel */
+  @Input() isDrawer = false;
+
   /** Emesso quando l'utente clicca su un alimento per aggiungerlo */
   @Output() alimentoSelezionato = new EventEmitter<AlimentoBaseDto>();
   @Output() alimentoDettaglioRichiesto = new EventEmitter<AlimentoBaseDto>();
+  @Output() closeRequested = new EventEmitter<void>();
 
   private alimentoService = inject(AlimentoService);
   private cdr = inject(ChangeDetectorRef);
@@ -58,8 +66,30 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
     dumbbell: faDumbbell,
     wheat: faWheatAlt,
     droplet: faDroplet,
-    fire: faFire
+    fire: faFire,
+    filter: faFilter,
+    chevronDown: faChevronDown,
+    xmark: faXmark
   };
+
+  /** Feature 9: Category filter */
+  categoriaFiltro = '';
+  isEvitarePanelOpen = false;
+
+  /** Feature 9: Extract unique categories from available foods */
+  get categorie(): string[] {
+    const cats = new Set<string>();
+    for (const a of this.alimentiDisponibili) {
+      if (a.categoria) cats.add(a.categoria);
+    }
+    return Array.from(cats).sort((a, b) => a.localeCompare(b, 'it'));
+  }
+
+  /** Feature 9: Filtered foods */
+  get alimentiFiltrati(): AlimentoBaseDto[] {
+    if (!this.categoriaFiltro) return this.alimentiDisponibili;
+    return this.alimentiDisponibili.filter(a => a.categoria === this.categoriaFiltro);
+  }
 
   ngOnInit(): void {
     const debouncedQuery$ = this.query$.pipe(

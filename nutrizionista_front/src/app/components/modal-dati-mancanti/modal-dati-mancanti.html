@@ -1,0 +1,26 @@
+@if (open) {
+<div class="modal-overlay" [class.dark-mode]="isDarkMode" (click)="onOverlayClick($event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <fa-icon [icon]="icons.warning" class="warning-icon"></fa-icon>
+            <h3>Dati cliente incompleti</h3>
+            <button class="btn-close" (click)="closed.emit()">
+                <fa-icon [icon]="icons.close"></fa-icon>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Per calcolare automaticamente BMR e TDEE, è necessario compilare i seguenti campi nella scheda del
+                cliente:</p>
+            <ul class="campi-list">
+                @for (campo of campiMancanti; track campo) {
+                <li>{{ getLabel(campo) }}</li>
+                }
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closed.emit()">Chiudi</button>
+            <button class="btn-primary" (click)="compilaDati.emit()">Vai alla scheda cliente</button>
+        </div>
+    </div>
+</div>
+}
