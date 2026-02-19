@@ -13,7 +13,7 @@
         <button class="btn btn-secondary" type="button" (click)="reset()">Reset</button>
 
         @if (mode === 'edit') {
-          <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
+        <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
         }
 
         <button class="btn btn-primary" type="button" [disabled]="form.invalid" (click)="save()">
@@ -31,7 +31,9 @@
           <span class="hint">Seleziona uno slot per precompilare il form.</span>
         </div>
 
-        <calendario [availability]="calendarAvailability"></calendario>
+        <div [class.dark-mode]="themeService.isDarkMode$ | async">
+          <calendario [availability]="calendarAvailability"></calendario>
+        </div>
       </section>
 
       <!-- DESTRA: FORM -->
@@ -88,10 +90,10 @@
           </div>
 
           @if (form.value.modalita === 'IN_PRESENZA') {
-            <div class="field">
-              <label>Luogo</label>
-              <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
-            </div>
+          <div class="field">
+            <label>Luogo</label>
+            <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
+          </div>
           }
 
           <!-- ✅ RICERCA CLIENTE REGISTRATO -->
@@ -103,20 +105,20 @@
                 (focus)="onSearchFocus()" (blur)="onSearchBlur()">
 
               @if (showClientDropdown) {
-                <div class="dropdown-results">
-                  @for (c of clientResults; track c.id) {
-                    <button type="button" class="dropdown-item" (click)="selectClient(c)">
-                      {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
-                    </button>
-                  }
-                </div>
+              <div class="dropdown-results">
+                @for (c of clientResults; track c.id) {
+                <button type="button" class="dropdown-item" (click)="selectClient(c)">
+                  {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
+                </button>
+                }
+              </div>
               }
             </div>
 
             @if (form.value.clienteId) {
-              <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
-                Usa cliente non registrato
-              </button>
+            <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
+              Usa cliente non registrato
+            </button>
             }
           </div>
 
@@ -139,10 +141,10 @@
           </div>
 
           @if (error) {
-            <div class="alert alert-error">{{ error }}</div>
+          <div class="alert alert-error">{{ error }}</div>
           }
           @if (ok) {
-            <div class="alert alert-ok">{{ ok }}</div>
+          <div class="alert alert-ok">{{ ok }}</div>
           }
 
           <button class="sr-only" type="submit"></button>
@@ -155,53 +157,53 @@
 
 <!-- ✅ MODAL ORARI STUDIO -->
 @if (showOrariModal) {
-  <div class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Imposta gli orari dello studio</h3>
-        <p>Così il calendario mostrerà solo gli slot prenotabili.</p>
-      </div>
+<div class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Imposta gli orari dello studio</h3>
+      <p>Così il calendario mostrerà solo gli slot prenotabili.</p>
+    </div>
 
-      <form class="modal-body" [formGroup]="orariForm">
-        <div class="row2">
-          <div class="field">
-            <label>Apertura</label>
-            <input class="input" type="time" formControlName="oraApertura">
-          </div>
-
-          <div class="field">
-            <label>Chiusura</label>
-            <input class="input" type="time" formControlName="oraChiusura">
-          </div>
+    <form class="modal-body" [formGroup]="orariForm">
+      <div class="row2">
+        <div class="field">
+          <label>Apertura</label>
+          <input class="input" type="time" formControlName="oraApertura">
         </div>
 
-        <div class="row2">
-          <div class="field">
-            <label>Pausa inizio (opzionale)</label>
-            <input class="input" type="time" formControlName="pausaInizio">
-          </div>
+        <div class="field">
+          <label>Chiusura</label>
+          <input class="input" type="time" formControlName="oraChiusura">
+        </div>
+      </div>
 
-          <div class="field">
-            <label>Pausa fine (opzionale)</label>
-            <input class="input" type="time" formControlName="pausaFine">
-          </div>
+      <div class="row2">
+        <div class="field">
+          <label>Pausa inizio (opzionale)</label>
+          <input class="input" type="time" formControlName="pausaInizio">
         </div>
 
-        <label class="checkbox">
-          <input type="checkbox" formControlName="lavoraSabato">
-          Lavora il sabato
-        </label>
-
-        @if (error) {
-          <div class="alert alert-error">{{ error }}</div>
-        }
-      </form>
-
-      <div class="modal-actions">
-        <button class="btn btn-primary" type="button" (click)="saveOrari()" [disabled]="orariForm.invalid">
-          Salva orari
-        </button>
+        <div class="field">
+          <label>Pausa fine (opzionale)</label>
+          <input class="input" type="time" formControlName="pausaFine">
+        </div>
       </div>
+
+      <label class="checkbox">
+        <input type="checkbox" formControlName="lavoraSabato">
+        Lavora il sabato
+      </label>
+
+      @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+      }
+    </form>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" type="button" (click)="saveOrari()" [disabled]="orariForm.invalid">
+        Salva orari
+      </button>
     </div>
   </div>
+</div>
 }

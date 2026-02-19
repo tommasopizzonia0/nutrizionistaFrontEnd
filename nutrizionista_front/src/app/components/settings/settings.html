@@ -12,7 +12,6 @@
           </h1>
           <p class="sub">Gestisci sicurezza e preferenze del tuo account</p>
         </div>
-        <img src="assets/img/LogoStatera.png" class="search-logo">
       </header>
 
       @if (message) {
@@ -120,6 +119,137 @@
           </div>
         </form>
         }
+      </section>
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>
+              <fa-icon [icon]="icCalendar"></fa-icon>
+              Orari studio
+            </h2>
+            <p class="panel-sub">Imposta l’orario di apertura/chiusura e la pausa pranzo.</p>
+          </div>
+
+          <div class="panel-actions">
+            <button class="btn btn-ghost" type="button" (click)="loadOrariStudio()" [disabled]="loadingOrari">
+              <fa-icon [icon]="icReset"></fa-icon>
+              Ricarica
+            </button>
+
+            <button class="btn btn-secondary" type="button" (click)="toggleOrariEdit()" [disabled]="loadingOrari">
+              <fa-icon [icon]="isEditingOrari ? icClose : icClock"></fa-icon>
+              {{ isEditingOrari ? 'Chiudi' : 'Modifica orari' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+
+          @if (orariMessage) {
+          <div class="alert alert-success">
+            <fa-icon [icon]="icOk"></fa-icon> {{ orariMessage }}
+          </div>
+          }
+          @if (orariError) {
+          <div class="alert alert-error">
+            <fa-icon [icon]="icWarn"></fa-icon> {{ orariError }}
+          </div>
+          }
+
+          @if (loadingOrari && !orariData) {
+          <div class="loading-mini">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Caricamento orari...</span>
+          </div>
+          }
+
+          @if (!isEditingOrari) {
+          <div class="setting-row">
+            <div class="setting-left">
+              <div class="setting-name">
+                <fa-icon [icon]="icClock"></fa-icon>
+                Orario studio
+              </div>
+
+              <div class="setting-desc">
+                Apertura: <strong>{{ orariForm.get('oraApertura')?.value }}</strong> —
+                Chiusura: <strong>{{ orariForm.get('oraChiusura')?.value }}</strong>
+                @if (orariForm.get('pausaInizio')?.value) {
+                • Pausa: <strong>{{ orariForm.get('pausaInizio')?.value }}</strong> - <strong>{{
+                  orariForm.get('pausaFine')?.value ?? '(+1h)' }}</strong>
+                }
+                • Sabato: <strong>{{ orariForm.get('lavoraSabato')?.value ? 'Sì' : 'No' }}</strong>
+              </div>
+            </div>
+
+            <div class="setting-right">
+              <span class="pill">
+                <fa-icon [icon]="icOk"></fa-icon>
+                Configurato
+              </span>
+            </div>
+          </div>
+
+          <div class="callout">
+            <fa-icon [icon]="icInfo"></fa-icon>
+            Questi orari vengono usati per la disponibilità in agenda (settimana/giorno) e per la fascia “pausa pranzo”.
+          </div>
+          } @else {
+          <form [formGroup]="orariForm" (ngSubmit)="saveOrariStudio()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label><fa-icon [icon]="icClock"></fa-icon> Apertura *</label>
+                <input type="time" formControlName="oraApertura">
+              </div>
+
+              <div class="form-group">
+                <label><fa-icon [icon]="icClock"></fa-icon> Chiusura *</label>
+                <input type="time" formControlName="oraChiusura">
+              </div>
+
+              <div class="form-group">
+                <label><fa-icon [icon]="icClock"></fa-icon> Pausa inizio</label>
+                <input type="time" formControlName="pausaInizio">
+                <div class="hint">Se imposti solo l’inizio, la pausa dura automaticamente 1 ora.</div>
+              </div>
+
+              <div class="form-group">
+                <label><fa-icon [icon]="icClock"></fa-icon> Pausa fine</label>
+                <input type="time" formControlName="pausaFine">
+                <div class="hint">Opzionale: puoi personalizzare la durata.</div>
+              </div>
+
+              <div class="form-group full-width">
+                <label>
+                  <fa-icon [icon]="icCalendar"></fa-icon> Sabato
+                </label>
+
+                <label class="day-toggle">
+                  <input type="checkbox" formControlName="lavoraSabato">
+                  <span>Lavora il sabato</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn btn-ghost" (click)="resetOrariToDefault()" [disabled]="loadingOrari">
+                <fa-icon [icon]="icReset"></fa-icon>
+                Default
+              </button>
+
+              <button type="button" class="btn btn-ghost" (click)="toggleOrariEdit()" [disabled]="loadingOrari">
+                <fa-icon [icon]="icBack"></fa-icon>
+                Annulla
+              </button>
+
+              <button type="submit" class="btn btn-primary" [disabled]="orariForm.invalid || loadingOrari">
+                <fa-icon [icon]="icSave"></fa-icon>
+                Salva orari
+              </button>
+            </div>
+          </form>
+          }
+        </div>
       </section>
 
       <section class="panel muted">
