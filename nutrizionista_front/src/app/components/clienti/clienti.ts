@@ -129,9 +129,22 @@ export class ClienteComponent implements OnInit {
 
   apriModalModifica(cliente: ClienteDto): void {
     this.isEdit = true;
-    this.nuovoCliente = { ...cliente };
-    this.modalAperta = true;
-    document.body.style.overflow = 'hidden';
+    // La lista usa un DTO light (solo id/nome/cognome/dataNascita).
+    // Fetch completo per popolare tutti i campi del form.
+    this.clienteService.dettaglio(cliente.id!).subscribe({
+      next: (full) => {
+        this.nuovoCliente = { ...full, beveAlcol: full.beveAlcol ?? false, fuma: full.fuma ?? false };
+        this.modalAperta = true;
+        document.body.style.overflow = 'hidden';
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Fallback: usa i dati parziali dalla lista
+        this.nuovoCliente = { ...cliente, beveAlcol: cliente.beveAlcol ?? false, fuma: cliente.fuma ?? false };
+        this.modalAperta = true;
+        document.body.style.overflow = 'hidden';
+      }
+    });
   }
 
   chiudiModal(): void {
@@ -186,13 +199,14 @@ export class ClienteComponent implements OnInit {
       dataNascita: '',
       peso: 0,
       altezza: 0,
-      numAllenamentiSett: '',
+      livelloDiAttivita: undefined,
       intolleranze: '',
       funzioniIntestinali: '',
       problematicheSalutari: '',
       quantitaEQualitaDelSonno: '',
       assunzioneFarmaci: '',
-      beveAlcol: false
+      beveAlcol: false,
+      fuma: false
     };
   }
 }

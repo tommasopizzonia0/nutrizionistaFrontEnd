@@ -1,0 +1,215 @@
+<aside class="obiettivo-panel" [class.dark-mode]="isDarkMode" [class.collapsed]="collapsed">
+    <div class="panel-header" (click)="collapsed = !collapsed">
+        <fa-icon [icon]="icons.target" class="panel-icon"></fa-icon>
+        <span class="panel-title">Obiettivo Nutrizionale</span>
+        <span class="panel-toggle">{{ collapsed ? '▸' : '▾' }}</span>
+    </div>
+
+    @if (!collapsed) {
+    <div class="panel-body">
+
+        @if (loading) {
+        <div class="loading-state">Caricamento...</div>
+        }
+
+        @if (errore) {
+        <div class="errore-msg">{{ errore }}</div>
+        }
+
+        @if (!loading) {
+        <!-- Obiettivo selector + Ricalcola -->
+        <div class="form-row obiettivo-row">
+            <label>Obiettivo</label>
+            <select [(ngModel)]="tipoObiettivo" (ngModelChange)="onObiettivoChanged()">
+                @for (o of obiettivi; track o) {
+                <option [value]="o">{{ obiettivoLabels[o] }}</option>
+                }
+            </select>
+            <button class="btn-calcola" (click)="onCalcola()" [disabled]="calcolando" title="Ricalcola BMR/TDEE">
+                <fa-icon [icon]="icons.bolt"></fa-icon>
+                {{ calcolando ? '...' : 'Ricalcola' }}
+            </button>
+        </div>
+
+        <!-- BMR / TDEE info -->
+        @if (obiettivo?.bmr || obiettivo?.tdee) {
+        <div class="bmr-tdee-row">
+            <span class="bmr-badge">BMR: {{ obiettivo?.bmr | number:'1.0-0' }} kcal</span>
+            <span class="tdee-badge">TDEE: {{ obiettivo?.tdee | number:'1.0-0' }} kcal</span>
+        </div>
+        }
+
+        <!-- Target giornaliero -->
+        <div class="form-section">
+            <div class="section-label">Target giornaliero</div>
+
+            <div class="macro-input-row">
+                <fa-icon [icon]="icons.fire" class="macro-icon kcal"></fa-icon>
+                <label>Calorie</label>
+                <input type="number" [(ngModel)]="targetCalorie" (ngModelChange)="onCalorieChanged()"
+                    class="macro-input" min="0" step="50" />
+                <span class="unit">kcal</span>
+            </div>
+
+            <div class="macro-input-row">
+                <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine"></fa-icon>
+                <label>Proteine</label>
+                <input type="number" [(ngModel)]="targetProteine" (ngModelChange)="onGrammiChanged()"
+                    class="macro-input" min="0" step="5" />
+                <span class="unit">g</span>
+                <input type="number" [(ngModel)]="pctProteine" (ngModelChange)="onPercentualeChanged('proteine')"
+                    class="pct-input" min="0" max="100" step="1" />
+                <span class="unit">%</span>
+            </div>
+
+            <div class="macro-input-row">
+                <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati"></fa-icon>
+                <label>Carboidrati</label>
+                <input type="number" [(ngModel)]="targetCarboidrati" (ngModelChange)="onGrammiChanged()"
+                    class="macro-input" min="0" step="5" />
+                <span class="unit">g</span>
+                <input type="number" [(ngModel)]="pctCarboidrati" (ngModelChange)="onPercentualeChanged('carboidrati')"
+                    class="pct-input" min="0" max="100" step="1" />
+                <span class="unit">%</span>
+            </div>
+
+            <div class="macro-input-row">
+                <fa-icon [icon]="icons.droplet" class="macro-icon grassi"></fa-icon>
+                <label>Grassi</label>
+                <input type="number" [(ngModel)]="targetGrassi" (ngModelChange)="onGrammiChanged()" class="macro-input"
+                    min="0" step="5" />
+                <span class="unit">g</span>
+                <input type="number" [(ngModel)]="pctGrassi" (ngModelChange)="onPercentualeChanged('grassi')"
+                    class="pct-input" min="0" max="100" step="1" />
+                <span class="unit">%</span>
+            </div>
+
+            <div class="macro-input-row">
+                <fa-icon [icon]="icons.seedling" class="macro-icon fibre"></fa-icon>
+                <label>Fibre</label>
+                <input type="number" [(ngModel)]="targetFibre" class="macro-input" min="0" step="1" />
+                <span class="unit">g</span>
+            </div>
+        </div>
+
+        <!-- Note -->
+        <div class="form-row">
+            <label>Note</label>
+            <textarea [(ngModel)]="note" rows="2" class="note-input" placeholder="Note per il cliente..."></textarea>
+        </div>
+
+        <!-- Salva -->
+        <button class="btn-salva" (click)="onSalva()" [disabled]="saving">
+            <fa-icon [icon]="icons.save"></fa-icon>
+            {{ saving ? 'Salvataggio...' : 'Salva Obiettivo' }}
+        </button>
+
+        <!-- Progress bars: Scheda vs Target -->
+        @if (targetCalorie > 0) {
+        <div class="confronto-section">
+            <div class="section-label">Scheda vs Target</div>
+
+            <!-- Calorie -->
+            <div class="progress-row">
+                <div class="progress-label">
+                    <fa-icon [icon]="icons.fire" class="macro-icon kcal"></fa-icon>
+                    <span>{{ getAttualeCalorie() | number:'1.0-0' }} / {{ targetCalorie | number:'1.0-0' }} kcal</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"
+                        [class]="getBarClass(getPercentuale(getAttualeCalorie(), targetCalorie))"
+                        [style.width.%]="getBarWidth(getPercentuale(getAttualeCalorie(), targetCalorie))">
+                    </div>
+                </div>
+                <span class="progress-pct" [class]="getBarClass(getPercentuale(getAttualeCalorie(), targetCalorie))">
+                    {{ getPercentuale(getAttualeCalorie(), targetCalorie) }}%
+                </span>
+            </div>
+
+            <!-- Proteine -->
+            @if (targetProteine) {
+            <div class="progress-row">
+                <div class="progress-label">
+                    <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine"></fa-icon>
+                    <span>{{ getAttualeMacro('proteine') | number:'1.0-0' }} / {{ targetProteine | number:'1.0-0' }}
+                        g</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"
+                        [class]="getBarClass(getPercentuale(getAttualeMacro('proteine'), targetProteine))"
+                        [style.width.%]="getBarWidth(getPercentuale(getAttualeMacro('proteine'), targetProteine))">
+                    </div>
+                </div>
+                <span class="progress-pct"
+                    [class]="getBarClass(getPercentuale(getAttualeMacro('proteine'), targetProteine))">
+                    {{ getPercentuale(getAttualeMacro('proteine'), targetProteine) }}%
+                </span>
+            </div>
+            }
+
+            <!-- Carboidrati -->
+            @if (targetCarboidrati) {
+            <div class="progress-row">
+                <div class="progress-label">
+                    <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati"></fa-icon>
+                    <span>{{ getAttualeMacro('carboidrati') | number:'1.0-0' }} / {{ targetCarboidrati | number:'1.0-0'
+                        }} g</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"
+                        [class]="getBarClass(getPercentuale(getAttualeMacro('carboidrati'), targetCarboidrati))"
+                        [style.width.%]="getBarWidth(getPercentuale(getAttualeMacro('carboidrati'), targetCarboidrati))">
+                    </div>
+                </div>
+                <span class="progress-pct"
+                    [class]="getBarClass(getPercentuale(getAttualeMacro('carboidrati'), targetCarboidrati))">
+                    {{ getPercentuale(getAttualeMacro('carboidrati'), targetCarboidrati) }}%
+                </span>
+            </div>
+            }
+
+            <!-- Grassi -->
+            @if (targetGrassi) {
+            <div class="progress-row">
+                <div class="progress-label">
+                    <fa-icon [icon]="icons.droplet" class="macro-icon grassi"></fa-icon>
+                    <span>{{ getAttualeMacro('grassi') | number:'1.0-0' }} / {{ targetGrassi | number:'1.0-0' }}
+                        g</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"
+                        [class]="getBarClass(getPercentuale(getAttualeMacro('grassi'), targetGrassi))"
+                        [style.width.%]="getBarWidth(getPercentuale(getAttualeMacro('grassi'), targetGrassi))">
+                    </div>
+                </div>
+                <span class="progress-pct"
+                    [class]="getBarClass(getPercentuale(getAttualeMacro('grassi'), targetGrassi))">
+                    {{ getPercentuale(getAttualeMacro('grassi'), targetGrassi) }}%
+                </span>
+            </div>
+            }
+
+            <!-- Fibre -->
+            @if (targetFibre) {
+            <div class="progress-row">
+                <div class="progress-label">
+                    <fa-icon [icon]="icons.seedling" class="macro-icon fibre"></fa-icon>
+                    <span>{{ getAttualeMacro('fibre') | number:'1.0-0' }} / {{ targetFibre | number:'1.0-0' }} g</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill"
+                        [class]="getBarClass(getPercentuale(getAttualeMacro('fibre'), targetFibre))"
+                        [style.width.%]="getBarWidth(getPercentuale(getAttualeMacro('fibre'), targetFibre))">
+                    </div>
+                </div>
+                <span class="progress-pct" [class]="getBarClass(getPercentuale(getAttualeMacro('fibre'), targetFibre))">
+                    {{ getPercentuale(getAttualeMacro('fibre'), targetFibre) }}%
+                </span>
+            </div>
+            }
+        </div>
+        }
+        }
+    </div>
+    }
+</aside>

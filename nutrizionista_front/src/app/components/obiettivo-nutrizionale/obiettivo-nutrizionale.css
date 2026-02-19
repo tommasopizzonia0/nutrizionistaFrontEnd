@@ -1,0 +1,409 @@
+/* ===== Obiettivo Sidebar Panel ===== */
+
+.obiettivo-panel {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.obiettivo-panel.dark-mode {
+    background: var(--card-bg-dark, #1e1e2e);
+    border-color: var(--border-dark, rgba(255, 255, 255, 0.08));
+}
+
+/* Header */
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.06));
+    transition: background 0.2s;
+}
+
+.dark-mode .panel-header {
+    color: var(--text-dark, #e2e8f0);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1));
+}
+
+.panel-header:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(59, 130, 246, 0.1));
+}
+
+.panel-icon {
+    color: #8b5cf6;
+    font-size: 1rem;
+}
+
+.panel-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex: 1;
+    color: var(--text, #1e293b);
+}
+
+.dark-mode .panel-title {
+    color: var(--text-dark, #e2e8f0);
+}
+
+.panel-toggle {
+    font-size: 0.8rem;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* Body */
+.panel-body {
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Loading / Error */
+.loading-state {
+    text-align: center;
+    color: var(--text-muted, #94a3b8);
+    padding: 12px;
+    font-size: 0.85rem;
+}
+
+.errore-msg {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+/* Form rows */
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-row label,
+.section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #64748b);
+}
+
+.dark-mode .form-row label,
+.dark-mode .section-label {
+    color: var(--text-muted-dark, #94a3b8);
+}
+
+.obiettivo-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.obiettivo-row label {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.obiettivo-row select {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
+    background: var(--input-bg, #f8fafc);
+    color: var(--text, #1e293b);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.dark-mode .obiettivo-row select {
+    background: var(--input-bg-dark, #2a2a3e);
+    border-color: var(--border-dark, rgba(255, 255, 255, 0.12));
+    color: var(--text-dark, #e2e8f0);
+}
+
+.btn-calcola {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-calcola:hover:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.btn-calcola:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* BMR / TDEE badges */
+.bmr-tdee-row {
+    display: flex;
+    gap: 8px;
+}
+
+.bmr-badge,
+.tdee-badge {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.bmr-badge {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.tdee-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.dark-mode .bmr-badge {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.dark-mode .tdee-badge {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* Macro inputs */
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.macro-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.macro-icon {
+    width: 16px;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.macro-icon.kcal {
+    color: #ef4444;
+}
+
+.macro-icon.proteine {
+    color: #3b82f6;
+}
+
+.macro-icon.carboidrati {
+    color: #f59e0b;
+}
+
+.macro-icon.grassi {
+    color: #10b981;
+}
+
+.macro-icon.fibre {
+    color: #22c55e;
+}
+
+.macro-input-row label {
+    font-size: 0.78rem;
+    width: 70px;
+    flex-shrink: 0;
+    color: var(--text, #334155);
+}
+
+.dark-mode .macro-input-row label {
+    color: var(--text-dark, #cbd5e1);
+}
+
+.macro-input {
+    width: 65px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+    background: var(--input-bg, #f8fafc);
+    color: var(--text, #1e293b);
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.pct-input {
+    width: 60px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+    background: var(--input-bg, #f8fafc);
+    color: var(--text, #1e293b);
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.dark-mode .macro-input,
+.dark-mode .pct-input {
+    background: var(--input-bg-dark, #2a2a3e);
+    border-color: var(--border-dark, rgba(255, 255, 255, 0.12));
+    color: var(--text-dark, #e2e8f0);
+}
+
+.unit {
+    font-size: 0.72rem;
+    color: var(--text-muted, #64748b);
+    min-width: 16px;
+}
+
+.dark-mode .unit {
+    color: var(--text-muted-dark, #94a3b8);
+}
+
+/* Note */
+.note-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+    background: var(--input-bg, #f8fafc);
+    color: var(--text, #1e293b);
+    font-size: 0.8rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.dark-mode .note-input {
+    background: var(--input-bg-dark, #2a2a3e);
+    border-color: var(--border-dark, rgba(255, 255, 255, 0.12));
+    color: var(--text-dark, #e2e8f0);
+}
+
+/* Save button */
+.btn-salva {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-salva:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+}
+
+.btn-salva:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* === Progress bars === */
+.confronto-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border, rgba(0, 0, 0, 0.06));
+}
+
+.dark-mode .confronto-section {
+    border-top-color: var(--border-dark, rgba(255, 255, 255, 0.08));
+}
+
+.progress-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.progress-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text, #334155);
+}
+
+.progress-label span {
+    color: var(--text, #334155);
+}
+
+.dark-mode .progress-label,
+.dark-mode .progress-label span {
+    color: var(--text-dark, #cbd5e1);
+}
+
+.progress-bar-track {
+    height: 8px;
+    background: var(--bar-bg, rgba(0, 0, 0, 0.06));
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dark-mode .progress-bar-track {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease, background 0.3s;
+}
+
+.progress-bar-fill.bar-ok {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.progress-bar-fill.bar-under {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.progress-bar-fill.bar-over {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.progress-pct {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.progress-pct.bar-ok {
+    color: #10b981;
+}
+
+.progress-pct.bar-under {
+    color: #f59e0b;
+}
+
+.progress-pct.bar-over {
+    color: #ef4444;
+}

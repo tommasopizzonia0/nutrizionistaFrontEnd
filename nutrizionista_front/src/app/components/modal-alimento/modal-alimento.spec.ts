@@ -11,7 +11,7 @@ describe('ModalAlimento', () => {
     await TestBed.configureTestingModule({
       imports: [ModalAlimento]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ModalAlimento);
     component = fixture.componentInstance;

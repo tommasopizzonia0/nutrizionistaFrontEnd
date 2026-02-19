@@ -24,6 +24,27 @@
             <fa-icon [icon]="icons.save" class="fa-spin scheda-title-spinner"></fa-icon>
             }
         </h2>
+
+        <div class="scheda-meta">
+            @if (scheda) {
+            <span class="badge-attiva" [class.active]="scheda.attiva" [class.archived]="!scheda.attiva">
+                {{ scheda.attiva ? 'Attiva' : 'Archiviata' }}
+            </span>
+            }
+            @if (scheda?.dataCreazione) {
+            <span class="scheda-data">
+                <fa-icon [icon]="icons.calendar" size="xs"></fa-icon>
+                {{ scheda!.dataCreazione | date:'dd/MM/yyyy' }}
+            </span>
+            }
+            @if (scheda) {
+            <button class="toggle-attiva" (click)="toggleAttiva()"
+                [title]="scheda.attiva ? 'Archivia scheda' : 'Attiva scheda'">
+                <fa-icon [icon]="scheda.attiva ? icons.toggleOn : icons.toggleOff"></fa-icon>
+            </button>
+            }
+        </div>
+
         <div class="header-actions">
             <button class="btn-primary" (click)="openCreateMeal()" [disabled]="saving || !schedaId">
                 <fa-icon [icon]="icons.plus"></fa-icon>
@@ -80,8 +101,12 @@
             </div>
             }
             <div class="pasti-container">
-                @for (pasto of pasti; track pastoKey(pasto)) {
-                <div class="pasto-card" [class.expanded]="pastoEspansoKey === pastoKey(pasto)">
+                @for (pasto of pasti; track pastoKey(pasto); let i = $index) {
+                <div class="pasto-card" [class.expanded]="pastoEspansoKey === pastoKey(pasto)"
+                    [class.dragging]="dragIndex === i" [class.drop-target]="dropIndex === i && dragIndex !== i"
+                    [attr.draggable]="pastoEspansoKey === pastoKey(pasto) ? 'false' : 'true'"
+                    (dragstart)="onDragStart(i)" (dragover)="onDragOver($event, i)" (drop)="onDrop($event, i)"
+                    (dragend)="onDragEnd()">
 
                     <div class="pasto-header" (click)="togglePasto(pasto)">
                         <div class="pasto-info">
@@ -90,6 +115,9 @@
                             </div>
                             <div class="pasto-details">
                                 <h3>{{ pasto.nome }}</h3>
+                                @if (pasto.descrizione) {
+                                <span class="pasto-descrizione">{{ pasto.descrizione }}</span>
+                                }
                                 <span class="pasto-orario">
                                     @if (pasto.orarioInizio && pasto.orarioFine) {
                                     {{ pasto.orarioInizio | slice:0:5 }} - {{ pasto.orarioFine | slice:0:5 }}
@@ -105,8 +133,23 @@
                                 <span class="stat-label">alimenti</span>
                             </div>
                             <div class="stat-badge calories">
+                                <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
                                 <span class="stat-value">{{ calcolaTotaleCalorico(pasto) }}</span>
                                 <span class="stat-label">kcal</span>
+                            </div>
+                            <div class="macro-badges-header">
+                                <span class="mini-badge p" title="Proteine">
+                                    <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+                                    {{ calcolaTotaleMacro(pasto, 'proteine') | number:'1.0-0' }}g
+                                </span>
+                                <span class="mini-badge c" title="Carboidrati">
+                                    <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+                                    {{ calcolaTotaleMacro(pasto, 'carboidrati') | number:'1.0-0' }}g
+                                </span>
+                                <span class="mini-badge g" title="Grassi">
+                                    <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+                                    {{ calcolaTotaleMacro(pasto, 'grassi') | number:'1.0-0' }}g
+                                </span>
                             </div>
                             @if (pasto.eliminabile) {
                             <button class="icon-btn" (click)="onRinominaPasto(pasto, $event)" title="Rinomina">
@@ -139,6 +182,12 @@
                             </div>
                         </div>
 
+                        <!-- Bottone aggiungi alimento (drawer) -->
+                        <button class="btn-aggiungi-alimento" (click)="openCatalogoDrawer()" [disabled]="!schedaId">
+                            <fa-icon [icon]="icons.search"></fa-icon>
+                            Aggiungi Alimento
+                        </button>
+
                         <div class="alimenti-section">
                             <div class="section-title-inline">
                                 <fa-icon [icon]="icons.apple"></fa-icon>
@@ -146,56 +195,101 @@
                             </div>
 
                             @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
-                            <div class="alimenti-list">
+                            <div class="alimenti-table">
+                                <div class="alimenti-table-header">
+                                    <span class="col-nome">Alimento</span>
+                                    <span class="col-qty">Qtà</span>
+                                    <span class="col-macro p">P</span>
+                                    <span class="col-macro c">C</span>
+                                    <span class="col-macro g">G</span>
+                                    <span class="col-macro kcal">kcal</span>
+                                    <span class="col-actions"></span>
+                                </div>
                                 @for (alimentoPasto of pasto.alimentiPasto; track $index) {
-                                <div class="alimento-node">
-                                    <!-- Alimento principale (extracted component) -->
-                                    <app-alimento-aggiunto [alimentoPasto]="alimentoPasto" [isDarkMode]="isDarkMode"
-                                        (quantitaChanged)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, $event)"
-                                        (removed)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
-                                        (displayNameChange)="onDisplayNameChange($event)">
-                                    </app-alimento-aggiunto>
-
-                                    <!-- Alternative (extracted component) -->
-                                    <app-lista-alternative [alimentoPasto]="alimentoPasto"
-                                        [alternatives]="getAlternatives(alimentoPasto.id)" [isDarkMode]="isDarkMode"
-                                        (alternativeSelected)="onAlternativeFromComponent(alimentoPasto, $event)"
-                                        (alternativeRemoved)="onAlternativeRemovedFromComponent(alimentoPasto.id, $event)"
-                                        (quantitaChanged)="onAlternativeQuantitaFromComponent(alimentoPasto.id, $event)"
-                                        (modeChanged)="onAlternativeModeFromComponent(alimentoPasto, $event)">
-                                    </app-lista-alternative>
+                                <div class="alimenti-table-row" [class.evitare]="isAlimentoDaEvitare(alimentoPasto)"
+                                    [attr.title]="getTopMicroTooltip(alimentoPasto)">
+                                    <span class="col-nome">
+                                        @if (editingAlimentoPastoId === alimentoPasto.id) {
+                                        <input type="text" class="inline-nome-input" [(ngModel)]="editNomeValue"
+                                            (keydown)="onInlineRenameKeydown($event)" (blur)="confirmInlineRename()" />
+                                        } @else {
+                                        <span class="nome-text" (dblclick)="startInlineRename(alimentoPasto)"
+                                            title="Doppio click per rinominare">
+                                            {{ alimentoPasto.nomeVisualizzato || alimentoPasto.alimento.nome ||
+                                            'Alimento' }}
+                                        </span>
+                                        @if (alimentoPasto.alimento.categoria) {
+                                        <span class="cat-chip">{{ alimentoPasto.alimento.categoria }}</span>
+                                        }
+                                        }
+                                    </span>
+                                    <span class="col-qty">
+                                        <input type="number" [ngModel]="alimentoPasto.quantita"
+                                            (ngModelChange)="onAggiornaQuantita(pasto, alimentoPasto.alimento.id ?? 0, $event)"
+                                            min="1" class="qty-input" />
+                                        <span class="unit">g</span>
+                                    </span>
+                                    <span class="col-macro p">{{ calcolaMacro(alimentoPasto, 'proteine') |
+                                        number:'1.0-1' }}</span>
+                                    <span class="col-macro c">{{ calcolaMacro(alimentoPasto, 'carboidrati') |
+                                        number:'1.0-1' }}</span>
+                                    <span class="col-macro g">{{ calcolaMacro(alimentoPasto, 'grassi') |
+                                        number:'1.0-1' }}</span>
+                                    <span class="col-macro kcal">{{ calcolaMacro(alimentoPasto, 'calorie') |
+                                        number:'1.0-0' }}</span>
+                                    <span class="col-actions">
+                                        <button class="btn-row-remove"
+                                            (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
+                                            title="Rimuovi">
+                                            <fa-icon [icon]="icons.trash" size="xs"></fa-icon>
+                                        </button>
+                                    </span>
                                 </div>
                                 }
                             </div>
                             } @else {
                             <div class="empty-alimenti">
                                 <fa-icon [icon]="icons.apple"></fa-icon>
-                                <span>Nessun alimento aggiunto. Cerca e aggiungi alimenti dalla sezione a destra.</span>
+                                <span>Nessun alimento aggiunto.</span>
                             </div>
                             }
-
                             <div class="macro-totals">
                                 <div class="macro-total-card">
+                                    <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine"></fa-icon>
                                     <span class="macro-label">Proteine</span>
                                     <span class="macro-value proteine">{{ calcolaTotaleMacro(pasto, 'proteine') |
                                         number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card">
+                                    <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati"></fa-icon>
                                     <span class="macro-label">Carboidrati</span>
                                     <span class="macro-value carboidrati">{{ calcolaTotaleMacro(pasto, 'carboidrati') |
                                         number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card">
+                                    <fa-icon [icon]="icons.droplet" class="macro-icon grassi"></fa-icon>
                                     <span class="macro-label">Grassi</span>
                                     <span class="macro-value grassi">{{ calcolaTotaleMacro(pasto, 'grassi') |
                                         number:'1.0-2'}} g</span>
                                 </div>
                                 <div class="macro-total-card highlight">
+                                    <fa-icon [icon]="icons.fire" class="macro-icon kcal"></fa-icon>
                                     <span class="macro-label">Calorie</span>
                                     <span class="macro-value kcal">{{ calcolaTotaleCalorico(pasto) | number:'1.0-0'}}
                                         kcal</span>
                                 </div>
                             </div>
+
+                            <!-- Alternative aggregate per pasto -->
+                            @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
+                            <app-lista-alternative [alimentoPasto]="pasto.alimentiPasto[0]"
+                                [alternatives]="getAggregatedAlternatives(pasto)" [isDarkMode]="isDarkMode"
+                                (alternativeSelected)="onAggregatedAlternativeSelected(pasto, $event)"
+                                (alternativeRemoved)="onAggregatedAlternativeRemoved(pasto, $event)"
+                                (quantitaChanged)="onAggregatedAlternativeQuantita(pasto, $event)"
+                                (modeChanged)="onAggregatedAlternativeMode(pasto, $event)">
+                            </app-lista-alternative>
+                            }
                         </div>
                     </div>
                     }
@@ -209,10 +303,63 @@
         </section>
 
         <div class="scheda-sidebar">
-            <app-catalogo-alimenti [pastoEspanso]="pastoEspansoLabel" [schedaSalvata]="!!schedaId"
-                [isDarkMode]="isDarkMode" (alimentoSelezionato)="onAggiungiAlimento($event)"
-                (alimentoDettaglioRichiesto)="onDettaglioAlimento($event)">
-            </app-catalogo-alimenti>
+            <!-- Obiettivo Nutrizionale sidebar -->
+            @if (clienteId) {
+            <app-obiettivo-nutrizionale [clienteId]="clienteId" [pasti]="pasti" [isDarkMode]="isDarkMode"
+                (campiMancanti)="campiMancanti = $event; modalDatiMancanti = true">
+            </app-obiettivo-nutrizionale>
+            }
+
+            <!-- Feature 11/12: Quick Stats Panel -->
+            <aside class="quick-stats-panel" [class.dark-mode]="isDarkMode">
+                <div class="chart-title">Statistiche Rapide</div>
+                <div class="qs-row">
+                    <div class="qs-stat hero">
+                        <span class="qs-value">{{ calcolaTotaleCalorieGiornaliere() | number:'1.0-0' }}</span>
+                        <span class="qs-label">kcal totali</span>
+                    </div>
+                    <div class="qs-stat">
+                        <span class="qs-value">{{ pasti.length }}</span>
+                        <span class="qs-label">pasti</span>
+                    </div>
+                    <div class="qs-stat">
+                        <span class="qs-value">{{ totalAlimentiCount }}</span>
+                        <span class="qs-label">alimenti</span>
+                    </div>
+                </div>
+
+                <!-- Feature 12: Macro distribution bars -->
+                <div class="macro-bars">
+                    <div class="macro-bar-row">
+                        <span class="macro-bar-label">
+                            <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine" size="xs"></fa-icon> Proteine
+                        </span>
+                        <div class="macro-bar-track">
+                            <div class="macro-bar-fill p" [style.width.%]="macroPercentage('proteine')"></div>
+                        </div>
+                        <span class="macro-bar-pct">{{ macroPercentage('proteine') | number:'1.0-0' }}%</span>
+                    </div>
+                    <div class="macro-bar-row">
+                        <span class="macro-bar-label">
+                            <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati" size="xs"></fa-icon>
+                            Carboidrati
+                        </span>
+                        <div class="macro-bar-track">
+                            <div class="macro-bar-fill c" [style.width.%]="macroPercentage('carboidrati')"></div>
+                        </div>
+                        <span class="macro-bar-pct">{{ macroPercentage('carboidrati') | number:'1.0-0' }}%</span>
+                    </div>
+                    <div class="macro-bar-row">
+                        <span class="macro-bar-label">
+                            <fa-icon [icon]="icons.droplet" class="macro-icon grassi" size="xs"></fa-icon> Grassi
+                        </span>
+                        <div class="macro-bar-track">
+                            <div class="macro-bar-fill g" [style.width.%]="macroPercentage('grassi')"></div>
+                        </div>
+                        <span class="macro-bar-pct">{{ macroPercentage('grassi') | number:'1.0-0' }}%</span>
+                    </div>
+                </div>
+            </aside>
 
             <aside class="macro-chart-panel" [class.dark-mode]="isDarkMode">
                 <div class="chart-title">Media percentuale macronutrienti (scheda)</div>
@@ -250,8 +397,23 @@
         </div>
     </div>
 
+    <!-- CATALOGO DRAWER (slide-in da destra) -->
+    @if (catalogoDrawerOpen) {
+    <div class="catalogo-backdrop" (click)="closeCatalogoDrawer()"></div>
+    <div class="catalogo-drawer" [class.dark-mode]="isDarkMode">
+        <app-catalogo-alimenti [pastoEspanso]="pastoEspansoLabel" [schedaSalvata]="!!schedaId" [isDarkMode]="isDarkMode"
+            [alimentiDaEvitare]="alimentiDaEvitare" [isDrawer]="true" (alimentoSelezionato)="onAggiungiAlimento($event)"
+            (alimentoDettaglioRichiesto)="onDettaglioAlimento($event)" (closeRequested)="closeCatalogoDrawer()">
+        </app-catalogo-alimenti>
+    </div>
+    }
+
     <app-modal-alimento [open]="modalAlimentoOpen" [loading]="modalAlimentoLoading" [alimento]="modalAlimento"
         [pastoTargetLabel]="pastoEspansoLabel" [quantita]="modalQuantita" [isDarkMode]="isDarkMode"
         (closed)="closeModalAlimento()" (addRequested)="onModalAddRequested($event)">
     </app-modal-alimento>
+
+    <app-modal-dati-mancanti [open]="modalDatiMancanti" [campiMancanti]="campiMancanti" [isDarkMode]="isDarkMode"
+        (closed)="modalDatiMancanti = false" (compilaDati)="modalDatiMancanti = false; navigateToCliente()">
+    </app-modal-dati-mancanti>
 </div>

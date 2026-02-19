@@ -2,9 +2,9 @@
 /* CATALOGO ALIMENTI PANEL */
 /* ====================== */
 :root {
-  --proteine: #ef4444;
+  --proteine: #3b82f6;
   --carboidrati: #f59e0b;
-  --grassi: #3b82f6;
+  --grassi: #10b981;
 }
 
 .catalogo-panel {
@@ -295,8 +295,8 @@
 }
 
 .macro-chip.p {
-  color: #dc2626;
-  background: rgba(239, 68, 68, 0.1);
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .macro-chip.c {
@@ -305,8 +305,8 @@
 }
 
 .macro-chip.g {
-  color: #2563eb;
-  background: rgba(59, 130, 246, 0.1);
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
 }
 
 /* Add Button */
@@ -418,9 +418,20 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.7; }
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
 }
 
 
@@ -436,8 +447,8 @@
 }
 
 .macro-chip.kcal {
-  color: #059669;
-  background: rgba(16, 185, 129, 0.1);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .catalogo-panel.dark-mode .macro-chip {
@@ -445,8 +456,8 @@
 }
 
 .catalogo-panel.dark-mode .macro-chip.p {
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.15);
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
 }
 
 .catalogo-panel.dark-mode .macro-chip.c {
@@ -455,11 +466,216 @@
 }
 
 .catalogo-panel.dark-mode .macro-chip.g {
-  color: #93c5fd;
-  background: rgba(59, 130, 246, 0.15);
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
 }
 
 .catalogo-panel.dark-mode .macro-chip.kcal {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* ===== FEATURE 9: CATEGORY FILTER CHIPS ===== */
+.categoria-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 0 0.75rem;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  margin-bottom: 0.75rem;
+}
+
+.catalogo-panel.dark-mode .categoria-filter {
+  border-bottom-color: #4b5563;
+}
+
+.cat-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.cat-chip:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: var(--green-darker, #047857);
+}
+
+.cat-chip.active {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #065f46;
+}
+
+.catalogo-panel.dark-mode .cat-chip {
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.catalogo-panel.dark-mode .cat-chip:hover {
+  border-color: rgba(16, 185, 129, 0.4);
   color: #6ee7b7;
-  background: rgba(16, 185, 129, 0.15);
+}
+
+.catalogo-panel.dark-mode .cat-chip.active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #6ee7b7;
+}
+
+/* ===== FEATURE 10: EVITARE PANEL ===== */
+.evitare-panel {
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  overflow: hidden;
+}
+
+.evitare-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: rgba(245, 158, 11, 0.08);
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.evitare-toggle:hover {
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.evitare-chev {
+  margin-left: auto;
+  transition: transform 200ms ease;
+}
+
+.evitare-chev.open {
+  transform: rotate(180deg);
+}
+
+.catalogo-panel.dark-mode .evitare-toggle {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.10);
+}
+
+.catalogo-panel.dark-mode .evitare-panel {
+  border-color: rgba(245, 158, 11, 0.30);
+}
+
+.evitare-list {
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.evitare-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.evitare-nome {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text, #1f2937);
+}
+
+.catalogo-panel.dark-mode .evitare-nome {
+  color: #f1f5f9;
+}
+
+.evitare-tipo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.catalogo-panel.dark-mode .evitare-tipo {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+/* ===== FEATURE 9 (item): Category chip in catalogo list ===== */
+.catalogo-cat-chip {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-muted, #6b7280);
+  background: rgba(107, 114, 128, 0.08);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+
+.catalogo-panel.dark-mode .catalogo-cat-chip {
+  color: #9ca3af;
+  background: rgba(107, 114, 128, 0.15);
+}
+
+/* ===== DRAWER MODE ===== */
+.catalogo-panel.drawer-mode {
+  border-left: none;
+  border-radius: 0;
+  height: 100%;
+  max-height: 100%;
+  box-shadow: none;
+}
+
+.catalogo-panel.drawer-mode .catalogo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-muted, #6b7280);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.drawer-close-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.catalogo-panel.dark-mode .drawer-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+}
+
+.catalogo-panel.dark-mode .drawer-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
 }
