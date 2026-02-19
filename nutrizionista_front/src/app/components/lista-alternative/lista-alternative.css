@@ -135,8 +135,8 @@
 }
 
 .badge.proteine {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
 }
 
 .badge.carboidrati {
@@ -145,13 +145,13 @@
 }
 
 .badge.grassi {
-    background: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
 }
 
 .badge.calorie {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .dark-mode .badge {
@@ -363,4 +363,46 @@
 .result-cal {
     font-size: 0.75rem;
     color: #64748b;
+}
+
+/* ========== FEATURE 8: MANUAL BADGE + PRIORITY ========== */
+.alternative-nome-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+}
+
+.alternative-nome-row .alternative-nome {
+    flex: 1;
+}
+
+.manual-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #065f46;
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    flex-shrink: 0;
+}
+
+.dark-mode .manual-badge {
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+.alternative-card.manual {
+    border-left: 3px solid #10b981;
+}
+
+.dark-mode .alternative-card.manual {
+    border-left-color: #34d399;
 }

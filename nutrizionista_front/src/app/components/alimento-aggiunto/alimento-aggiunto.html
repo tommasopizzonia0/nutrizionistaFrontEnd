@@ -1,4 +1,4 @@
-<div class="alimento-item" [class.dark-mode]="isDarkMode">
+<div class="alimento-item" [class.dark-mode]="isDarkMode" [attr.title]="topMicroTooltip || null">
     <div class="alimento-info">
         <div class="alimento-header">
             <div class="alimento-title">
@@ -30,6 +30,20 @@
                 <span class="misura">{{ misura }}</span>
             </div>
         </div>
+
+        <!-- Feature 5: Chip categoria -->
+        @if (categoria) {
+        <span class="categoria-chip">{{ categoria }}</span>
+        }
+
+        <!-- Feature 6: Warning alimento da evitare -->
+        @if (evitareWarning) {
+        <div class="evitare-warning">
+            <fa-icon [icon]="icons.warning" size="xs"></fa-icon>
+            <span>{{ evitareWarning.tipo || 'Da evitare' }}{{ evitareWarning.note ? ': ' + evitareWarning.note : ''
+                }}</span>
+        </div>
+        }
 
         <div class="macro-badges">
             <span class="badge proteine" title="Proteine">

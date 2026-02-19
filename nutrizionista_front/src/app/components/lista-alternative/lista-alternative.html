@@ -34,9 +34,14 @@
 
     <div class="alternatives-grid">
         @for (entry of validAlternatives; track entry.alt.savedId ?? entry.index) {
-        <div class="alternative-card" [class.saving]="!!entry.alt.saving">
+        <div class="alternative-card" [class.saving]="!!entry.alt.saving" [class.manual]="entry.alt.manual">
             <div class="alternative-header">
-                <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
+                <div class="alternative-nome-row">
+                    <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
+                    @if (entry.alt.manual) {
+                    <span class="manual-badge">Manuale</span>
+                    }
+                </div>
                 <div class="alternative-quantita">
                     <input type="number" [ngModel]="entry.alt.quantita" [disabled]="!!entry.alt.saving"
                         (ngModelChange)="onQuantitaChange(entry.index, $event)" min="1" class="quantita-input" />

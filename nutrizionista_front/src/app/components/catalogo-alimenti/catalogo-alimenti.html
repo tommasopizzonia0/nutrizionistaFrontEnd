@@ -1,9 +1,14 @@
-<aside class="catalogo-panel" [class.dark-mode]="isDarkMode">
+<aside class="catalogo-panel" [class.dark-mode]="isDarkMode" [class.drawer-mode]="isDrawer">
     <div class="catalogo-head">
         <div class="catalogo-title">
             <div class="kicker">Aggiungi alimenti</div>
             <div class="big">Catalogo Alimenti</div>
         </div>
+        @if (isDrawer) {
+        <button class="drawer-close-btn" (click)="closeRequested.emit()" aria-label="Chiudi catalogo">
+            <fa-icon [icon]="icons.xmark"></fa-icon>
+        </button>
+        }
     </div>
 
     <div class="search-section">
@@ -14,14 +19,45 @@
         </div>
     </div>
 
-    <div class="catalogo-body">
-        <!-- @if (loadingAlimenti) {
-        <div class="text-center p-4">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Caricamento...</span>
+    <!-- Feature 9: Category filter chips -->
+    @if (categorie.length > 0) {
+    <div class="categoria-filter">
+        <button class="cat-chip" [class.active]="!categoriaFiltro" (click)="categoriaFiltro = ''">
+            Tutti
+        </button>
+        @for (cat of categorie; track cat) {
+        <button class="cat-chip" [class.active]="categoriaFiltro === cat" (click)="categoriaFiltro = cat">
+            {{ cat }}
+        </button>
+        }
+    </div>
+    }
+
+    <!-- Feature 10: Alimenti da evitare panel -->
+    @if (alimentiDaEvitare.length > 0) {
+    <div class="evitare-panel" [class.open]="isEvitarePanelOpen">
+        <button class="evitare-toggle" (click)="isEvitarePanelOpen = !isEvitarePanelOpen">
+            <fa-icon [icon]="icons.warning" size="xs"></fa-icon>
+            <span>Alimenti da evitare ({{ alimentiDaEvitare.length }})</span>
+            <fa-icon [icon]="icons.chevronDown" class="evitare-chev" [class.open]="isEvitarePanelOpen"
+                size="xs"></fa-icon>
+        </button>
+        @if (isEvitarePanelOpen) {
+        <div class="evitare-list">
+            @for (item of alimentiDaEvitare; track item.id) {
+            <div class="evitare-item">
+                <span class="evitare-nome">{{ item.alimento.nome }}</span>
+                @if (item.tipo) {
+                <span class="evitare-tipo">{{ item.tipo }}</span>
+                }
             </div>
+            }
         </div>
-        } -->
+        }
+    </div>
+    }
+
+    <div class="catalogo-body">
         @if (loadingAlimenti) {
         <div class="text-center p-4 loader-container">
             <img src="assets/img/LogoStateraGif-vmake-ezgif.com-video-to-gif-converter.gif" alt="Caricamento..."
@@ -29,7 +65,7 @@
         </div>
         }
 
-        @if (!loadingAlimenti && alimentiDisponibili.length === 0 && (searchQuery.length > 0 || totalElements === 0)) {
+        @if (!loadingAlimenti && alimentiFiltrati.length === 0 && (searchQuery.length > 0 || totalElements === 0)) {
         <div class="catalogo-empty">
             <div class="catalogo-empty-title">Nessun alimento trovato</div>
             <div class="catalogo-empty-sub">
@@ -38,12 +74,15 @@
         </div>
         }
 
-        @if (!loadingAlimenti && alimentiDisponibili.length > 0) {
+        @if (!loadingAlimenti && alimentiFiltrati.length > 0) {
         <div class="alimenti-catalogo">
-            @for (alimento of alimentiDisponibili; track alimento.id) {
+            @for (alimento of alimentiFiltrati; track alimento.id) {
             <div class="catalogo-item" (click)="onClickAlimento(alimento)">
                 <div class="catalogo-info">
                     <span class="catalogo-nome">{{ alimento.nome }}</span>
+                    @if (alimento.categoria) {
+                    <span class="catalogo-cat-chip">{{ alimento.categoria }}</span>
+                    }
                     @if (alimento.macroNutrienti) {
                     <div class="catalogo-macros">
                         <span class="macro-chip p" title="Proteine">

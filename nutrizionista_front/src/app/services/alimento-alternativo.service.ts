@@ -116,4 +116,22 @@ export class AlimentoAlternativoService {
             catchError(err => err?.status === 404 ? this.delete(alternativeId) : throwError(() => err))
         );
     }
+
+    // === PER-PASTO METHODS ===
+
+    listByPasto(pastoId: number): Observable<AlimentoAlternativoDto[]> {
+        return this.http.get<AlimentoAlternativoDto[]>(`${this.legacyApiUrl}/pasto/${pastoId}`);
+    }
+
+    createForPasto(pastoId: number, body: AlimentoAlternativoUpsertDto): Observable<AlimentoAlternativoDto> {
+        return this.http.post<AlimentoAlternativoDto>(`${this.legacyApiUrl}/pasto/${pastoId}`, body);
+    }
+
+    updateForPasto(pastoId: number, alternativeId: number, body: AlimentoAlternativoUpsertDto): Observable<AlimentoAlternativoDto> {
+        return this.http.put<AlimentoAlternativoDto>(`${this.legacyApiUrl}/pasto/${pastoId}/${alternativeId}`, body);
+    }
+
+    deleteForPasto(pastoId: number, alternativeId: number): Observable<void> {
+        return this.http.delete<void>(`${this.legacyApiUrl}/pasto/${pastoId}/${alternativeId}`);
+    }
 }
