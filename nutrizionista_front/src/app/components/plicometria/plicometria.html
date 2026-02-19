@@ -33,16 +33,14 @@
           <tr>
             <th>Data</th>
             <th>Metodo</th>
-            <th>% MG</th>
-            <th>MG (kg)</th>
-            <th>MM (kg)</th>
             <th class="text-right">Azioni</th>
           </tr>
         </thead>
 
+
         <tbody>
           @for (p of page.contenuto; track p.id) {
-          <tr>
+          <tr [class.active]="selected?.id === p.id">
             <td>
               <div class="data-info">
                 <fa-icon [icon]="icCalendar"></fa-icon>
@@ -54,20 +52,12 @@
               <span class="metodo-badge">{{ p.metodo }}</span>
             </td>
 
-            <td>
-              <span class="valore-dato">{{ p.percentualeMassaGrassa | number:'1.1-1' }}%</span>
-            </td>
-
-            <td>
-              <span class="valore-dato">{{ p.massaGrassaKg | number:'1.1-1' }}</span>
-            </td>
-
-            <td>
-              <span class="valore-dato">{{ p.massaMagraKg | number:'1.1-1' }}</span>
-            </td>
-
             <td class="text-right">
               <div class="actions-group">
+                <button class="btn-icon view" (click)="view(p)" title="Visualizza">
+                  <fa-icon [icon]="icView"></fa-icon>
+                </button>
+
                 <button class="btn-icon edit" (click)="startEdit(p)" title="Modifica">
                   <fa-icon [icon]="icEdit"></fa-icon>
                 </button>
@@ -79,6 +69,7 @@
           </tr>
           }
         </tbody>
+
       </table>
 
       @if (page.totalePagine > 1) {
@@ -118,10 +109,44 @@
       </div>
       }
     </div>
+    <div class="sites-card" *ngIf="selected && siteRows.length">
+      <div class="sites-head">
+        <div class="sites-title">Misure per sito</div>
+        <div class="sites-sub">
+          {{ selected.dataMisurazione | date:'dd MMM yyyy' }}
+        </div>
+      </div>
+
+      <div class="sites-list">
+        @for (r of siteRows; track r.key) {
+        <div class="site-row">
+          <div class="site-top">
+            <div class="site-label">{{ r.label }}</div>
+            <div class="site-mm">{{ r.mm | number:'1.0-0' }} <span>mm</span></div>
+          </div>
+
+          <div class="site-bar">
+            <div class="site-bar-fill" [style.width.%]="r.pct"></div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- se vuoi gestire il caso “nessun dato” -->
+    <div class="sites-card" *ngIf="selected && !siteRows.length">
+      <div class="sites-head">
+        <div class="sites-title">Misure per sito</div>
+        <div class="sites-sub">Nessuna plica inserita</div>
+      </div>
+    </div>
 
   </div>
   }
   }
+
+
+
 
   <!-- OVERLAY MODAL -->
   @if (showForm) {
