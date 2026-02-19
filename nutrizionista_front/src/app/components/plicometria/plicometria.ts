@@ -28,10 +28,11 @@ import {
   faPlus,
   faRuler,
   faTrash,
+  faEye
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
-// ✅ Chart.js diretto (come il tuo ListaMisurazioniComponent)
+// ✅ Chart.js diretto
 import { Chart } from 'chart.js/auto';
 
 type MetodoValue =
@@ -40,6 +41,25 @@ type MetodoValue =
   | 'DURNIN_WOMERSLEY'
   | 'PARILLO'
   | 'MISURAZIONE_LIBERA';
+
+/** ✅ nuovi tipi per “Misure per sito” */
+type PlicoKey =
+  | 'tricipite'
+  | 'bicipite'
+  | 'sottoscapolare'
+  | 'sovrailiaca'
+  | 'addominale'
+  | 'coscia'
+  | 'pettorale'
+  | 'ascellare'
+  | 'polpaccio';
+
+type PlicoSiteRow = {
+  key: PlicoKey;
+  label: string;
+  mm: number;  // valore in mm
+  pct: number; // 0..100 per barra normalizzata
+};
 
 @Component({
   selector: 'app-plicometria',
@@ -73,6 +93,7 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
   icChevronRight = faChevronRight;
   icRuler = faRuler;
   icPlus = faPlus;
+  icView = faEye;
 
   // paginazione
   numeroPagina = 0;
@@ -112,6 +133,59 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
   chart?: Chart;
   private viewReady = false;
 
+  /** ✅ meta “Misure per sito” */
+  private readonly SITE_META: Array<{ key: PlicoKey; label: string }> = [
+    { key: 'tricipite', label: 'Tricipite' },
+    { key: 'bicipite', label: 'Bicipite' },
+    { key: 'sottoscapolare', label: 'Sottoscapolare' },
+    { key: 'sovrailiaca', label: 'Sovrailiaca' },
+    { key: 'addominale', label: 'Addome' },
+    { key: 'coscia', label: 'Coscia' },
+    { key: 'pettorale', label: 'Pettorale' },
+    { key: 'ascellare', label: 'Ascellare' },
+    { key: 'polpaccio', label: 'Polpaccio' },
+  ];
+
+  private readonly SITE_KEYS_BY_METODO: Record<MetodoValue, PlicoKey[]> = {
+  JACKSON_POLLOCK_3: ['pettorale', 'addominale', 'coscia'],
+  JACKSON_POLLOCK_7: ['pettorale', 'ascellare', 'tricipite', 'sottoscapolare', 'addominale', 'sovrailiaca', 'coscia'],
+  DURNIN_WOMERSLEY: ['tricipite', 'bicipite', 'sottoscapolare', 'sovrailiaca'],
+  PARILLO: [], // niente pliche
+  MISURAZIONE_LIBERA: [], // niente pliche (oppure metti tutti se vuoi manuale)
+};
+
+  /** ✅ getter pronto per template: righe con barra normalizzata */
+get siteRows(): PlicoSiteRow[] {
+  const s = this.selected as any;
+  if (!s) return [];
+
+  const metodo = (s.metodo as MetodoValue) ?? null;
+  const allowed = metodo ? this.SITE_KEYS_BY_METODO[metodo] : [];
+
+  if (!allowed?.length) return [];
+
+  const meta = this.SITE_META.filter(m => allowed.includes(m.key));
+
+  const raw = meta
+    .map(m => {
+      const v = s[m.key];
+      if (v === null || v === undefined || v === '') return null;
+      const mm = Number(v);
+      if (!Number.isFinite(mm)) return null;
+      return { key: m.key, label: m.label, mm };
+    })
+    .filter((x): x is { key: PlicoKey; label: string; mm: number } => !!x);
+
+  if (!raw.length) return [];
+
+  const max = Math.max(...raw.map(r => r.mm), 1);
+
+  return raw
+    .map(r => ({ ...r, pct: Math.round((r.mm / max) * 100) }))
+    .sort((a, b) => b.mm - a.mm);
+}
+
+
   ngOnInit(): void {
     if (this.clienteId) {
       this.loadPage(0);
@@ -134,7 +208,7 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
       this.startCreate(false);
     }
 
-    // ✅ come fai tu: se cambia darkmode, aggiorna stile chart senza reload
+    // ✅ se cambia darkmode, aggiorna stile chart senza reload
     if (changes['isDarkMode'] && !changes['isDarkMode'].firstChange) {
       setTimeout(() => this.renderPieFromSelected(), 0);
     }
@@ -154,40 +228,36 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
     return this.editingId !== null;
   }
 
-loadPage(pageIndex: number) {
-  if (!this.clienteId) return;
+  loadPage(pageIndex: number) {
+    if (!this.clienteId) return;
 
-  this.loading = true;
-  this.cdr.markForCheck();
+    this.loading = true;
+    this.cdr.markForCheck();
 
-  this.api
-    .allByCliente(this.clienteId, pageIndex, this.dimensionePagina)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges(); // ✅ forza il DOM a renderizzare il canvas
+    this.api
+      .allByCliente(this.clienteId, pageIndex, this.dimensionePagina)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges(); // ✅ forza il DOM a renderizzare il canvas
+          setTimeout(() => this.renderPieFromSelected(), 0);
+          this.cdr.markForCheck();
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.page = res;
+          this.numeroPagina = res.numeroPagina;
 
-        // ✅ ORA il canvas esiste (perché !loading)
-        setTimeout(() => this.renderPieFromSelected(), 0);
+          // ✅ seleziona ultima misurazione
+          this.selected = res.contenuto?.[0] ?? null;
 
-        this.cdr.markForCheck();
-      })
-    )
-    .subscribe({
-      next: (res) => {
-        this.page = res;
-        this.numeroPagina = res.numeroPagina;
-
-        // ✅ seleziona ultima misurazione
-        this.selected = this.pickLatest(res.contenuto);
-
-        this.cdr.markForCheck();
-      },
-      error: (err) => console.error(err),
-    });
-}
-
+          this.cdr.markForCheck();
+        },
+        error: (err) => console.error(err),
+      });
+  }
 
   prevPage() {
     if (!this.page) return;
@@ -200,6 +270,14 @@ loadPage(pageIndex: number) {
     if (this.page.ultima) return;
     this.loadPage(this.page.numeroPagina + 1);
   }
+
+  view(p: PlicometriaDto) {
+  this.selected = p;
+
+  // aggiorna il grafico subito
+  setTimeout(() => this.renderPieFromSelected(), 0);
+}
+
 
   // ===== FORM =====
   startCreate(openForm = true) {
@@ -368,16 +446,15 @@ loadPage(pageIndex: number) {
     const canvas = this.plicoPie?.nativeElement;
     if (!canvas) return;
 
-      if (this.chart && this.chart.canvas !== canvas) {
-    this.chart.destroy();
-    this.chart = undefined;
-  }
-
+    if (this.chart && this.chart.canvas !== canvas) {
+      this.chart.destroy();
+      this.chart = undefined;
+    }
 
     const mg = this.selected?.massaGrassaKg ?? 0;
     const mm = this.selected?.massaMagraKg ?? 0;
 
-    // ✅ dark mode come fai tu
+    // ✅ dark mode
     const legendColor = this.isDarkMode ? '#cbd5e1' : '#334155';
     const tooltipBg = this.isDarkMode ? '#0b1220' : '#ffffff';
     const tooltipText = this.isDarkMode ? '#e5e7eb' : '#0f172a';
@@ -390,8 +467,6 @@ loadPage(pageIndex: number) {
       datasets: [
         {
           data: [mg, mm],
-
-          // coerenti con la tua UI (rosso delete + verde primary)
           backgroundColor: [
             'rgba(239, 68, 68, 0.55)',
             'rgba(16, 185, 129, 0.55)',
@@ -450,7 +525,6 @@ loadPage(pageIndex: number) {
   }
 
   onBackdrop(ev: MouseEvent) {
-  if (ev.target === ev.currentTarget) this.cancelEdit();
-}
-
+    if (ev.target === ev.currentTarget) this.cancelEdit();
+  }
 }
