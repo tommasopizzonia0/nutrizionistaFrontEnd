@@ -1,209 +1,255 @@
-<div class="agenda-shell" [class.dark-mode]="(themeService.isDarkMode$ | async) ?? false"
-  [class.sidebar-collapsed]="sidebarService.value">
+<div class="agenda-shell">
 
-  <main class="main-content">
+  <div class="main-content">
 
     <div class="page-header">
       <div>
-        <h2 class="title">Agenda</h2>
-        <p class="subtitle">Crea o modifica appuntamenti con preview calendario.</p>
+        <h1 class="title">Agenda</h1>
+        <p class="subtitle">Gestisci appuntamenti e calendario</p>
       </div>
 
       <div class="top-actions">
-        <button class="btn btn-secondary" type="button" (click)="reset()">Reset</button>
-
-        @if (mode === 'edit') {
-        <button class="btn btn-danger" type="button" (click)="remove()">Elimina</button>
-        }
-
-        <button class="btn btn-primary" type="button" [disabled]="form.invalid" (click)="save()">
-          {{ mode === 'edit' ? 'Salva' : 'Crea' }}
+        <button class="btn btn-secondary" type="button" (click)="showOrariModal = true">
+          Orari studio
+        </button>
+        <button class="btn btn-secondary" type="button" (click)="reset()">
+          Reset form
         </button>
       </div>
     </div>
 
     <div class="split-grid">
 
-      <!-- SINISTRA: PREVIEW CALENDARIO -->
-      <section class="panel calendar-panel">
+      <!-- CALENDARIO -->
+      <div class="panel calendar-panel">
         <div class="panel-header">
           <h3>Calendario</h3>
-          <span class="hint">Seleziona uno slot per precompilare il form.</span>
+          <div class="hint">Trascina per spostare, trascina i bordi per ridimensionare</div>
         </div>
 
-        <div [class.dark-mode]="themeService.isDarkMode$ | async">
-          <calendario [availability]="calendarAvailability"></calendario>
-        </div>
-      </section>
+        <calendario [availability]="calendarAvailability"></calendario>
+      </div>
 
-      <!-- DESTRA: FORM -->
-      <section class="panel form-panel">
+      <!-- FORM -->
+      <div class="panel form-panel">
         <div class="panel-header">
-          <h3>{{ mode === 'edit' ? 'Modifica appuntamento' : 'Nuovo appuntamento' }}</h3>
+          <h3>{{ mode === 'create' ? 'Nuovo appuntamento' : 'Modifica appuntamento' }}</h3>
 
-          <div class="badges">
-            <span class="badge badge-status" [attr.data-status]="form.value.stato">
-              {{ form.value.stato }}
-            </span>
-            <span class="badge badge-mode" [attr.data-mode]="form.value.modalita">
-              {{ form.value.modalita }}
-            </span>
-          </div>
+          @if (mode === 'edit') {
+            <div class="badges">
+              <span class="badge badge-status" [attr.data-status]="form.get('stato')?.value">
+                {{ form.get('stato')?.value }}
+              </span>
+              <span class="badge badge-mode" [attr.data-mode]="form.get('modalita')?.value">
+                {{ form.get('modalita')?.value }}
+              </span>
+            </div>
+          }
         </div>
 
-        <form class="form-body" [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-body">
 
-          <div class="row2">
-            <div class="field">
-              <label>Data</label>
-              <input class="input" type="date" formControlName="data">
-            </div>
-
-            <div class="field">
-              <label>Ora</label>
-              <input class="input" type="time" formControlName="ora">
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Descrizione</label>
-            <input class="input" type="text" formControlName="descrizioneAppuntamento">
-          </div>
-
-          <div class="row2">
-            <div class="field">
-              <label>Modalità</label>
-              <select class="input" formControlName="modalita">
-                <option value="ONLINE">Online</option>
-                <option value="IN_PRESENZA">In presenza</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Stato</label>
-              <select class="input" formControlName="stato">
-                <option value="PROGRAMMATO">Da confermare</option>
-                <option value="CONFERMATO">Confermato</option>
-                <option value="ANNULLATO">Annullato</option>
-              </select>
-            </div>
-          </div>
-
-          @if (form.value.modalita === 'IN_PRESENZA') {
-          <div class="field">
-            <label>Luogo</label>
-            <input class="input" type="text" formControlName="luogo" placeholder="Es. Studio, Via...">
-          </div>
+          @if (error) {
+            <div class="alert alert-error">{{ error }}</div>
           }
 
-          <!-- ✅ RICERCA CLIENTE REGISTRATO -->
-          <div class="field">
-            <label>Cliente registrato (cerca per nome o cognome)</label>
+          @if (ok) {
+            <div class="alert alert-ok">{{ ok }}</div>
+          }
 
-            <div style="position: relative;">
-              <input class="input" type="text" formControlName="clienteSearch" placeholder="Es. Rossi"
-                (focus)="onSearchFocus()" (blur)="onSearchBlur()">
+          <form [formGroup]="form" (ngSubmit)="save()">
+
+            <div class="row2">
+              <div class="field">
+                <label for="data">Data</label>
+                <input id="data" class="input" type="date" formControlName="data" />
+              </div>
+
+              <div class="field">
+                <label for="ora">Ora</label>
+                <input id="ora" class="input" type="time" formControlName="ora" />
+              </div>
+            </div>
+
+            <!-- ✅ DURATA -->
+            <div class="field">
+              <label for="durataMinuti">Durata</label>
+              <select id="durataMinuti" class="input" formControlName="durataMinuti">
+                @for (d of durate; track d.value) {
+                  <option [ngValue]="d.value">{{ d.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="descrizioneAppuntamento">Descrizione</label>
+              <input id="descrizioneAppuntamento" class="input" type="text" formControlName="descrizioneAppuntamento" />
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="modalita">Modalità</label>
+                <select id="modalita" class="input" formControlName="modalita">
+                  <option value="ONLINE">ONLINE</option>
+                  <option value="IN_PRESENZA">IN_PRESENZA</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="stato">Stato</label>
+                <select id="stato" class="input" formControlName="stato">
+                  <option value="PROGRAMMATO">PROGRAMMATO</option>
+                  <option value="CONFERMATO">CONFERMATO</option>
+                  <option value="ANNULLATO">ANNULLATO</option>
+                </select>
+              </div>
+            </div>
+
+            @if (form.get('modalita')?.value === 'IN_PRESENZA') {
+              <div class="field">
+                <label for="luogo">Luogo</label>
+                <input id="luogo" class="input" type="text" formControlName="luogo" />
+              </div>
+            }
+
+            <!-- CLIENTE REGISTRATO: SEARCH -->
+            <div class="field" style="position: relative;">
+              <label for="clienteSearch">Cliente registrato</label>
+              <input
+                id="clienteSearch"
+                class="input"
+                type="text"
+                formControlName="clienteSearch"
+                placeholder="Cerca cliente..."
+                (focus)="onSearchFocus()"
+                (blur)="onSearchBlur()"
+              />
 
               @if (showClientDropdown) {
-              <div class="dropdown-results">
-                @for (c of clientResults; track c.id) {
-                <button type="button" class="dropdown-item" (click)="selectClient(c)">
-                  {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
+                <div class="dropdown-results">
+                  @for (c of clientResults; track c.id) {
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (mousedown)="selectClient(c)"
+                    >
+                      {{ c.nome }} {{ c.cognome }} ({{ formatDateIt(c.dataNascita) }})
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (form.get('clienteId')?.value) {
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  style="margin-top: 10px;"
+                  (click)="clearSelectedClient()"
+                >
+                  Rimuovi selezione cliente
                 </button>
-                }
-              </div>
               }
             </div>
 
-            @if (form.value.clienteId) {
-            <button type="button" class="btn btn-secondary" style="margin-top: 10px" (click)="clearSelectedClient()">
-              Usa cliente non registrato
-            </button>
+            <!-- CLIENTE GUEST -->
+            @if (!form.get('clienteId')?.value) {
+              <div class="row2">
+                <div class="field">
+                  <label for="clienteNome">Nome cliente</label>
+                  <input id="clienteNome" class="input" type="text" formControlName="clienteNome" />
+                </div>
+
+                <div class="field">
+                  <label for="clienteCognome">Cognome cliente</label>
+                  <input id="clienteCognome" class="input" type="text" formControlName="clienteCognome" />
+                </div>
+              </div>
             }
-          </div>
-
-          <!-- CAMPI GUEST -->
-          <div class="field">
-            <label>Email cliente</label>
-            <input class="input" type="email" formControlName="emailCliente" placeholder="cliente@email.com">
-          </div>
-
-          <div class="row2">
-            <div class="field">
-              <label>Nome</label>
-              <input class="input" type="text" formControlName="clienteNome">
-            </div>
 
             <div class="field">
-              <label>Cognome</label>
-              <input class="input" type="text" formControlName="clienteCognome">
+              <label for="emailCliente">Email cliente</label>
+              <input id="emailCliente" class="input" type="email" formControlName="emailCliente" />
             </div>
-          </div>
 
-          @if (error) {
-          <div class="alert alert-error">{{ error }}</div>
-          }
-          @if (ok) {
-          <div class="alert alert-ok">{{ ok }}</div>
-          }
+            <button class="sr-only" type="submit">Salva</button>
 
-          <button class="sr-only" type="submit"></button>
-        </form>
-      </section>
+            <div class="top-actions" style="margin-top: 12px;">
+              <button class="btn btn-primary" type="submit">
+                {{ mode === 'create' ? 'Crea' : 'Salva' }}
+              </button>
 
-    </div>
-  </main>
-</div>
+              <button class="btn btn-secondary" type="button" (click)="reset()">
+                Reset
+              </button>
 
-<!-- ✅ MODAL ORARI STUDIO -->
-@if (showOrariModal) {
-<div class="modal-backdrop">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Imposta gli orari dello studio</h3>
-      <p>Così il calendario mostrerà solo gli slot prenotabili.</p>
-    </div>
+              @if (mode === 'edit') {
+                <button class="btn btn-danger" type="button" (click)="delete()">
+                  Elimina
+                </button>
+              }
+            </div>
 
-    <form class="modal-body" [formGroup]="orariForm">
-      <div class="row2">
-        <div class="field">
-          <label>Apertura</label>
-          <input class="input" type="time" formControlName="oraApertura">
-        </div>
-
-        <div class="field">
-          <label>Chiusura</label>
-          <input class="input" type="time" formControlName="oraChiusura">
+          </form>
         </div>
       </div>
-
-      <div class="row2">
-        <div class="field">
-          <label>Pausa inizio (opzionale)</label>
-          <input class="input" type="time" formControlName="pausaInizio">
-        </div>
-
-        <div class="field">
-          <label>Pausa fine (opzionale)</label>
-          <input class="input" type="time" formControlName="pausaFine">
-        </div>
-      </div>
-
-      <label class="checkbox">
-        <input type="checkbox" formControlName="lavoraSabato">
-        Lavora il sabato
-      </label>
-
-      @if (error) {
-      <div class="alert alert-error">{{ error }}</div>
-      }
-    </form>
-
-    <div class="modal-actions">
-      <button class="btn btn-primary" type="button" (click)="saveOrari()" [disabled]="orariForm.invalid">
-        Salva orari
-      </button>
     </div>
   </div>
+
+  <!-- MODAL ORARI -->
+  @if (showOrariModal) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+
+        <div class="modal-header">
+          <h3>Imposta orari studio</h3>
+          <p>Servono per limitare gli slot disponibili nel calendario</p>
+        </div>
+
+        <div class="modal-body">
+          @if (error) {
+            <div class="alert alert-error">{{ error }}</div>
+          }
+
+          <form [formGroup]="orariForm" (ngSubmit)="saveOrari()">
+
+            <div class="row2">
+              <div class="field">
+                <label for="oraApertura">Ora apertura</label>
+                <input id="oraApertura" class="input" type="time" formControlName="oraApertura" />
+              </div>
+
+              <div class="field">
+                <label for="oraChiusura">Ora chiusura</label>
+                <input id="oraChiusura" class="input" type="time" formControlName="oraChiusura" />
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="pausaInizio">Pausa inizio</label>
+                <input id="pausaInizio" class="input" type="time" formControlName="pausaInizio" />
+              </div>
+
+              <div class="field">
+                <label for="pausaFine">Pausa fine</label>
+                <input id="pausaFine" class="input" type="time" formControlName="pausaFine" />
+              </div>
+            </div>
+
+            <div class="checkbox">
+              <input id="lavoraSabato" type="checkbox" formControlName="lavoraSabato" />
+              <label for="lavoraSabato">Lavora il sabato</label>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn btn-secondary" type="button" (click)="showOrariModal = false">Chiudi</button>
+              <button class="btn btn-primary" type="submit">Salva</button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  }
 </div>
-}
