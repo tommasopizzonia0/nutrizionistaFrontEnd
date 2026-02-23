@@ -28,7 +28,8 @@ import {
   faPlus,
   faRuler,
   faTrash,
-  faEye
+  faEye,
+  faExchangeAlt 
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -59,6 +60,7 @@ type PlicoSiteRow = {
   label: string;
   mm: number;  // valore in mm
   pct: number; // 0..100 per barra normalizzata
+  delta?: number | null; 
 };
 
 @Component({
@@ -84,6 +86,8 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
 
   // ultima misurazione mostrata nel grafico
   selected: PlicometriaDto | null = null;
+  // ✅ misurazione usata come termine di paragone
+  compareWith: PlicometriaDto | null = null;
 
   // Icone
   icCalendar = faCalendar;
@@ -94,6 +98,7 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
   icRuler = faRuler;
   icPlus = faPlus;
   icView = faEye;
+  icCompare = faExchangeAlt; 
 
   // paginazione
   numeroPagina = 0;
@@ -147,49 +152,57 @@ export class PlicometriaComponent implements OnInit, OnChanges, OnDestroy, After
   ];
 
   private readonly SITE_KEYS_BY_METODO: Record<MetodoValue, PlicoKey[]> = {
-  JACKSON_POLLOCK_3: ['pettorale', 'addominale', 'coscia'],
-  JACKSON_POLLOCK_7: ['pettorale', 'ascellare', 'tricipite', 'sottoscapolare', 'addominale', 'sovrailiaca', 'coscia'],
-  DURNIN_WOMERSLEY: ['tricipite', 'bicipite', 'sottoscapolare', 'sovrailiaca'],
-  PARILLO: [], // niente pliche
-  MISURAZIONE_LIBERA: [], // niente pliche (oppure metti tutti se vuoi manuale)
-};
+    JACKSON_POLLOCK_3: ['pettorale', 'addominale', 'coscia'],
+    JACKSON_POLLOCK_7: ['pettorale', 'ascellare', 'tricipite', 'sottoscapolare', 'addominale', 'sovrailiaca', 'coscia'],
+    DURNIN_WOMERSLEY: ['tricipite', 'bicipite', 'sottoscapolare', 'sovrailiaca'],
+    PARILLO: [], // niente pliche
+    MISURAZIONE_LIBERA: [], // niente pliche (oppure metti tutti se vuoi manuale)
+  };
 
-  /** ✅ getter pronto per template: righe con barra normalizzata */
-get siteRows(): PlicoSiteRow[] {
-  const s = this.selected as any;
-  if (!s) return [];
+  /** ✅ getter aggiornato: calcola delta mm rispetto a compareWith */
+  get siteRows(): PlicoSiteRow[] {
+    const s = this.selected as any;
+    const c = this.compareWith as any;
+    if (!s) return [];
 
-  const metodo = (s.metodo as MetodoValue) ?? null;
-  const allowed = metodo ? this.SITE_KEYS_BY_METODO[metodo] : [];
+    const metodo = (s.metodo as MetodoValue) ?? null;
+    const allowed = metodo ? this.SITE_KEYS_BY_METODO[metodo] : [];
 
-  if (!allowed?.length) return [];
+    if (!allowed?.length) return [];
 
-  const meta = this.SITE_META.filter(m => allowed.includes(m.key));
+    const meta = this.SITE_META.filter(m => allowed.includes(m.key));
 
-  const raw = meta
-    .map(m => {
-      const v = s[m.key];
-      if (v === null || v === undefined || v === '') return null;
-      const mm = Number(v);
-      if (!Number.isFinite(mm)) return null;
-      return { key: m.key, label: m.label, mm };
-    })
-    .filter((x): x is { key: PlicoKey; label: string; mm: number } => !!x);
+    const raw = meta
+      .map(m => {
+        const v = s[m.key];
+        if (v === null || v === undefined || v === '') return null;
+        const mm = Number(v);
+        if (!Number.isFinite(mm)) return null;
 
-  if (!raw.length) return [];
+        // ✅ Calcolo Delta
+        let delta = null;
+        if (c && c[m.key] != null) {
+          delta = mm - Number(c[m.key]);
+        }
 
-  const max = Math.max(...raw.map(r => r.mm), 1);
+        return { key: m.key, label: m.label, mm, delta };
+      })
+      .filter((x): x is { key: PlicoKey; label: string; mm: number; delta: number | null } => !!x);
 
-  return raw
-    .map(r => ({ ...r, pct: Math.round((r.mm / max) * 100) }))
-    .sort((a, b) => b.mm - a.mm);
-}
+    if (!raw.length) return [];
+
+    const max = Math.max(...raw.map(r => r.mm), 1);
+
+    return raw
+      .map(r => ({ ...r, pct: Math.round((r.mm / max) * 100) }))
+      .sort((a, b) => b.mm - a.mm);
+  }
 
 
   ngOnInit(): void {
     if (this.clienteId) {
       this.loadPage(0);
-      this.startCreate(false); // prepara valori ma NON apre il form
+      this.startCreate(false); 
     }
   }
 
@@ -208,7 +221,7 @@ get siteRows(): PlicoSiteRow[] {
       this.startCreate(false);
     }
 
-    // ✅ se cambia darkmode, aggiorna stile chart senza reload
+    
     if (changes['isDarkMode'] && !changes['isDarkMode'].firstChange) {
       setTimeout(() => this.renderPieFromSelected(), 0);
     }
@@ -253,10 +266,24 @@ get siteRows(): PlicoSiteRow[] {
           // ✅ seleziona ultima misurazione
           this.selected = res.contenuto?.[0] ?? null;
 
+          // ✅ Setta confronto automatico con la penultima (se esiste)
+          if (res.contenuto && res.contenuto.length > 1) {
+            this.compareWith = res.contenuto[1];
+          } else {
+            this.compareWith = null;
+          }
+
           this.cdr.markForCheck();
         },
         error: (err) => console.error(err),
       });
+  }
+
+  /** ✅ Cambia il target di confronto manuale dalla tabella */
+  setCompareTarget(p: PlicometriaDto) {
+    if (this.selected?.id === p.id) return;
+    this.compareWith = p;
+    this.cdr.markForCheck();
   }
 
   prevPage() {
@@ -272,11 +299,11 @@ get siteRows(): PlicoSiteRow[] {
   }
 
   view(p: PlicometriaDto) {
-  this.selected = p;
+    this.selected = p;
 
-  // aggiorna il grafico subito
-  setTimeout(() => this.renderPieFromSelected(), 0);
-}
+    // aggiorna il grafico subito
+    setTimeout(() => this.renderPieFromSelected(), 0);
+  }
 
 
   // ===== FORM =====
@@ -453,6 +480,12 @@ get siteRows(): PlicoSiteRow[] {
 
     const mg = this.selected?.massaGrassaKg ?? 0;
     const mm = this.selected?.massaMagraKg ?? 0;
+    const tot = mg + mm;
+
+    const pctMg = tot > 0 ? (mg / tot) * 100 : 0;
+    const pctMm = tot > 0 ? (mm / tot) * 100 : 0;
+
+
 
     // ✅ dark mode
     const legendColor = this.isDarkMode ? '#cbd5e1' : '#334155';
@@ -463,7 +496,10 @@ get siteRows(): PlicoSiteRow[] {
       : 'rgba(15,23,42,0.10)';
 
     const data = {
-      labels: ['Massa Grassa (kg)', 'Massa Magra (kg)'],
+      labels: [
+        `Massa Grassa (${pctMg.toFixed(1)}%)`,
+        `Massa Magra (${pctMm.toFixed(1)}%)`,
+      ],
       datasets: [
         {
           data: [mg, mm],
@@ -479,6 +515,7 @@ get siteRows(): PlicoSiteRow[] {
         },
       ],
     };
+
 
     const options: any = {
       responsive: true,
@@ -499,11 +536,14 @@ get siteRows(): PlicoSiteRow[] {
           borderWidth: 1,
           callbacks: {
             label: (ctx: any) => {
-              const v = ctx.parsed ?? 0;
-              return `${ctx.label}: ${Number(v).toFixed(1)} kg`;
+              const v = Number(ctx.parsed ?? 0);
+              const total = (ctx.dataset?.data ?? []).reduce((a: number, b: number) => a + Number(b || 0), 0);
+              const pct = total > 0 ? (v / total) * 100 : 0;
+              return `${ctx.label}: ${v.toFixed(1)} kg (${pct.toFixed(1)}%)`;
             },
           },
         },
+
       },
     };
 
@@ -526,5 +566,30 @@ get siteRows(): PlicoSiteRow[] {
 
   onBackdrop(ev: MouseEvent) {
     if (ev.target === ev.currentTarget) this.cancelEdit();
+  }
+
+  get mgPercent(): number {
+    const mg = this.selected?.massaGrassaKg ?? 0;
+    const mm = this.selected?.massaMagraKg ?? 0;
+    const tot = mg + mm;
+    return tot > 0 ? (mg / tot) * 100 : 0;
+  }
+
+  get mmPercent(): number {
+    const mg = this.selected?.massaGrassaKg ?? 0;
+    const mm = this.selected?.massaMagraKg ?? 0;
+    const tot = mg + mm;
+    return tot > 0 ? (mm / tot) * 100 : 0;
+  }
+
+  //  Getter per i Delta MG e MM in Kg
+  get mgDelta(): number | null {
+    if (!this.selected || !this.compareWith) return null;
+    return (this.selected.massaGrassaKg ?? 0) - (this.compareWith.massaGrassaKg ?? 0);
+  }
+
+  get mmDelta(): number | null {
+    if (!this.selected || !this.compareWith) return null;
+    return (this.selected.massaMagraKg ?? 0) - (this.compareWith.massaMagraKg ?? 0);
   }
 }

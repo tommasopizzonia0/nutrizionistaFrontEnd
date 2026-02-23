@@ -466,12 +466,22 @@
 }
 
 .chart-metrics {
-  margin-top: 10px;
-  display: grid;
-  gap: 6px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;               
   color: var(--text);
   font-weight: 850;
 }
+
+.chart-metrics > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.15;     
+}
+
+
 
 .dark-mode .chart-metrics {
   color: #fff;
@@ -480,8 +490,16 @@
 .chart-metrics .k {
   color: var(--muted);
   font-weight: 950;
-  margin-right: 6px;
+  margin-right: 4px;
+  font-size: .85rem;     
 }
+
+.chart-metrics {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
 
 .dark-mode .chart-metrics .k {
   color: #cbd5e1;
@@ -869,4 +887,105 @@
   outline: none;
   border-color: var(--green-primary);
   box-shadow: 0 0 0 3px rgba(16,185,129,.15);
+}
+.vs-label {
+  font-size: 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 5px;
+  color: var(--green-darker);
+}
+
+
+/* Pulsante Confronto */
+.btn-icon.compare:hover {
+  background: rgba(245, 158, 11, 0.12); /* Arancio soft */
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.btn-icon.compare.active-compare {
+  background: #f59e0b;
+  color: #fff;
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+tr.comparing td {
+  border-bottom: 2px dashed rgba(245, 158, 11, 0.3) !important;
+}
+
+.dark-mode .btn-icon.compare.active-compare {
+  background: #fbbf24;
+  color: #111;
+}
+
+
+.delta-small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 5px;
+  
+  &.neg { color: #10b981; }
+  &.pos { color: #ef4444; }
+}
+
+
+.vs-label {
+  color: #f59e0b;
+  font-weight: 600;
+  margin-left: 4px;
+  font-style: italic;
+}
+
+/* --- Responsive & Layout Tweaks --- */
+.chart-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(0,0,0,0.02);
+  border-radius: 8px;
+
+  .v {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+
+/* Badge generico per il Delta */
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* COLORE PER AUMENTO (ROSSO) */
+.delta-up {
+  color: #d32f2f !important;      /* Rosso scuro */
+  background-color: #ffebee !important; /* Sfondo rosa chiarissimo */
+  border: 1px solid #ffcdd2;
+}
+
+/* COLORE PER DIMINUZIONE (VERDE) */
+.delta-down {
+  color: #388e3c !important;      /* Verde scuro */
+  background-color: #e8f5e9 !important; /* Sfondo verde chiarissimo */
+  border: 1px solid #c8e6c9;
+}
+
+/* Anche per i millimetri nelle pliche */
+.delta-small {
+  margin-left: 6px;
+  font-weight: bold;
+  &.delta-up { color: #d32f2f !important; }
+  &.delta-down { color: #388e3c !important; }
 }
