@@ -23,10 +23,8 @@
   }
 
   @if (page.contenuto?.length) {
-
   <div class="plico-layout">
 
-    <!-- SINISTRA: TABELLA -->
     <div class="table-responsive">
       <table class="plicometria-table">
         <thead>
@@ -37,10 +35,9 @@
           </tr>
         </thead>
 
-
         <tbody>
           @for (p of page.contenuto; track p.id) {
-          <tr [class.active]="selected?.id === p.id">
+          <tr [class.active]="selected?.id === p.id" [class.comparing]="compareWith?.id === p.id">
             <td>
               <div class="data-info">
                 <fa-icon [icon]="icCalendar"></fa-icon>
@@ -54,6 +51,11 @@
 
             <td class="text-right">
               <div class="actions-group">
+                <button class="btn-icon compare" [class.active-compare]="compareWith?.id === p.id"
+                  (click)="setCompareTarget(p)" title="Usa per confronto">
+                  <fa-icon [icon]="icCompare"></fa-icon>
+                </button>
+
                 <button class="btn-icon view" (click)="view(p)" title="Visualizza">
                   <fa-icon [icon]="icView"></fa-icon>
                 </button>
@@ -69,7 +71,6 @@
           </tr>
           }
         </tbody>
-
       </table>
 
       @if (page.totalePagine > 1) {
@@ -85,13 +86,15 @@
       }
     </div>
 
-    <!-- DESTRA: GRAFICO -->
     <div class="chart-card">
       <div class="chart-header">
         <div class="chart-title">Composizione corporea</div>
         <div class="chart-sub">
           @if (selected?.dataMisurazione) {
           {{ selected?.dataMisurazione | date:'dd MMM yyyy' }}
+          @if (compareWith) {
+          <span class="vs-label"> vs {{ compareWith.dataMisurazione | date:'dd MMM yyyy' }}</span>
+          }
           } @else {
           Nessun dato
           }
@@ -104,12 +107,37 @@
 
       @if (selected) {
       <div class="chart-metrics">
-        <div><span class="k">MG:</span> <span class="v">{{ selected.massaGrassaKg | number:'1.1-1' }} kg</span></div>
-        <div><span class="k">MM:</span> <span class="v">{{ selected.massaMagraKg | number:'1.1-1' }} kg</span></div>
+        <div>
+          <span class="k">MG:</span>
+          <span class="v">
+            {{ selected.massaGrassaKg | number:'1.1-1' }} kg
+            @if (mgDelta; as dg) {
+            <span class="delta-badge" [class.delta-up]="dg > 0" [class.delta-down]="dg < 0">
+              {{ dg > 0 ? '+' : '' }}{{ dg | number:'1.1-1' }}
+            </span>
+            }
+            <small>({{ mgPercent | number:'1.1-1' }}%)</small>
+          </span>
+        </div>
+
+        <div>
+          <span class="k">MM:</span>
+          <span class="v">
+            {{ selected.massaMagraKg | number:'1.1-1' }} kg
+            @if (mmDelta; as dm) {
+            <span class="delta-badge" [class.delta-up]="dm > 0" [class.delta-down]="dm < 0">
+              {{ dm > 0 ? '+' : '' }}{{ dm | number:'1.1-1' }}
+            </span>
+            }
+            <small>({{ mmPercent | number:'1.1-1' }}%)</small>
+          </span>
+        </div>
       </div>
       }
     </div>
-    <div class="sites-card" *ngIf="selected && siteRows.length">
+
+    @if (selected && siteRows.length) {
+    <div class="sites-card">
       <div class="sites-head">
         <div class="sites-title">Misure per sito</div>
         <div class="sites-sub">
@@ -122,7 +150,14 @@
         <div class="site-row">
           <div class="site-top">
             <div class="site-label">{{ r.label }}</div>
-            <div class="site-mm">{{ r.mm | number:'1.0-0' }} <span>mm</span></div>
+            <div class="site-mm">
+              {{ r.mm | number:'1.0-0' }} <span>mm</span>
+              @if (r.delta; as ds) {
+              <span class="delta-small" [class.pos]="ds > 0" [class.neg]="ds < 0">
+                {{ ds > 0 ? '+' : '' }}{{ ds | number:'1.1-1' }}
+              </span>
+              }
+            </div>
           </div>
 
           <div class="site-bar">
@@ -132,27 +167,23 @@
         }
       </div>
     </div>
+    }
 
-    <!-- se vuoi gestire il caso “nessun dato” -->
-    <div class="sites-card" *ngIf="selected && !siteRows.length">
+    @if (selected && !siteRows.length) {
+    <div class="sites-card">
       <div class="sites-head">
         <div class="sites-title">Misure per sito</div>
         <div class="sites-sub">Nessuna plica inserita</div>
       </div>
     </div>
+    }
 
   </div>
   }
   }
 
-
-
-
-  <!-- OVERLAY MODAL -->
   @if (showForm) {
   <div class="overlay" (mousedown)="onBackdrop($event)">
-
-
     <div class="overlay-card" (click)="$event.stopPropagation()">
 
       <div class="overlay-head">
@@ -166,7 +197,6 @@
         </button>
       </div>
 
-      <!-- FORM -->
       <form [formGroup]="form" (ngSubmit)="save()">
         <div class="form-grid">
 
@@ -265,8 +295,6 @@
 
         </div>
       </form>
-
-
     </div>
   </div>
   }
