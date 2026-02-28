@@ -31,6 +31,7 @@ export class ListaAlternative {
   @Input() alternatives: (AlternativeProposal | null)[] = [];
   @Input() defaultMode: AlternativeMode = 'calorie';
   @Input() isDarkMode = false;
+  @Input() showMode: 'all' | 'search-only' | 'display-only' = 'all';
 
   @Output() alternativeSelected = new EventEmitter<{ alimento: AlimentoBaseDto; quantita: number; slot: number }>();
   @Output() alternativeRemoved = new EventEmitter<{ index: number; savedId?: number }>();
@@ -58,6 +59,7 @@ export class ListaAlternative {
   searchLoading = false;
   searchResults: AlimentoBaseDto[] = [];
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  openModeForIndex: number | null = null;
 
   get validAlternatives(): { index: number; alt: AlternativeProposal }[] {
     return this.alternatives
@@ -142,6 +144,16 @@ export class ListaAlternative {
 
   onModeChange(slot: number, mode: AlternativeMode): void {
     this.modeChanged.emit({ slot, mode });
+  }
+
+  toggleModeMenu(index: number): void {
+    this.openModeForIndex = this.openModeForIndex === index ? null : index;
+    this.cdr.detectChanges();
+  }
+
+  selectMode(index: number, mode: AlternativeMode): void {
+    this.onModeChange(index, mode);
+    this.openModeForIndex = null;
   }
 
   calcolaMacro(alt: AlternativeProposal, macro: MacroType): number {

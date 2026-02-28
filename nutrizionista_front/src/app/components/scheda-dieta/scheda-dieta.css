@@ -293,6 +293,10 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+.quick-stats-panel .chart-wrapper {
+  margin-bottom: 0.85rem;
+}
+
 .qs-row {
   display: flex;
   gap: 0.75rem;
@@ -530,7 +534,7 @@
   border-radius: 12px;
   background: var(--green-ultralight);
   border: 1px solid var(--green-lighter);
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.25s ease;
 }
 
@@ -1360,13 +1364,10 @@
 .unit {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--green-darker);
+  color: #94a3b8;
   margin-left: 4px;
 }
 
-.scheda-dieta-container.dark-mode .unit {
-  color: var(--green-light);
-}
 
 /* ====================== */
 /* TOTALI MACRO PASTO */
@@ -1950,6 +1951,7 @@
   width: 100%;
   padding: 10px 16px;
   margin-top: 12px;
+  margin-bottom: 12px;
   border-radius: 10px;
   border: 2px dashed rgba(16, 185, 129, 0.4);
   background: rgba(16, 185, 129, 0.06);
@@ -1987,7 +1989,7 @@
 .alimenti-table {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;
   margin-top: 8px;
 }
 
@@ -2092,7 +2094,7 @@
 }
 
 .alimenti-table-row .col-macro.p {
-  color: #6366f1;
+  color: #3b82f6;
 }
 
 .alimenti-table-row .col-macro.c {
@@ -2100,7 +2102,7 @@
 }
 
 .alimenti-table-row .col-macro.g {
-  color: #3b82f6;
+  color: #10b981;
 }
 
 .alimenti-table-row .col-macro.kcal {
@@ -2172,6 +2174,101 @@
 .scheda-dieta-container.dark-mode .btn-row-remove:hover {
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
+}
+
+/* Alternative toggle button */
+.btn-row-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-row-alt:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+
+.btn-row-alt.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+}
+
+.scheda-dieta-container.dark-mode .btn-row-alt {
+  color: #64748b;
+}
+
+.scheda-dieta-container.dark-mode .btn-row-alt:hover,
+.scheda-dieta-container.dark-mode .btn-row-alt.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+/* Expandable alternative panel below each food row */
+.alternative-expand-panel {
+  padding: 8px 12px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(99, 102, 241, 0.03);
+  animation: altPanelSlideIn 0.2s ease-out;
+}
+
+@keyframes altPanelSlideIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.scheda-dieta-container.dark-mode .alternative-expand-panel {
+  background: rgba(99, 102, 241, 0.06);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Alternative display section below macros */
+.alternative-display-section {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.alternative-display-header {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alternative-display-header strong {
+  color: #334155;
+}
+
+.scheda-dieta-container.dark-mode .alternative-display-section {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+.scheda-dieta-container.dark-mode .alternative-display-header {
+  color: #94a3b8;
+}
+
+.scheda-dieta-container.dark-mode .alternative-display-header strong {
+  color: #e2e8f0;
 }
 
 /* Inline rename */

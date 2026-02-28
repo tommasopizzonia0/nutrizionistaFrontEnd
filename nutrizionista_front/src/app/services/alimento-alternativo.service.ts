@@ -134,4 +134,12 @@ export class AlimentoAlternativoService {
     deleteForPasto(pastoId: number, alternativeId: number): Observable<void> {
         return this.http.delete<void>(`${this.legacyApiUrl}/pasto/${pastoId}/${alternativeId}`);
     }
+
+    // === BATCH PER-SCHEDA ===
+
+    listByScheda(schedaId: number): Observable<Record<number, AlimentoAlternativoDto[]>> {
+        return this.http.get<Record<number, AlimentoAlternativoDto[]>>(
+            `${this.legacyApiUrl}/scheda/${schedaId}`
+        );
+    }
 }

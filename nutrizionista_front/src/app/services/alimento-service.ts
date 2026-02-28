@@ -82,4 +82,12 @@ export class AlimentoService {
   getDettaglioMacro(id: number): Observable<AlimentoBaseDto> {
     return this.http.get<AlimentoBaseDto>(`${this.apiUrl}/${id}/macro`);
   }
+
+  /**
+   * Elenco globale delle categorie di alimenti (uniche).
+   * Usato per il filtro categorie del catalogo.
+   */
+  getCategorie(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/categorie`);
+  }
 }

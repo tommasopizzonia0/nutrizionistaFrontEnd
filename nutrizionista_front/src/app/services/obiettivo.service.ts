@@ -36,9 +36,22 @@ export class ObiettivoService {
         );
     }
 
-    delete(clienteId: number): Observable<void> {
+    getStorico(clienteId: number): Observable<ObiettivoNutrizionaleDto[]> {
+        return this.http.get<ObiettivoNutrizionaleDto[]>(
+            `${this.baseUrl}/${clienteId}/obiettivo/storico`
+        );
+    }
+
+    attiva(clienteId: number, obiettivoId: number): Observable<ObiettivoNutrizionaleDto> {
+        return this.http.put<ObiettivoNutrizionaleDto>(
+            `${this.baseUrl}/${clienteId}/obiettivo/${obiettivoId}/attiva`,
+            {}
+        );
+    }
+
+    deleteObiettivo(clienteId: number, obiettivoId: number): Observable<void> {
         return this.http.delete<void>(
-            `${this.baseUrl}/${clienteId}/obiettivo`
+            `${this.baseUrl}/${clienteId}/obiettivo/${obiettivoId}`
         );
     }
 }
