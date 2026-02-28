@@ -1,7 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CalendarEventDto, AppuntamentoFormDto, AppuntamentoDto } from '../dto/appuntamento.dto';
+
+import {
+  CalendarEventDto,
+  AppuntamentoFormDto,
+  AppuntamentoDto
+} from '../dto/appuntamento.dto';
+
 import { ClienteDropdownDto } from '../dto/cliente.dto';
 
 @Injectable({
@@ -12,6 +18,7 @@ export class AppuntamentiApiService {
 
   constructor(private http: HttpClient) { }
 
+  // FullCalendar range fetch
   getMyEvents(start: string, end: string): Observable<CalendarEventDto[]> {
     const params = new HttpParams().set('start', start).set('end', end);
     return this.http.get<CalendarEventDto[]>(`${this.baseUrl}/me`, { params });
@@ -33,16 +40,22 @@ export class AppuntamentiApiService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
+  // Drag/Drop + Resize
+  // startIso/endIso sono stringhe ISO generate da FullCalendar (startStr/endStr)
   move(id: number, startIso: string, endIso?: string | null): Observable<AppuntamentoDto> {
     let params = new HttpParams().set('start', startIso);
-    if (endIso) params = params.set('end', endIso);
+
+    // FullCalendar a volte passa endStr vuoto/null: in quel caso backend mantiene durata
+    if (endIso) {
+      params = params.set('end', endIso);
+    }
+
     return this.http.patch<AppuntamentoDto>(`${this.baseUrl}/${id}/move`, null, { params });
   }
 
-  getMyClientsDropdown(q: string) {
+  getMyClientsDropdown(q: string): Observable<ClienteDropdownDto[]> {
     return this.http.get<ClienteDropdownDto[]>(`${this.baseUrl}/me/clienti/dropdown`, {
       params: { q }
     });
   }
-
 }

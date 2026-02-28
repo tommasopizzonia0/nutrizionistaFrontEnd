@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 
-// Services
 import { ThemeService } from '../../services/theme.service';
 import { SidebarService } from '../../services/navbar.service';
 import { AgendaStateService } from '../../services/agenda-state.service';
@@ -12,11 +11,9 @@ import { AppuntamentiApiService } from '../../services/appuntamenti.service';
 import { CalendarRefreshService } from '../../services/calendar-refresh.service';
 import { OrariStudioApiService } from '../../services/orari-studio.service';
 
-// DTO
-import { AppuntamentoFormDto, OpenAgendaPayload } from '../../dto/appuntamento.dto';
+import { AppuntamentoFormDto, OpenAgendaPayload, AppuntamentoDto } from '../../dto/appuntamento.dto';
 import { OrariStudioDto, OrariStudioFormDto } from '../../dto/orari-studio.dto';
 
-// ✅ Reuse calendario
 import { CalendarioComponent } from '../calendario/calendario';
 
 type ClienteDropdown = {
@@ -28,21 +25,17 @@ type ClienteDropdown = {
 };
 
 type CalendarAvailability = {
-  slotMinTime: string;   // "09:00:00"
-  slotMaxTime: string;   // "19:00:00"
-  hiddenDays: number[];  // [0] o [0,6]
-  pausaInizio: string | null; // "13:00:00"
-  pausaFine: string | null;   // "14:00:00"
+  slotMinTime: string;
+  slotMaxTime: string;
+  hiddenDays: number[];
+  pausaInizio: string | null;
+  pausaFine: string | null;
 };
 
 @Component({
   selector: 'app-agenda',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    CalendarioComponent
-  ],
+  imports: [CommonModule, ReactiveFormsModule, CalendarioComponent],
   templateUrl: './agenda.html',
   styleUrls: ['./agenda.css']
 })
@@ -66,17 +59,23 @@ export class AgendaComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
   public sidebarService = inject(SidebarService);
 
-  // ✅ risultati ricerca clienti
   clientResults: ClienteDropdown[] = [];
   showClientDropdown = false;
 
-  // ✅ Modal orari
   showOrariModal = false;
   orari?: OrariStudioDto;
 
   calendarAvailability?: CalendarAvailability;
 
-  // ✅ Form orari studio (modal)
+  // ✅ durate selezionabili (minuti)
+  durate = [
+    { label: '30 minuti', value: 30 },
+    { label: '45 minuti', value: 45 },
+    { label: '1 ora', value: 60 },
+    { label: '1h 30m', value: 90 },
+    { label: '2 ore', value: 120 },
+  ];
+
   orariForm = this.fb.group({
     oraApertura: ['09:00', Validators.required],
     oraChiusura: ['19:00', Validators.required],
@@ -88,6 +87,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
   form = this.fb.group({
     data: ['', Validators.required],
     ora: ['', Validators.required],
+
+    // ✅ durata (minuti)
+    durataMinuti: [60, Validators.required],
+
     descrizioneAppuntamento: ['', Validators.required],
 
     modalita: ['ONLINE', Validators.required],
@@ -101,35 +104,27 @@ export class AgendaComponent implements OnInit, OnDestroy {
     clienteNome: ['', Validators.required],
     clienteCognome: ['', Validators.required],
 
-    // ✅ solo UI: ricerca cliente registrato
     clienteSearch: ['']
   });
 
   ngOnInit(): void {
-    // ✅ carica orari studio (se non esistono -> modal)
     this.loadOrariStudio();
 
-    // ascolta comandi da Calendario
     this.sub = this.agendaState.open$.subscribe((payload) => this.open(payload));
 
-    // ✅ validatori dinamici: se clienteId presente -> registrato, altrimenti guest
     this.form.get('clienteId')!.valueChanges.subscribe((id) => {
       if (id) this.setRegisteredValidators();
       else this.setGuestValidators();
     });
 
-    // all'avvio: guest
     this.setGuestValidators();
 
-    // ✅ ricerca clienti (debounce)
     this.form.get('clienteSearch')!.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((q) => {
         const query = (q ?? '').trim();
-        if (query.length < 2) {
-          return of([] as ClienteDropdown[]);
-        }
+        if (query.length < 2) return of([] as ClienteDropdown[]);
         return this.api.getMyClientsDropdown(query).pipe(
           catchError(() => of([] as ClienteDropdown[]))
         );
@@ -146,7 +141,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ Orari studio (modal)
+  // Orari studio
   // =========================
 
   private loadOrariStudio(): void {
@@ -154,7 +149,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: (dto) => {
         this.orari = dto;
 
-        // precompila form modal se vuoi “modificare” in futuro
         this.orariForm.patchValue({
           oraApertura: this.normalizeTime(dto.oraApertura) ?? '09:00',
           oraChiusura: this.normalizeTime(dto.oraChiusura) ?? '19:00',
@@ -168,9 +162,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: () => {
-        // se 404 o errore, chiedi setup
         this.showOrariModal = true;
-        // set default availability (così il calendario è comunque usabile)
         this.calendarAvailability = {
           slotMinTime: '08:00:00',
           slotMaxTime: '20:00:00',
@@ -203,7 +195,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
       lavoraSabato: !!v.lavoraSabato
     };
 
-    // mini-validazione FE su pausa (evita errori banali)
     if ((payload.pausaInizio && !payload.pausaFine) || (!payload.pausaInizio && payload.pausaFine)) {
       this.error = 'Inserisci sia inizio che fine pausa (oppure lascia entrambi vuoti).';
       this.cdr.detectChanges();
@@ -215,7 +206,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
         this.orari = dto;
         this.showOrariModal = false;
         this.applyOrariToCalendar(dto);
-        this.calendarRefresh.requestRefresh(); // ✅ ricarica eventi e pausa
+        this.calendarRefresh.requestRefresh();
         this.ok = 'Orari studio salvati';
         this.cdr.detectChanges();
       },
@@ -238,20 +229,68 @@ export class AgendaComponent implements OnInit, OnDestroy {
     const pausaInizio = this.normalizeTime(dto.pausaInizio ?? null);
     const pausaFine = this.normalizeTime(dto.pausaFine ?? null);
 
-    // Domenica sempre nascosta. Sabato nascosto se lavoraSabato=false.
     const hiddenDays = dto.lavoraSabato ? [0] : [0, 6];
 
     this.calendarAvailability = {
+      // slotMin/Max possono restare HH:mm:ss
       slotMinTime: `${apertura}:00`,
       slotMaxTime: `${chiusura}:00`,
       hiddenDays,
-      pausaInizio: pausaInizio ? `${pausaInizio}:00` : null,
-      pausaFine: pausaFine ? `${pausaFine}:00` : null
+
+      // ✅ pausa SOLO HH:mm
+      pausaInizio: pausaInizio ? pausaInizio : null,
+      pausaFine: pausaFine ? pausaFine : null
     };
   }
 
   // =========================
-  // ✅ Apertura form da calendario
+  // Durata -> endData/endOra
+  // =========================
+
+  private computeEnd(data: string, ora: string, durataMinuti: number): { endData: string; endOra: string } {
+    const [y, m, d] = data.split('-').map(Number);
+    const [hh, mm] = ora.split(':').map(Number);
+
+    const start = new Date(y, (m - 1), d, hh, mm, 0, 0);
+    const end = new Date(start.getTime() + durataMinuti * 60 * 1000);
+
+    const yyyy = end.getFullYear();
+    const mm2 = String(end.getMonth() + 1).padStart(2, '0');
+    const dd2 = String(end.getDate()).padStart(2, '0');
+
+    const hh2 = String(end.getHours()).padStart(2, '0');
+    const min2 = String(end.getMinutes()).padStart(2, '0');
+
+    return { endData: `${yyyy}-${mm2}-${dd2}`, endOra: `${hh2}:${min2}` };
+  }
+
+  private calcDurataFromDto(dto: any): number {
+    const startData = dto?.data;
+    const startOra = dto?.ora ? String(dto.ora).substring(0, 5) : '';
+
+    const endData = dto?.endData;
+    const endOra = dto?.endOra ? String(dto.endOra).substring(0, 5) : '';
+
+    let durata = 60;
+
+    if (startData && startOra && endData && endOra) {
+      const [sy, sm, sd] = startData.split('-').map(Number);
+      const [sh, smin] = startOra.split(':').map(Number);
+      const s = new Date(sy, sm - 1, sd, sh, smin, 0, 0);
+
+      const [ey, em, ed] = endData.split('-').map(Number);
+      const [eh, emin] = endOra.split(':').map(Number);
+      const e = new Date(ey, em - 1, ed, eh, emin, 0, 0);
+
+      const diff = Math.round((e.getTime() - s.getTime()) / 60000);
+      if (diff > 0) durata = diff;
+    }
+
+    return durata;
+  }
+
+  // =========================
+  // Open form
   // =========================
 
   private open(payload: OpenAgendaPayload): void {
@@ -263,12 +302,22 @@ export class AgendaComponent implements OnInit, OnDestroy {
       this.currentId = null;
 
       if (payload.dateIso) {
+        // ✅ locale (no UTC ISO conversion)
         const d = new Date(payload.dateIso);
-        const yyyyMmDd = d.toISOString().substring(0, 10);
-        const hhmm = d.toISOString().substring(11, 16);
-        this.form.patchValue({ data: yyyyMmDd, ora: hhmm });
+
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+
+        this.form.patchValue({ data: `${yyyy}-${mm}-${dd}`, ora: `${hh}:${min}` }, { emitEvent: false });
       }
 
+      this.form.patchValue({ durataMinuti: 60 }, { emitEvent: false });
+
+      this.setGuestValidators();
       this.cdr.detectChanges();
       return;
     }
@@ -278,14 +327,18 @@ export class AgendaComponent implements OnInit, OnDestroy {
     if (!this.currentId) return;
 
     this.api.getById(this.currentId).subscribe({
-      next: (dto) => {
+      next: (dto: AppuntamentoDto) => {
         const searchLabel = dto?.clienteId
           ? `${dto.clienteNome ?? ''} ${dto.clienteCognome ?? ''}`
           : '';
 
+        const durata = this.calcDurataFromDto(dto);
+
         this.form.patchValue({
           data: dto.data,
-          ora: dto.ora?.substring(0, 5),
+          ora: dto.ora ? dto.ora.substring(0, 5) : '',
+          durataMinuti: durata,
+
           descrizioneAppuntamento: dto.descrizioneAppuntamento,
 
           modalita: dto.modalita as any,
@@ -298,7 +351,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
           clienteNome: dto.clienteNome ?? '',
           clienteCognome: dto.clienteCognome ?? '',
           clienteSearch: searchLabel
-        });
+        }, { emitEvent: false });
 
         if (dto.clienteId) this.setRegisteredValidators();
         else this.setGuestValidators();
@@ -313,7 +366,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ Dropdown clienti
+  // Client dropdown
   // =========================
 
   selectClient(c: ClienteDropdown): void {
@@ -323,7 +376,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       clienteCognome: c.cognome,
       emailCliente: c.email,
       clienteSearch: `${c.nome} ${c.cognome} (${this.formatDateIt(c.dataNascita)})`
-    });
+    }, { emitEvent: false });
 
     this.showClientDropdown = false;
     this.clientResults = [];
@@ -337,7 +390,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       clienteCognome: '',
       emailCliente: '',
       clienteSearch: ''
-    });
+    }, { emitEvent: false });
 
     this.setGuestValidators();
 
@@ -364,7 +417,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ Validators dinamici
+  // Validators
   // =========================
 
   private setGuestValidators(): void {
@@ -404,7 +457,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ CRUD
+  // CRUD
   // =========================
 
   save(): void {
@@ -413,14 +466,25 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
     if (this.form.invalid) {
       this.error = 'Compila correttamente tutti i campi obbligatori.';
+      this.cdr.detectChanges();
       return;
     }
 
     const v: any = this.form.getRawValue();
 
+    const durataMinuti = Number(v.durataMinuti ?? 60);
+    const end = this.computeEnd(v.data, v.ora, durataMinuti);
+
     const payload: AppuntamentoFormDto = {
       data: v.data,
       ora: v.ora,
+
+      endData: end.endData,
+      endOra: end.endOra,
+
+      timezone: 'Europe/Rome',
+      allDay: false,
+
       descrizioneAppuntamento: v.descrizioneAppuntamento,
       modalita: v.modalita,
       stato: v.stato,
@@ -463,7 +527,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     });
   }
 
-  remove(): void {
+  delete(): void {
     if (!this.currentId) return;
 
     this.error = '';
@@ -492,6 +556,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.form.reset({
       data: '',
       ora: '',
+      durataMinuti: 60,
       descrizioneAppuntamento: '',
       modalita: 'ONLINE',
       stato: 'PROGRAMMATO',

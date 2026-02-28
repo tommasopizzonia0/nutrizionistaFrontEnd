@@ -22,11 +22,13 @@ import { AgendaStateService } from '../../services/agenda-state.service';
 import { CalendarRefreshService } from '../../services/calendar-refresh.service';
 
 type CalendarAvailability = {
-  slotMinTime: string;
-  slotMaxTime: string;
+  slotMinTime: string;   // OK anche "08:00:00"
+  slotMaxTime: string;   // OK anche "20:00:00"
   hiddenDays: number[];
-  pausaInizio: string | null;
-  pausaFine: string | null;
+
+  // ✅ pausa in "HH:mm" (NO secondi) per compatibilità FullCalendar bg events ricorrenti
+  pausaInizio: string | null; // "13:00"
+  pausaFine: string | null;   // "14:00"
 };
 
 @Component({
@@ -47,6 +49,12 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
   private calendarRefresh = inject(CalendarRefreshService);
 
   private sub?: Subscription;
+
+  private readonly colorMap: Record<string, { bg: string; border: string; text: string }> = {
+    PROGRAMMATO: { bg: '#f59e0b', border: '#d97706', text: '#111827' },
+    CONFERMATO: { bg: '#22c55e', border: '#16a34a', text: '#052e16' },
+    ANNULLATO: { bg: '#ef4444', border: '#dc2626', text: '#450a0a' },
+  };
 
   constructor() {
     this.sub = this.calendarRefresh.refresh$.subscribe(() => {
@@ -78,13 +86,17 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
   private buildLunchBreakBackgroundEvent(a?: CalendarAvailability) {
     if (!a?.pausaInizio || !a?.pausaFine) return null;
 
+    // ✅ IMPORTANTISSIMO: startTime/endTime in "HH:mm" (NO secondi)
+    const startTime = a.pausaInizio.substring(0, 5);
+    const endTime = a.pausaFine.substring(0, 5);
+
     const workingDays = a.hiddenDays.includes(6) ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6];
 
     return {
       id: 'lunch-break',
       daysOfWeek: workingDays,
-      startTime: a.pausaInizio,
-      endTime: a.pausaFine,
+      startTime,
+      endTime,
       display: 'background',
       classNames: ['lunch-break-strip'],
       editable: false,
@@ -92,10 +104,30 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     };
   }
 
-  private isInLunchBreak(date: Date, a?: CalendarAvailability): boolean {
+  private parseTimeToMinutes(hhmm: string): number {
+    const parts = hhmm.split(':');
+    const h = Number(parts[0] ?? 0);
+    const m = Number(parts[1] ?? 0);
+    return (h * 60) + m;
+  }
+
+  private overlapsLunch(start: Date, end: Date, a?: CalendarAvailability): boolean {
     if (!a?.pausaInizio || !a?.pausaFine) return false;
-    const t = date.toTimeString().substring(0, 8);
-    return t >= a.pausaInizio && t < a.pausaFine;
+
+    const sameDay =
+      start.getFullYear() === end.getFullYear() &&
+      start.getMonth() === end.getMonth() &&
+      start.getDate() === end.getDate();
+
+    if (!sameDay) return false;
+
+    const sMin = start.getHours() * 60 + start.getMinutes();
+    const eMin = end.getHours() * 60 + end.getMinutes();
+
+    const lStart = this.parseTimeToMinutes(a.pausaInizio.substring(0, 5));
+    const lEnd = this.parseTimeToMinutes(a.pausaFine.substring(0, 5));
+
+    return sMin < lEnd && eMin > lStart;
   }
 
   calendarOptions: CalendarOptions = {
@@ -127,9 +159,13 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
 
-    selectAllow: (selectInfo) => !this.isInLunchBreak(selectInfo.start, this.availability),
+    // ✅ blocca selezioni che attraversano la pausa
+    selectAllow: (selectInfo: any) => {
+      const start: Date = selectInfo.start;
+      const end: Date = selectInfo.end;
+      return !this.overlapsLunch(start, end, this.availability);
+    },
 
-    // ✅ icona watermark nella fascia (background event)
     eventDidMount: (info) => {
       if (info.event.id !== 'lunch-break') return;
 
@@ -152,14 +188,7 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
         next: (events: any[]) => {
           const mapped = events.map(e => {
             const stato = e?.extendedProps?.stato ?? e?.stato ?? null;
-
-            const colorMap: Record<string, { bg: string; border: string; text: string }> = {
-              PROGRAMMATO: { bg: '#f59e0b', border: '#d97706', text: '#111827' },
-              CONFERMATO: { bg: '#22c55e', border: '#16a34a', text: '#052e16' },
-              ANNULLATO: { bg: '#ef4444', border: '#dc2626', text: '#450a0a' },
-            };
-
-            const c = stato && colorMap[stato] ? colorMap[stato] : null;
+            const c = stato && this.colorMap[stato] ? this.colorMap[stato] : null;
 
             return {
               ...e,
@@ -171,8 +200,8 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
             };
           });
 
-          const lunch = this.buildLunchBreakBackgroundEvent(this.availability);
-          successCallback((lunch ? [...mapped, lunch] : mapped) as any);
+          const lunchEvents = this.buildLunchBreakEventsForRange(info.start, info.end, this.availability);
+          successCallback([...mapped, ...lunchEvents] as any);
         },
         error: (err) => failureCallback(err)
       });
@@ -184,7 +213,6 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
     },
 
     select: (arg: DateSelectArg) => {
-      if (this.isInLunchBreak(arg.start, this.availability)) return;
       this.agendaState.openCreate(arg.startStr);
     },
 
@@ -194,8 +222,15 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       const endStr = arg.event.endStr ?? null;
       if (!startStr) return;
 
+      const start = arg.event.start!;
+      const end = (arg.event.end ?? null) as any;
+      if (end && this.overlapsLunch(start, end, this.availability)) {
+        arg.revert();
+        return;
+      }
+
       this.api.move(id, startStr, endStr).subscribe({
-        next: () => { },
+        next: () => this.calendarRefresh.requestRefresh(),
         error: () => arg.revert()
       });
     },
@@ -206,10 +241,70 @@ export class CalendarioComponent implements AfterViewInit, OnDestroy {
       const endStr = arg.event.endStr ?? null;
       if (!startStr) return;
 
+      const start = arg.event.start!;
+      const end = arg.event.end!;
+      if (end && this.overlapsLunch(start, end, this.availability)) {
+        arg.revert?.();
+        return;
+      }
+
       this.api.move(id, startStr, endStr).subscribe({
-        next: () => { },
+        next: () => this.calendarRefresh.requestRefresh(),
         error: () => arg.revert?.()
       });
     }
   };
+
+  private pad2(n: number): string {
+    return String(n).padStart(2, '0');
+  }
+
+  private toYmd(d: Date): string {
+    const yyyy = d.getFullYear();
+    const mm = this.pad2(d.getMonth() + 1);
+    const dd = this.pad2(d.getDate());
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  private addDays(d: Date, days: number): Date {
+    const x = new Date(d.getTime());
+    x.setDate(x.getDate() + days);
+    return x;
+  }
+
+  private buildLunchBreakEventsForRange(rangeStart: Date, rangeEnd: Date, a?: any): any[] {
+    if (!a?.pausaInizio || !a?.pausaFine) return [];
+
+    const pausaInizio = String(a.pausaInizio).substring(0, 5); // "HH:mm"
+    const pausaFine = String(a.pausaFine).substring(0, 5);     // "HH:mm"
+
+    const out: any[] = [];
+
+    // FullCalendar rangeEnd è tipicamente esclusivo
+    let d = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate(), 0, 0, 0, 0);
+    const endDay = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate(), 0, 0, 0, 0);
+
+    while (d < endDay) {
+      const dow = d.getDay(); // 0 dom ... 6 sab
+
+      // hiddenDays: se contiene quel giorno, skip
+      if (!a.hiddenDays?.includes(dow)) {
+        const ymd = this.toYmd(d);
+
+        out.push({
+          id: `lunch-${ymd}`,
+          start: `${ymd}T${pausaInizio}:00`,
+          end: `${ymd}T${pausaFine}:00`,
+          display: 'background',
+          classNames: ['lunch-break-strip'],
+          editable: false,
+          overlap: false
+        });
+      }
+
+      d = this.addDays(d, 1);
+    }
+
+    return out;
+  }
 }
