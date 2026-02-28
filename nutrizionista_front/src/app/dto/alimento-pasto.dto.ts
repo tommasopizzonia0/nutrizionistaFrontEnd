@@ -1,4 +1,5 @@
 import { AlimentoBaseDto } from "./alimento-base.dto";
+import { AlimentoAlternativoDto } from "./alimento-alternativo.dto";
 import { PastoDto } from "./pasto.dto";
 
 // PER LETTURA (Output dal server)
@@ -9,6 +10,7 @@ export interface AlimentoPastoDto {
     quantita: number;
     nomeCustom?: string | null;
     nomeVisualizzato?: string | null;
+    alternative?: AlimentoAlternativoDto[];
 }
 
 // PER SCRITTURA (Input verso il server - Create/Update)

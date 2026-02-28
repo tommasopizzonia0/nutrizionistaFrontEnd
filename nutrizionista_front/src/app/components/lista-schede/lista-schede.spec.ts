@@ -61,7 +61,7 @@ describe('ListaSchede', () => {
   });
 
   it('salva nome valido e aggiorna lista', async () => {
-    const scheda: any = { id: 1, dataCreazione: '2026-02-08', nome: 'Vecchio', cliente: { id: 1 }, attiva: false, pasti: [{}, {}, {}] };
+    const scheda: any = { id: 1, dataCreazione: '2026-02-08', nome: 'Vecchio', cliente: { id: 1 }, attiva: false, numeroPasti: 3 };
     component.schede = [scheda];
     const emitSpy = vi.spyOn(component.schedaRenamed as any, 'emit');
     component.startRename(scheda, new MouseEvent('dblclick'));
@@ -69,7 +69,7 @@ describe('ListaSchede', () => {
     component.confirmRename(scheda, new KeyboardEvent('keydown', { key: 'Enter' }));
     await fixture.whenStable();
     expect(component.schede[0].nome).toBe('Nuovo Nome');
-    expect(component.schede[0].pasti?.length).toBe(3);
+    expect(component.schede[0].numeroPasti).toBe(3);
     expect(emitSpy).toHaveBeenCalled();
   });
 });

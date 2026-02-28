@@ -19,17 +19,17 @@
         </div>
     </div>
 
-    <!-- Feature 9: Category filter chips -->
+    <!-- Feature 9: Category filter select -->
     @if (categorie.length > 0) {
     <div class="categoria-filter">
-        <button class="cat-chip" [class.active]="!categoriaFiltro" (click)="categoriaFiltro = ''">
-            Tutti
-        </button>
-        @for (cat of categorie; track cat) {
-        <button class="cat-chip" [class.active]="categoriaFiltro === cat" (click)="categoriaFiltro = cat">
-            {{ cat }}
-        </button>
-        }
+        <label for="categoriaSelect" class="categoria-label">Categoria</label>
+        <select id="categoriaSelect" class="categoria-select"
+            [ngModel]="categoriaFiltro" (ngModelChange)="onCategoriaChange($event)">
+            <option [ngValue]="''">Tutti</option>
+            @for (cat of categorie; track cat) {
+            <option [ngValue]="cat">{{ cat }}</option>
+            }
+        </select>
     </div>
     }
 

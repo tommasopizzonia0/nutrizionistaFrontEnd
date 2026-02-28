@@ -240,7 +240,7 @@
 }
 
 .macro-input {
-    width: 65px;
+    width: 60px;
     padding: 4px 6px;
     border-radius: 6px;
     border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
@@ -251,7 +251,7 @@
 }
 
 .pct-input {
-    width: 60px;
+    width: 52px;
     padding: 4px 6px;
     border-radius: 6px;
     border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
@@ -406,4 +406,454 @@
 
 .progress-pct.bar-over {
     color: #ef4444;
+}
+
+.obiettivo-panel {
+    width: 100%;
+    max-width: 100%;
+}
+
+.obiettivo-panel .panel-header,
+.obiettivo-panel .panel-body,
+.obiettivo-panel .form-section,
+.obiettivo-panel .progress-row {
+    min-width: 0;
+}
+
+.obiettivo-panel.dark-mode .panel-title {
+    color: #e2e8f0 !important;
+}
+
+.obiettivo-panel.dark-mode .panel-header {
+    color: #e2e8f0 !important;
+}
+
+.obiettivo-panel.dark-mode,
+.obiettivo-panel.dark-mode .panel-body {
+    color: #e2e8f0;
+}
+
+.obiettivo-panel.dark-mode label,
+.obiettivo-panel.dark-mode .section-label,
+.obiettivo-panel.dark-mode .progress-label,
+.obiettivo-panel.dark-mode .progress-label span {
+    color: #e2e8f0 !important;
+}
+
+.obiettivo-panel.dark-mode .unit {
+    color: #94a3b8 !important;
+}
+
+.obiettivo-panel.dark-mode input,
+.obiettivo-panel.dark-mode select,
+.obiettivo-panel.dark-mode textarea {
+    color: #e2e8f0 !important;
+    background: var(--input-bg-dark, #2a2a3e);
+    border-color: var(--border-dark, rgba(255, 255, 255, 0.12));
+}
+
+.obiettivo-panel.dark-mode input::placeholder,
+.obiettivo-panel.dark-mode textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+.obiettivo-panel.dark-mode select option {
+    color: #e2e8f0;
+    background: #2a2a3e;
+}
+
+/* === Lock Button === */
+.btn-lock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+    background: transparent;
+    color: var(--text-muted, #94a3b8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-left: -10px;
+}
+
+.btn-lock:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.btn-lock.active {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+}
+
+.dark-mode .btn-lock {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #64748b;
+}
+
+.dark-mode .btn-lock:hover,
+.dark-mode .btn-lock.active {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.15);
+}
+
+/* Locked percentage input */
+.pct-input.locked {
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    background: rgba(245, 158, 11, 0.06) !important;
+}
+
+.dark-mode .pct-input.locked {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    background: rgba(251, 191, 36, 0.1) !important;
+}
+
+/* === Delta Badge === */
+.delta-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: auto;
+    white-space: nowrap;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.delta-badge.over {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.delta-badge.under {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.dark-mode .delta-badge {
+    background: rgba(16, 185, 129, 0.18);
+}
+
+.dark-mode .delta-badge.over {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+}
+
+.dark-mode .delta-badge.under {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+}
+
+/* === g/kg metric rows === */
+.gperkg-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-left: 100px;
+    margin-top: -2px;
+    margin-bottom: 4px;
+}
+
+.gperkg-input {
+    width: 50px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px dashed var(--border, rgba(0, 0, 0, 0.15));
+    background: transparent;
+    color: var(--text-muted, #64748b);
+    font-size: 0.72rem;
+    text-align: right;
+}
+
+.gperkg-input:focus {
+    border-style: solid;
+    border-color: #8b5cf6;
+    color: var(--text, #1e293b);
+    outline: none;
+}
+
+.dark-mode .gperkg-input {
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+}
+
+.dark-mode .gperkg-input:focus {
+    border-color: #a78bfa;
+    color: #e2e8f0;
+}
+
+.gperkg-label {
+    font-size: 0.68rem;
+    color: var(--text-muted, #94a3b8);
+    font-style: italic;
+}
+
+.dark-mode .gperkg-label {
+    color: #64748b;
+}
+
+/* === Clinical Alerts === */
+.clinical-alert {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.clinical-alert.alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #b45309;
+    border-left: 3px solid #f59e0b;
+}
+
+.clinical-alert.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+    border-left: 3px solid #ef4444;
+}
+
+.dark-mode .clinical-alert.alert-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+.dark-mode .clinical-alert.alert-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* === Pct Validation Warning === */
+.pct-warning {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(245, 158, 11, 0.1);
+    color: #b45309;
+    margin-top: 4px;
+}
+
+.dark-mode .pct-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+
+
+.macro-input.locked {
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    background: rgba(245, 158, 11, 0.06) !important;
+}
+
+.dark-mode .macro-input.locked {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    background: rgba(251, 191, 36, 0.1) !important;
+}
+
+.gperkg-input.locked {
+    border-color: rgba(245, 158, 11, 0.5) !important;
+    background: rgba(245, 158, 11, 0.06) !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.dark-mode .gperkg-input.locked {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    background: rgba(251, 191, 36, 0.1) !important;
+}
+
+/* === Preset Section === */
+.preset-section {
+    background: rgba(139, 92, 246, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+
+.preset-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.preset-star {
+    color: #f59e0b;
+    font-size: 0.8rem;
+}
+
+.preset-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-add-preset {
+    background: none;
+    border: 1px dashed rgba(139, 92, 246, 0.3);
+    color: #8b5cf6;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-add-preset:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: #8b5cf6;
+}
+
+.preset-form {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.preset-name-input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.preset-name-input:focus {
+    border-color: #8b5cf6;
+}
+
+.btn-save-preset {
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-save-preset:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.preset-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.75rem;
+}
+
+.preset-chip:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: #8b5cf6;
+    transform: translateY(-1px);
+}
+
+.preset-chip-name {
+    font-weight: 500;
+    color: #6d28d9;
+}
+
+.preset-chip-delete {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.65rem;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.preset-chip:hover .preset-chip-delete {
+    opacity: 1;
+}
+
+.preset-chip-delete:hover {
+    color: #ef4444;
+}
+
+.btn-save-as-preset-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1px dashed rgba(139, 92, 246, 0.25);
+    color: #8b5cf6;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 6px;
+}
+
+.btn-save-as-preset-inline:hover {
+    background: rgba(139, 92, 246, 0.06);
+    border-color: #8b5cf6;
+}
+
+/* Preset dark mode */
+.dark-mode .preset-section {
+    background: rgba(139, 92, 246, 0.06);
+    border-color: rgba(139, 92, 246, 0.15);
+}
+
+.dark-mode .preset-title {
+    color: #9ca3af;
+}
+
+.dark-mode .preset-name-input {
+    background: #1f2937;
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #e5e7eb;
+}
+
+.dark-mode .preset-chip {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.25);
+}
+
+.dark-mode .preset-chip-name {
+    color: #a78bfa;
+}
+
+.dark-mode .btn-save-as-preset-inline {
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #a78bfa;
+}
+
+.dark-mode .btn-save-as-preset-inline:hover {
+    background: rgba(139, 92, 246, 0.08);
 }

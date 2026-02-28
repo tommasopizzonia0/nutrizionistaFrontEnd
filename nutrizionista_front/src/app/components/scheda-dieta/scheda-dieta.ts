@@ -34,12 +34,12 @@ import { AlimentoAlternativoDto, AlimentoAlternativoUpsertDto, AlternativeModeDt
 import { AlimentoDaEvitareDto } from '../../dto/alimento-da-evitare.dto';
 import { CatalogoAlimenti } from '../catalogo-alimenti/catalogo-alimenti';
 import { CalcoloMacro } from '../calcolo-macro/calcolo-macro';
-import { AlimentoAggiunto } from '../alimento-aggiunto/alimento-aggiunto';
 import { ListaAlternative } from '../lista-alternative/lista-alternative';
 import { ModalAlimento } from '../modal-alimento/modal-alimento';
 import { ObiettivoNutrizionale } from '../obiettivo-nutrizionale/obiettivo-nutrizionale';
 import { ModalDatiMancanti } from '../modal-dati-mancanti/modal-dati-mancanti';
 import { Chart } from 'chart.js/auto';
+import { ThemeService } from '../../services/theme.service';
 
 type MacroType = 'proteine' | 'carboidrati' | 'grassi' | 'calorie';
 type AlternativeMode = MacroType;
@@ -58,7 +58,7 @@ type AlternativeEntry = { index: number; alt: AlternativeProposal };
 @Component({
   selector: 'app-scheda-dieta',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule, CatalogoAlimenti, CalcoloMacro, AlimentoAggiunto, ListaAlternative, ModalAlimento, ObiettivoNutrizionale, ModalDatiMancanti],
+  imports: [CommonModule, FormsModule, FontAwesomeModule, CatalogoAlimenti, CalcoloMacro, ListaAlternative, ModalAlimento, ObiettivoNutrizionale, ModalDatiMancanti],
   templateUrl: './scheda-dieta.html',
   styleUrls: ['./scheda-dieta.css']
 })
@@ -80,6 +80,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   private alimentoService = inject(AlimentoService);
   private alternativoService = inject(AlimentoAlternativoService);
   private alimentoDaEvitareService = inject(AlimentoDaEvitareService);
+  private themeService = inject(ThemeService);
 
   loading = false;
   saving = false;
@@ -141,6 +142,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   alternativeByPastoId: Record<number, (AlternativeProposal | null)[]> = {};
   alternativeUi: Record<string, { editing: boolean; query: string; loading: boolean; results: AlimentoBaseDto[] }> = {};
   private alternativeSearchTimers: Record<string, number> = {};
+  expandedAlternativeAlimentoIds: Set<number> = new Set();
 
   // === DEBOUNCE SYSTEM ===
   hasPendingChanges = false;
@@ -183,8 +185,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
             const key = `${req.pasto.id}_${req.alimento.id}`;
             this.pendingAlimentoUpdates.delete(key);
             this.updatePendingState();
-            const alimentoPastoId = this.alimentoPastoIdByKey.get(key);
-            if (alimentoPastoId) this.loadAlternativesFromBackend(alimentoPastoId);
           }),
           catchError(err => {
             console.error('Errore aggiornamento quantità alimento:', err);
@@ -214,6 +214,14 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
           })
         ))
       ).subscribe()
+    );
+
+    this.subscriptions.push(
+      this.themeService.isDarkMode$.subscribe(isDark => {
+        this.isDarkMode = isDark;
+        this.updateMacroChartFromPasti();
+        this.cdr.detectChanges();
+      })
     );
   }
 
@@ -867,21 +875,17 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       forzaInserimento: forzaInserimento
     };
 
-    this.loading = true;
-    this.cdr.detectChanges();
-
     this.alimentoPastoService.associa(req).subscribe({
       next: (pastoAggiornato) => {
-        const index = this.pasti.findIndex(p => p.id === pasto.id);
-        if (index !== -1) this.pasti = this.pasti.map((p, i) => i === index ? pastoAggiornato : p);
+        // Mutazione locale: aggiorna solo alimentiPasto senza sostituire l'intero array
+        const target = this.pasti.find(p => p.id === pasto.id);
+        if (target) target.alimentiPasto = pastoAggiornato.alimentiPasto;
         this.syncAlternativeState();
         this.updateMacroChartFromPasti();
         this.showSuccess(`${alimento.nome} aggiunto!`);
-        this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.loading = false;
         const errorMsg = err.error?.message || err.error?.error || err.message || 'Errore generico';
         if (errorMsg.includes('WARNING_RESTRIZIONE')) {
           if (confirm(errorMsg + "\nVuoi procedere comunque?")) {
@@ -899,8 +903,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     if (!confirm('Rimuovere questo alimento?')) return;
     this.alimentoPastoService.remove(pasto.id, alimentoId).subscribe({
       next: (pastoAggiornato) => {
-        const index = this.pasti.findIndex(p => p.id === pasto.id);
-        if (index !== -1) this.pasti = this.pasti.map((p, i) => i === index ? pastoAggiornato : p);
+        // Mutazione locale: aggiorna solo alimentiPasto senza sostituire l'intero array
+        const target = this.pasti.find(p => p.id === pasto.id);
+        if (target) target.alimentiPasto = pastoAggiornato.alimentiPasto;
         this.syncAlternativeState();
         this.updateMacroChartFromPasti();
         this.cdr.detectChanges();
@@ -1089,12 +1094,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         },
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              color: textColor,
-              boxWidth: 14,
-              boxHeight: 14
-            }
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -1193,12 +1193,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         },
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              color: textColor,
-              boxWidth: 14,
-              boxHeight: 14
-            }
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -1229,9 +1224,14 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
 
   private syncAlternativeState(): void {
     const presentIds = new Set<number>();
+    // Mappa alimentoPastoId -> AlimentoPastoDto per accesso rapido ai dati pre-caricati
+    const apById = new Map<number, import('../../dto/alimento-pasto.dto').AlimentoPastoDto>();
     for (const pasto of this.pasti) {
       for (const ap of (pasto.alimentiPasto || [])) {
-        if (typeof ap?.id === 'number' && ap.id > 0) presentIds.add(ap.id);
+        if (typeof ap?.id === 'number' && ap.id > 0) {
+          presentIds.add(ap.id);
+          apById.set(ap.id, ap);
+        }
       }
     }
 
@@ -1246,24 +1246,35 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     }
 
     for (const id of presentIds) {
-      // If no local alternatives, try loading from backend
       if (!this.alternativeByAlimentoPastoId[id] || this.alternativeByAlimentoPastoId[id].length === 0) {
-        this.loadAlternativesFromBackend(id);
+        // Prova a popolare dalle alternative pre-caricate nel DTO (JOIN FETCH)
+        const ap = apById.get(id);
+        if (ap?.alternative && ap.alternative.length > 0) {
+          this.alternativeByAlimentoPastoId[id] = ap.alternative.map(alt => ({
+            alimento: alt.alimentoAlternativo,
+            quantita: alt.quantita,
+            mode: this.fromBackendMode(alt.mode),
+            manual: alt.manual ?? true,
+            savedId: alt.id,
+            saving: false
+          }));
+          this.alternativeByAlimentoPastoId[id].push(null);
+        } else if (ap?.alternative) {
+          // alternative array presente ma vuoto → nessuna alternativa
+          this.alternativeByAlimentoPastoId[id] = [null];
+        } else {
+          // Nessun dato pre-caricato (es. alimento appena aggiunto) → inizializza vuoto
+          this.alternativeByAlimentoPastoId[id] = [null];
+        }
       } else {
         this.ensureAlternativeEntry(id);
         this.recomputeAlternativesForAlimentoPasto(id);
       }
     }
 
-    // Also load per-pasto alternatives
-    const pastoIds = new Set<number>();
-    for (const pasto of this.pasti) {
-      if (typeof pasto?.id === 'number' && pasto.id > 0) pastoIds.add(pasto.id);
-    }
-    for (const pastoId of pastoIds) {
-      if (!this.alternativeByPastoId[pastoId]) {
-        this.loadAlternativesForPasto(pastoId);
-      }
+    // Load all per-pasto alternatives in a single batch call
+    if (this.scheda?.id) {
+      this.loadAllAlternativesForScheda(this.scheda.id);
     }
   }
 
@@ -1290,6 +1301,50 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       error: () => {
         // Fallback to empty state on error
         this.alternativeByAlimentoPastoId[alimentoPastoId] = [null];
+      }
+    });
+  }
+
+  /**
+   * Carica tutte le alternative di tutti i pasti in una sola chiamata batch.
+   * Sostituisce N chiamate loadAlternativesForPasto() con 1 sola.
+   */
+  private loadAllAlternativesForScheda(schedaId: number): void {
+    this.alternativoService.listByScheda(schedaId).subscribe({
+      next: (mapByPastoId) => {
+        // Popola alternativeByPastoId per ogni pasto
+        for (const pastoIdStr of Object.keys(mapByPastoId)) {
+          const pastoId = Number(pastoIdStr);
+          const alternatives = mapByPastoId[pastoId];
+          if (alternatives && alternatives.length > 0) {
+            this.alternativeByPastoId[pastoId] = alternatives.map(alt => ({
+              alimento: alt.alimentoAlternativo,
+              quantita: alt.quantita,
+              mode: this.fromBackendMode(alt.mode),
+              manual: alt.manual ?? true,
+              savedId: alt.id,
+              saving: false
+            }));
+            this.alternativeByPastoId[pastoId].push(null);
+          } else {
+            this.alternativeByPastoId[pastoId] = [null];
+          }
+        }
+        // Pasti senza alternative: imposta [null]
+        for (const pasto of this.pasti) {
+          if (pasto?.id && !this.alternativeByPastoId[pasto.id]) {
+            this.alternativeByPastoId[pasto.id] = [null];
+          }
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Fallback: imposta [null] per tutti i pasti
+        for (const pasto of this.pasti) {
+          if (pasto?.id) {
+            this.alternativeByPastoId[pasto.id] = [null];
+          }
+        }
       }
     });
   }
@@ -1686,8 +1741,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     this.cdr.detectChanges();
 
     // 2. QUEUE FOR DEBOUNCED BACKEND CALL (if already saved)
+    // NOTE: NON settare saving=true qui — blocca l'input durante il debounce.
+    // Il salvataggio avviene silenziosamente in background come per gli alimenti base.
     if (proposal.savedId) {
-      this.setAlternativeSaving(alimentoPastoId, slot, true);
       const update = {
         alimentoPastoId,
         alternativeId: proposal.savedId,
@@ -1927,6 +1983,25 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   // === COMPACT TABLE HELPERS ===
+
+  toggleAlternativeExpand(alimentoPastoId: number): void {
+    if (this.expandedAlternativeAlimentoIds.has(alimentoPastoId)) {
+      this.expandedAlternativeAlimentoIds.delete(alimentoPastoId);
+    } else {
+      this.expandedAlternativeAlimentoIds.add(alimentoPastoId);
+      // Ensure alternatives are loaded
+      this.ensureAlternativeEntry(alimentoPastoId);
+      if (!this.alternativeByAlimentoPastoId[alimentoPastoId] ||
+        this.alternativeByAlimentoPastoId[alimentoPastoId].every(a => a === null)) {
+        this.loadAlternativesFromBackend(alimentoPastoId);
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  isAlternativeExpanded(alimentoPastoId: number): boolean {
+    return this.expandedAlternativeAlimentoIds.has(alimentoPastoId);
+  }
 
   isAlimentoDaEvitare(ap: AlimentoPastoDto): boolean {
     const alimentoId = ap?.alimento?.id;

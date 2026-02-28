@@ -28,6 +28,16 @@ export interface ObiettivoNutrizionaleDto {
 
     note?: string;
 
+    lockedPctProteine?: boolean;
+    lockedPctCarboidrati?: boolean;
+    lockedPctGrassi?: boolean;
+    lockedGProteine?: boolean;
+    lockedGCarboidrati?: boolean;
+    lockedGGrassi?: boolean;
+
+    attivo?: boolean;
+    dataCreazione?: string;
+
     createdAt?: string;
     updatedAt?: string;
 }
@@ -46,6 +56,13 @@ export interface ObiettivoNutrizionaleFormDto {
     pctGrassi?: number;
 
     note?: string;
+
+    lockedPctProteine?: boolean;
+    lockedPctCarboidrati?: boolean;
+    lockedPctGrassi?: boolean;
+    lockedGProteine?: boolean;
+    lockedGCarboidrati?: boolean;
+    lockedGGrassi?: boolean;
 }
 
 export interface CalcoloErrorResponse {

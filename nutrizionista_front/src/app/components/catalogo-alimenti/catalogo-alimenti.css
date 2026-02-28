@@ -478,8 +478,8 @@
 /* ===== FEATURE 9: CATEGORY FILTER CHIPS ===== */
 .categoria-filter {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
   padding: 0 0 0.75rem;
   border-bottom: 1px solid var(--border, #e5e7eb);
   margin-bottom: 0.75rem;
@@ -489,46 +489,38 @@
   border-bottom-color: #4b5563;
 }
 
-.cat-chip {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
+.categoria-label {
+  font-size: 0.8rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  border: 1px solid var(--border, #e5e7eb);
-  background: transparent;
   color: var(--text-muted, #6b7280);
-  cursor: pointer;
-  transition: all 150ms ease;
 }
 
-.cat-chip:hover {
-  border-color: rgba(16, 185, 129, 0.4);
-  color: var(--green-darker, #047857);
+.categoria-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: #fff;
+  color: var(--text, #1f2937);
+  font-size: 0.85rem;
 }
 
-.cat-chip.active {
-  background: rgba(16, 185, 129, 0.14);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #065f46;
+.categoria-select:focus {
+  border-color: var(--green-primary, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  outline: none;
 }
 
-.catalogo-panel.dark-mode .cat-chip {
-  border-color: #4b5563;
+.catalogo-panel.dark-mode .categoria-label {
   color: #9ca3af;
 }
 
-.catalogo-panel.dark-mode .cat-chip:hover {
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #6ee7b7;
+.catalogo-panel.dark-mode .categoria-select {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #fff;
 }
 
-.catalogo-panel.dark-mode .cat-chip.active {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.45);
-  color: #6ee7b7;
-}
+/* rimosse chip; ora filtro tramite select */
 
 /* ===== FEATURE 10: EVITARE PANEL ===== */
 .evitare-panel {

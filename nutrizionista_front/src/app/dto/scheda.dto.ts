@@ -9,6 +9,7 @@ export interface SchedaDto {
     attiva: boolean;
     pasti?: PastoDto[];
     dataCreazione: string;
+    numeroPasti?: number;
 }
 
 export interface SchedaFormDto {

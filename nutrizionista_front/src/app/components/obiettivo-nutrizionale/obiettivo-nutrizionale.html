@@ -31,6 +31,49 @@
             </button>
         </div>
 
+        <!-- Custom presets -->
+        @if (presets.length > 0 || showPresetForm) {
+        <div class="preset-section">
+            <div class="preset-header">
+                <fa-icon [icon]="icons.star" class="preset-star"></fa-icon>
+                <span class="preset-title">Preset personalizzati</span>
+                <button type="button" class="btn-add-preset" (click)="showPresetForm = !showPresetForm"
+                    [title]="showPresetForm ? 'Annulla' : 'Salva come preset'">
+                    <fa-icon [icon]="icons.plus" size="xs"></fa-icon>
+                </button>
+            </div>
+
+            @if (showPresetForm) {
+            <div class="preset-form">
+                <input type="text" [(ngModel)]="presetName" placeholder="Nome preset..." class="preset-name-input"
+                    (keydown.enter)="saveAsPreset()" />
+                <button class="btn-save-preset" (click)="saveAsPreset()" [disabled]="!presetName.trim()">
+                    Salva
+                </button>
+            </div>
+            }
+
+            <div class="preset-chips">
+                @for (preset of presets; track preset.id) {
+                <div class="preset-chip" (click)="onPresetSelected(preset)"
+                    [title]="preset.nome + ' — P:' + preset.pctProteine + '% C:' + preset.pctCarboidrati + '% G:' + preset.pctGrassi + '%'">
+                    <span class="preset-chip-name">{{ preset.nome }}</span>
+                    <button type="button" class="preset-chip-delete" (click)="deletePreset(preset, $event)"
+                        title="Elimina">
+                        <fa-icon [icon]="icons.trash" size="xs"></fa-icon>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+        }
+        @if (presets.length === 0 && !showPresetForm) {
+        <button type="button" class="btn-save-as-preset-inline" (click)="showPresetForm = true">
+            <fa-icon [icon]="icons.plus" size="xs"></fa-icon>
+            Salva come preset
+        </button>
+        }
+
         <!-- BMR / TDEE info -->
         @if (obiettivo?.bmr || obiettivo?.tdee) {
         <div class="bmr-tdee-row">
@@ -55,34 +98,84 @@
                 <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine"></fa-icon>
                 <label>Proteine</label>
                 <input type="number" [(ngModel)]="targetProteine" (ngModelChange)="onGrammiChanged()"
-                    class="macro-input" min="0" step="5" />
+                    class="macro-input" [class.locked]="lockedGrammi.proteine" min="0" step="5" />
                 <span class="unit">g</span>
+                <button type="button" class="btn-lock" [class.active]="lockedGrammi.proteine"
+                    (click)="toggleLockGrammi('proteine')" [title]="lockedGrammi.proteine ? 'Sblocca g' : 'Blocca g'">
+                    <fa-icon [icon]="lockedGrammi.proteine ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
                 <input type="number" [(ngModel)]="pctProteine" (ngModelChange)="onPercentualeChanged('proteine')"
-                    class="pct-input" min="0" max="100" step="1" />
+                    class="pct-input" [class.locked]="lockedPct.proteine" min="0" max="100" step="1" />
                 <span class="unit">%</span>
+                <button type="button" class="btn-lock" [class.active]="lockedPct.proteine"
+                    (click)="toggleLock('proteine')" [title]="lockedPct.proteine ? 'Sblocca %' : 'Blocca %'">
+                    <fa-icon [icon]="lockedPct.proteine ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
             </div>
+            @if (pesoCliente) {
+            <div class="gperkg-row">
+                <input type="number" [ngModel]="getGPerKg('proteine')"
+                    (ngModelChange)="onGPerKgChanged('proteine', $event)" class="gperkg-input"
+                    [class.locked]="lockedGrammi.proteine" [disabled]="lockedGrammi.proteine" min="0" step="0.1" />
+                <span class="gperkg-label">g/kg</span>
+            </div>
+            }
 
             <div class="macro-input-row">
                 <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati"></fa-icon>
                 <label>Carboidrati</label>
                 <input type="number" [(ngModel)]="targetCarboidrati" (ngModelChange)="onGrammiChanged()"
-                    class="macro-input" min="0" step="5" />
+                    class="macro-input" [class.locked]="lockedGrammi.carboidrati" min="0" step="5" />
                 <span class="unit">g</span>
+                <button type="button" class="btn-lock btn-lock-g" [class.active]="lockedGrammi.carboidrati"
+                    (click)="toggleLockGrammi('carboidrati')"
+                    [title]="lockedGrammi.carboidrati ? 'Sblocca g' : 'Blocca g'">
+                    <fa-icon [icon]="lockedGrammi.carboidrati ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
                 <input type="number" [(ngModel)]="pctCarboidrati" (ngModelChange)="onPercentualeChanged('carboidrati')"
-                    class="pct-input" min="0" max="100" step="1" />
+                    class="pct-input" [class.locked]="lockedPct.carboidrati" min="0" max="100" step="1" />
                 <span class="unit">%</span>
+                <button type="button" class="btn-lock" [class.active]="lockedPct.carboidrati"
+                    (click)="toggleLock('carboidrati')" [title]="lockedPct.carboidrati ? 'Sblocca' : 'Blocca'">
+                    <fa-icon [icon]="lockedPct.carboidrati ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
             </div>
+            @if (pesoCliente) {
+            <div class="gperkg-row">
+                <input type="number" [ngModel]="getGPerKg('carboidrati')"
+                    (ngModelChange)="onGPerKgChanged('carboidrati', $event)" class="gperkg-input"
+                    [class.locked]="lockedGrammi.carboidrati" [disabled]="lockedGrammi.carboidrati" min="0"
+                    step="0.1" />
+                <span class="gperkg-label">g/kg</span>
+            </div>
+            }
 
             <div class="macro-input-row">
                 <fa-icon [icon]="icons.droplet" class="macro-icon grassi"></fa-icon>
                 <label>Grassi</label>
                 <input type="number" [(ngModel)]="targetGrassi" (ngModelChange)="onGrammiChanged()" class="macro-input"
-                    min="0" step="5" />
+                    [class.locked]="lockedGrammi.grassi" min="0" step="5" />
                 <span class="unit">g</span>
+                <button type="button" class="btn-lock btn-lock-g" [class.active]="lockedGrammi.grassi"
+                    (click)="toggleLockGrammi('grassi')" [title]="lockedGrammi.grassi ? 'Sblocca g' : 'Blocca g'">
+                    <fa-icon [icon]="lockedGrammi.grassi ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
                 <input type="number" [(ngModel)]="pctGrassi" (ngModelChange)="onPercentualeChanged('grassi')"
-                    class="pct-input" min="0" max="100" step="1" />
+                    class="pct-input" [class.locked]="lockedPct.grassi" min="0" max="100" step="1" />
                 <span class="unit">%</span>
+                <button type="button" class="btn-lock" [class.active]="lockedPct.grassi" (click)="toggleLock('grassi')"
+                    [title]="lockedPct.grassi ? 'Sblocca' : 'Blocca'">
+                    <fa-icon [icon]="lockedPct.grassi ? icons.lock : icons.lockOpen" size="xs"></fa-icon>
+                </button>
             </div>
+            @if (pesoCliente) {
+            <div class="gperkg-row">
+                <input type="number" [ngModel]="getGPerKg('grassi')" (ngModelChange)="onGPerKgChanged('grassi', $event)"
+                    class="gperkg-input" [class.locked]="lockedGrammi.grassi" [disabled]="lockedGrammi.grassi" min="0"
+                    step="0.1" />
+                <span class="gperkg-label">g/kg</span>
+            </div>
+            }
 
             <div class="macro-input-row">
                 <fa-icon [icon]="icons.seedling" class="macro-icon fibre"></fa-icon>
@@ -90,7 +183,22 @@
                 <input type="number" [(ngModel)]="targetFibre" class="macro-input" min="0" step="1" />
                 <span class="unit">g</span>
             </div>
+
+            <!-- Pct validation warning -->
+            @if (!isPctValid()) {
+            <div class="pct-warning">
+                ⚠️ Totale percentuali: {{ getPctTotal() }}% (dovrebbe essere 100%)
+            </div>
+            }
         </div>
+
+        <!-- Clinical Alerts -->
+        @for (alert of getAlerts(); track alert.msg) {
+        <div class="clinical-alert" [class.alert-warning]="alert.tipo === 'warning'"
+            [class.alert-danger]="alert.tipo === 'danger'">
+            {{ alert.msg }}
+        </div>
+        }
 
         <!-- Note -->
         <div class="form-row">
@@ -114,6 +222,11 @@
                 <div class="progress-label">
                     <fa-icon [icon]="icons.fire" class="macro-icon kcal"></fa-icon>
                     <span>{{ getAttualeCalorie() | number:'1.0-0' }} / {{ targetCalorie | number:'1.0-0' }} kcal</span>
+                    <span class="delta-badge" [class.over]="getDelta(getAttualeCalorie(), targetCalorie) > 0"
+                        [class.under]="getDelta(getAttualeCalorie(), targetCalorie) < 0">
+                        {{ getDelta(getAttualeCalorie(), targetCalorie) > 0 ? '+' : '' }}{{
+                        getDelta(getAttualeCalorie(), targetCalorie) }}
+                    </span>
                 </div>
                 <div class="progress-bar-track">
                     <div class="progress-bar-fill"
@@ -133,6 +246,11 @@
                     <fa-icon [icon]="icons.dumbbell" class="macro-icon proteine"></fa-icon>
                     <span>{{ getAttualeMacro('proteine') | number:'1.0-0' }} / {{ targetProteine | number:'1.0-0' }}
                         g</span>
+                    <span class="delta-badge" [class.over]="getDelta(getAttualeMacro('proteine'), targetProteine) > 0"
+                        [class.under]="getDelta(getAttualeMacro('proteine'), targetProteine) < 0">
+                        {{ getDelta(getAttualeMacro('proteine'), targetProteine) > 0 ? '+' : '' }}{{
+                        getDelta(getAttualeMacro('proteine'), targetProteine) }}g
+                    </span>
                 </div>
                 <div class="progress-bar-track">
                     <div class="progress-bar-fill"
@@ -154,6 +272,12 @@
                     <fa-icon [icon]="icons.wheat" class="macro-icon carboidrati"></fa-icon>
                     <span>{{ getAttualeMacro('carboidrati') | number:'1.0-0' }} / {{ targetCarboidrati | number:'1.0-0'
                         }} g</span>
+                    <span class="delta-badge"
+                        [class.over]="getDelta(getAttualeMacro('carboidrati'), targetCarboidrati) > 0"
+                        [class.under]="getDelta(getAttualeMacro('carboidrati'), targetCarboidrati) < 0">
+                        {{ getDelta(getAttualeMacro('carboidrati'), targetCarboidrati) > 0 ? '+' : '' }}{{
+                        getDelta(getAttualeMacro('carboidrati'), targetCarboidrati) }}g
+                    </span>
                 </div>
                 <div class="progress-bar-track">
                     <div class="progress-bar-fill"
@@ -175,6 +299,11 @@
                     <fa-icon [icon]="icons.droplet" class="macro-icon grassi"></fa-icon>
                     <span>{{ getAttualeMacro('grassi') | number:'1.0-0' }} / {{ targetGrassi | number:'1.0-0' }}
                         g</span>
+                    <span class="delta-badge" [class.over]="getDelta(getAttualeMacro('grassi'), targetGrassi) > 0"
+                        [class.under]="getDelta(getAttualeMacro('grassi'), targetGrassi) < 0">
+                        {{ getDelta(getAttualeMacro('grassi'), targetGrassi) > 0 ? '+' : '' }}{{
+                        getDelta(getAttualeMacro('grassi'), targetGrassi) }}g
+                    </span>
                 </div>
                 <div class="progress-bar-track">
                     <div class="progress-bar-fill"
