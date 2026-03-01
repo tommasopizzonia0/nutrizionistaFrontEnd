@@ -30,6 +30,7 @@ import {
   faPercent
 } from '@fortawesome/free-solid-svg-icons';
 import { PlicometriaComponent } from '../plicometria/plicometria';
+import { InfoClienteComponent } from '../info-cliente/info-cliente';
 
 interface NavItem {
   id: string;
@@ -50,7 +51,8 @@ interface NavItem {
     ListaSchede,
     SchedaDietaComponent,
     AnteprimaSchedaComponent,
-    PlicometriaComponent
+    PlicometriaComponent,
+    InfoClienteComponent
   ],
   templateUrl: './cliente-dettaglio.html',
   styleUrls: ['./cliente-dettaglio.css']
@@ -291,4 +293,19 @@ export class ClienteDettaglioComponent implements OnInit {
     // quindi si ricaricherà da solo tramite ngOnInit/ngOnChanges.
   }
 
+
+  onNavigaASchedaAttiva(schedaId: number): void {
+    // 1. Cambia il tab corrente al piano alimentare
+    this.vistaCorrente = 'piano-alimentare';
+    
+    // 2. Imposta l'ID della scheda selezionata affinché il blocco @if 
+    this.schedaSelezionataId = schedaId;
+    
+    // (Opzionale) se ti serve anche il nome per il componente figlio:
+    // this.schedaSelezionataNome = "Scheda Attiva";
+  }
+
+  onNavigaAMisurazioni(): void {
+    this.vistaCorrente = 'misurazioni';
+  }
 }
