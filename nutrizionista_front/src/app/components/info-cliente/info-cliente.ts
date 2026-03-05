@@ -17,13 +17,16 @@ import {
   faUser, faEnvelope, faPhone, faCalendar, faIdCard, 
   faWeight, faRuler, faPercentage, faDumbbell, 
   faRulerCombined, faBullseye, faClipboardList, faRunning,
-  faHeartbeat
+  faHeartbeat, faBolt, // <-- Aggiunto faBolt per il TDEE
+  faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 import { ClienteDto } from '../../dto/cliente.dto';
 import { PlicometrieApiService } from '../../services/plicometria.service';
 import { MisurazioneAntropometricaService } from '../../services/misurazione-antropometrica.service';
 import { SchedaService } from '../../services/scheda-service';
+import { CalcoloTdeeService } from '../../services/calcolo-tdee.service'; // <-- Import Service
+import { CalcoloTdeeDto } from '../../dto/calcolo-tdee.dto'; // <-- Import DTO
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -43,12 +46,14 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   private plicoApi = inject(PlicometrieApiService);
   private misurazioneApi = inject(MisurazioneAntropometricaService);
   private schedaApi = inject(SchedaService);
+  private tdeeApi = inject(CalcoloTdeeService); // <-- Inject Service
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   ultimaPlicometria: any = null;
   ultimaMisurazione: any = null;
   schedaAttiva: any = null;
+  storicoTdee: CalcoloTdeeDto[] = []; // <-- Variabile per la lista
   
   // Icone
   faUser = faUser; faEnvelope = faEnvelope; faPhone = faPhone;
@@ -58,6 +63,8 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   faRulerCombined = faRulerCombined; faBullseye = faBullseye;
   faClipboardList = faClipboardList;
   faHeartbeat = faHeartbeat;
+  faBolt = faBolt;
+  faTrash = faTrash;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['cliente'] && this.cliente?.id) {
@@ -98,6 +105,14 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+
+    // 4. Storico TDEE
+    this.tdeeApi.getStoricoCliente(clienteId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.storicoTdee = res || [];
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   onSchedaClick(): void {
@@ -127,7 +142,7 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     return String(Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970)) + ' anni';
   }
 
-  // Calcolo Percentuali (Stessa logica usata nel tuo Chart della plicometria)
+  // Calcolo Percentuali
   get mgPercent(): number | null {
     if (!this.ultimaPlicometria) return null;
     const mg = this.ultimaPlicometria.massaGrassaKg ?? 0;
@@ -144,13 +159,13 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     return tot > 0 ? (mm / tot) * 100 : null;
   }
 
-// ==========================================
+  // ==========================================
   // CALCOLI BMI E COMPOSIZIONE CORPOREA
   // ==========================================
 
   get bmi(): number | null {
     if (!this.cliente?.peso || !this.cliente?.altezza) return null;
-    const h = this.cliente.altezza / 100; // converte cm in metri
+    const h = this.cliente.altezza / 100;
     return Math.round((this.cliente.peso / (h * h)) * 10) / 10;
   }
 
@@ -166,7 +181,33 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   get bmiPercent(): number {
     const b = this.bmi;
     if (b == null) return 0;
-    // Calcola la posizione percentuale del pallino sulla barra (range visuale tra 18.5 e 30)
     return ((Math.min(30, Math.max(18.5, b)) - 18.5) / (30 - 18.5)) * 100;
+  }
+
+  eliminaSingoloTdee(id: number): void {
+    if (confirm("Sei sicuro di voler eliminare questo calcolo dallo storico?")) {
+      this.tdeeApi.eliminaCalcolo(id).subscribe({
+        next: () => {
+          // Rimuovi l'elemento dall'array locale senza ricaricare tutto dal backend
+          this.storicoTdee = this.storicoTdee.filter(c => c.id !== id);
+          this.cdr.markForCheck();
+        },
+        error: () => alert("Errore durante l'eliminazione.")
+      });
+    }
+  }
+
+  eliminaTuttiTdee(): void {
+    if (!this.cliente?.id) return;
+    
+    if (confirm("ATTENZIONE: Sei sicuro di voler eliminare TUTTI i calcoli TDEE di questo paziente? L'azione è irreversibile.")) {
+      this.tdeeApi.eliminaTuttiCalcoliCliente(this.cliente.id).subscribe({
+        next: () => {
+          this.storicoTdee = []; // Svuota l'array locale
+          this.cdr.markForCheck();
+        },
+        error: () => alert("Errore durante l'eliminazione dello storico.")
+      });
+    }
   }
 }

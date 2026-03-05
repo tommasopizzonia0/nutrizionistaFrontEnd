@@ -69,8 +69,8 @@ export class NavbarComponent implements OnInit {
     { id: 'dashboard', icon: faHome, label: 'Dashboard', route: '/home' },
     { id: 'clienti', icon: faUserGroup, label: 'Clienti', route: '/clienti' },
     { id: 'agenda', icon: faCalendar, label: 'Agenda', route: '/agenda' },
-    { id: 'calcolo', icon: faChartPie, label: 'Calcolo TDEE', route: '/calcolo' },
-    { id: 'modelli', icon: faFile, label: 'Modelli', route: '/modelli' },
+    { id: 'calcolo', icon: faChartPie, label: 'Calcolo TDEE', route: '/tdee' },
+    { id: 'modelli', icon: faFile, label: 'Ufficio', route: '/ufficio' },
     { id: 'alimenti', icon: faUtensils, label: 'Alimenti', route: '/alimenti' },
     { id: 'impostazioni', icon: faCog, label: 'Impostazioni', route: '/settings' }
   ];

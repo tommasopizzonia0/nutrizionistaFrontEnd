@@ -18,6 +18,8 @@ import { CalendarioComponent } from './components/calendario/calendario';
 import { AgendaComponent } from './components/agenda/agenda';
 import { Settings } from './components/settings/settings';
 import { PlicometriaComponent } from './components/plicometria/plicometria';
+import { UfficioComponent } from './components/ufficio/ufficio';
+import { CalcoloTdeeComponent } from './components/calcolo-tdee/calcolo-tdee';
 
 export const routes: Routes = [
 
@@ -76,6 +78,14 @@ export const routes: Routes = [
       {
         path: 'agenda',
         component: AgendaComponent
+      },
+      {
+        path: 'ufficio',
+        component: UfficioComponent
+      },
+      {
+        path: 'tdee',
+        component: CalcoloTdeeComponent
       },
       {
         path: 'settings',

@@ -23,7 +23,7 @@
       }
     </div>
 
-<div class="stat-card widget-visita"
+    <div class="stat-card widget-visita"
          [class.clickable]="ultimaMisurazione || ultimaPlicometria"
          (click)="onMisurazioneClick()">
       <div class="stat-icon"><fa-icon [icon]="faCalendar"></fa-icon></div>
@@ -72,10 +72,50 @@
           </div>
         </div>
       </div>
-    </div>
+
+      <div class="dettaglio-section medical-card tdee-card">
+        
+        <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 0;">
+          <span style="display: flex; align-items: center; gap: 0.6rem;">
+            <fa-icon [icon]="faBolt"></fa-icon> Storico TDEE & BMR
+          </span>
+          @if (storicoTdee && storicoTdee.length > 0) {
+            <button class="btn-delete-all" (click)="eliminaTuttiTdee()" title="Svuota Storico">
+              <fa-icon [icon]="faTrash"></fa-icon>
+            </button>
+          }
+        </h4>
+
+        <div class="medical-rows">
+          @if (storicoTdee && storicoTdee.length > 0) {
+            @for (calcolo of storicoTdee; track calcolo.id) {
+              <div class="medical-row">
+                <div class="row-label">
+                  <fa-icon [icon]="faCalendar"></fa-icon> {{ formatData(calcolo.dataCalcolo) }}
+                </div>
+                
+                <div class="tdee-row-actions">
+                  <div class="row-value" style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
+                    <span>TDEE: {{ calcolo.tdee }} <small>kcal</small></span>
+                    <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">BMR: {{ calcolo.bmr }} <small>kcal</small></span>
+                  </div>
+                  <button class="btn-icon-delete" (click)="eliminaSingoloTdee(calcolo.id!)" title="Elimina singolo calcolo">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                  </button>
+                </div>
+
+              </div>
+            }
+          } @else {
+            <div class="medical-row" style="justify-content: center; background: transparent; border: none;">
+              <span class="empty-val">Nessun calcolo registrato</span>
+            </div>
+          }
+        </div>
+      </div>
+      </div>
 
     <div class="column-stack">
-      
       <div class="dettaglio-section medical-card metrics-card">
         <h4><fa-icon [icon]="faRunning"></fa-icon> Composizione Corporea</h4>
 
@@ -162,5 +202,9 @@
             </div>
           }
 
-        </div> </div> </div> </div>
+        </div> 
+      </div> 
+    </div> 
+    
+  </div>
 </div>
