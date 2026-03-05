@@ -442,3 +442,68 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================================= */
+/* PULSANTI ELIMINAZIONE TDEE (Dettaglio Cliente) */
+/* ========================================================= */
+
+.tdee-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.btn-icon-delete {
+  background: transparent;
+  border: none;
+  color: #ef4444; /* Rosso allarme */
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.btn-icon-delete:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  transform: scale(1.05);
+}
+
+.btn-delete-all {
+  background: transparent;
+  border: none;
+  color: var(--muted, #9ca3af);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-delete-all:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Adattamento Dark Mode per i pulsanti delete */
+.dark-mode .btn-icon-delete {
+  color: #f87171;
+}
+
+.dark-mode .btn-icon-delete:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.dark-mode .btn-delete-all {
+  color: #64748b;
+}
+
+.dark-mode .btn-delete-all:hover {
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.15);
+}

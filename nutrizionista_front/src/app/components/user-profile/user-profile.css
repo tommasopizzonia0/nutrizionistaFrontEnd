@@ -557,3 +557,87 @@
   border-color: rgba(148, 163, 184, .18);
   color: #e5e7eb;
 }
+
+/* Aggiunte ai tuoi stili esistenti per migliorare l'ordine */
+
+.form-section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--green-dark);
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed var(--border);
+  grid-column: 1 / -1;
+}
+
+.photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.btn-upload {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 2px solid var(--green-primary);
+  color: var(--green-darker);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-upload:hover {
+  background: var(--green-primary);
+  color: white;
+}
+
+.file-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* Input readonly più pulito */
+.form-group input[readonly] {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  padding-left: 0;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.dark-mode .form-group input[readonly] {
+  color: #e5e7eb;
+  border-bottom-color: #374151 !important;
+}
+
+.form-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mt-10 { margin-top: 10px; }
+.uppercase { text-transform: uppercase; }
+
+/* Bottoni outline per uno stile più leggero */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+}
+
+.btn-outline:hover {
+  border-color: var(--green-primary);
+  color: var(--green-primary);
+}
