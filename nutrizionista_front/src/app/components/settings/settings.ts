@@ -20,7 +20,8 @@ import {
   faLock,
   faClock,
   faCalendarDays,
-  faRotate
+  faRotate,
+  faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 import { UserService } from '../../services/user.service';
@@ -76,6 +77,7 @@ export class Settings implements OnInit {
   icClock: IconDefinition = faClock;
   icCalendar: IconDefinition = faCalendarDays;
   icReset: IconDefinition = faRotate;
+  icTrash: IconDefinition = faTrash;
 
   constructor(
     private fb: FormBuilder,
@@ -341,4 +343,29 @@ export class Settings implements OnInit {
     const mm = t % 60;
     return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
   }
+
+  // =========================
+  // DANGER ZONE
+  // =========================
+  deleteAccount(): void {
+    if (!confirm('ATTENZIONE: Sei sicuro di voler eliminare definitivamente il tuo account? Questa azione è irreversibile e cancellerà tutti i tuoi dati.')) {
+      return;
+    }
+
+    this.loading = true;
+    this.userService.deleteMyProfile().subscribe({
+      next: () => {
+        // Reindirizza l'utente alla pagina di login dopo aver eliminato l'account
+        window.location.href = '/login';
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = "Errore durante l'eliminazione dell'account.";
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }
+
+
