@@ -262,10 +262,31 @@
             <p class="panel-sub">Sezione pronta per notifiche, privacy, tema, ecc.</p>
           </div>
         </div>
+      </section>
+      <section class="panel panel-danger">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>
+              <fa-icon [icon]="icWarn" class="icon-danger"></fa-icon>
+              Zona Pericolosa
+            </h2>
+            <p class="panel-sub">Eliminazione definitiva del tuo account e di tutti i dati associati.</p>
+          </div>
+        </div>
+        
         <div class="panel-body">
-          <div class="empty">
-            <fa-icon [icon]="icHourglass"></fa-icon>
-            Nessuna preferenza configurabile al momento.
+          <div class="setting-row">
+            <div class="setting-left">
+              <div class="setting-name">Eliminazione account</div>
+              <div class="setting-desc">
+                Questa azione è irreversibile. Tutti i tuoi dati, i pazienti e le configurazioni verranno cancellati in modo definitivo dai nostri server. Non sarà possibile recuperarli.
+              </div>
+            </div>
+            <div class="setting-right">
+              <button type="button" class="btn btn-danger" (click)="deleteAccount()" [disabled]="loading">
+                <fa-icon [icon]="icTrash"></fa-icon> Elimina
+              </button>
+            </div>
           </div>
         </div>
       </section>

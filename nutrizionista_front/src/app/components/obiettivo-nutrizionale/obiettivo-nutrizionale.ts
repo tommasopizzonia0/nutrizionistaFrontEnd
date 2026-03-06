@@ -1,17 +1,19 @@
 import {
     Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges,
-    inject, ChangeDetectorRef, ChangeDetectionStrategy
+    inject, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
     faBullseye, faBolt, faFloppyDisk, faFire, faDumbbell,
-    faWheatAlt, faDroplet, faSeedling, faInfoCircle
+    faWheatAlt, faDroplet, faSeedling, faInfoCircle, faLock, faLockOpen,
+    faStar, faPlus, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ObiettivoService } from '../../services/obiettivo.service';
+import { ClienteService } from '../../services/cliente.service';
 import {
     ObiettivoNutrizionaleDto,
     ObiettivoNutrizionaleFormDto,
@@ -20,6 +22,8 @@ import {
 } from '../../dto/obiettivo-nutrizionale.dto';
 import { PastoDto } from '../../dto/pasto.dto';
 import { AlimentoPastoDto } from '../../dto/alimento-pasto.dto';
+import { PresetObiettivoService, PresetObiettivoDto } from '../../services/preset-obiettivo.service';
+import { Subscription } from 'rxjs';
 
 // Default macro % per obiettivo
 const DEFAULTS: Record<TipoObiettivo, { pct_p: number; pct_c: number; pct_g: number; moltiplicatore: number }> = {
@@ -39,19 +43,23 @@ type MacroType = 'proteine' | 'carboidrati' | 'grassi' | 'calorie' | 'fibre';
     styleUrl: './obiettivo-nutrizionale.css',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ObiettivoNutrizionale implements OnInit, OnChanges {
+export class ObiettivoNutrizionale implements OnInit, OnChanges, OnDestroy {
     @Input() clienteId!: number;
     @Input() pasti: PastoDto[] = [];
     @Input() isDarkMode = false;
     @Output() campiMancanti = new EventEmitter<string[]>();
 
     private obiettivoService = inject(ObiettivoService);
+    private clienteService = inject(ClienteService);
+    private presetService = inject(PresetObiettivoService);
     private cdr = inject(ChangeDetectorRef);
+    private subs: Subscription[] = [];
 
     readonly icons = {
         target: faBullseye, bolt: faBolt, save: faFloppyDisk,
         fire: faFire, dumbbell: faDumbbell, wheat: faWheatAlt,
-        droplet: faDroplet, seedling: faSeedling, info: faInfoCircle
+        droplet: faDroplet, seedling: faSeedling, info: faInfoCircle,
+        lock: faLock, lockOpen: faLockOpen, star: faStar, plus: faPlus, trash: faTrash
     };
 
     readonly obiettivi: TipoObiettivo[] = ['DIMAGRIMENTO', 'MANTENIMENTO', 'MASSA', 'RICOMPOSIZIONE'];
@@ -80,17 +88,143 @@ export class ObiettivoNutrizionale implements OnInit, OnChanges {
     pctGrassi = 25;
     note = '';
 
+    // Lock state for percentages
+    lockedPct: Record<'proteine' | 'carboidrati' | 'grassi', boolean> = {
+        proteine: false, carboidrati: false, grassi: false
+    };
+
+    // Lock state for grams
+    lockedGrammi: Record<'proteine' | 'carboidrati' | 'grassi', boolean> = {
+        proteine: false, carboidrati: false, grassi: false
+    };
+
+    // Peso del paziente (fetched from ClienteService)
+    pesoCliente = 0;
+
+    // Custom presets
+    presets: PresetObiettivoDto[] = [];
+    showPresetForm = false;
+    presetName = '';
+
     // Collapsed state
     collapsed = false;
 
     ngOnInit(): void {
         this.loadObiettivo();
+        this.loadPesoCliente();
+        this.loadPresets();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
+    }
+
+    private buildForm(): ObiettivoNutrizionaleFormDto {
+        return {
+            obiettivo: this.tipoObiettivo,
+            targetCalorie: this.targetCalorie || undefined,
+            targetProteine: this.targetProteine || undefined,
+            targetCarboidrati: this.targetCarboidrati || undefined,
+            targetGrassi: this.targetGrassi || undefined,
+            targetFibre: this.targetFibre || undefined,
+            pctProteine: this.pctProteine || undefined,
+            pctCarboidrati: this.pctCarboidrati || undefined,
+            pctGrassi: this.pctGrassi || undefined,
+            note: this.note || undefined,
+
+            // Lock states
+            lockedPctProteine: this.lockedPct.proteine,
+            lockedPctCarboidrati: this.lockedPct.carboidrati,
+            lockedPctGrassi: this.lockedPct.grassi,
+            lockedGProteine: this.lockedGrammi.proteine,
+            lockedGCarboidrati: this.lockedGrammi.carboidrati,
+            lockedGGrassi: this.lockedGrammi.grassi
+        };
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['clienteId'] && !changes['clienteId'].firstChange) {
             this.loadObiettivo();
+            this.loadPesoCliente();
         }
+    }
+
+    private loadPesoCliente(): void {
+        if (!this.clienteId) return;
+        this.subs.push(
+            this.clienteService.dettaglio(this.clienteId).subscribe({
+                next: (cliente) => {
+                    this.pesoCliente = cliente?.peso || 0;
+                    this.cdr.markForCheck();
+                },
+                error: () => { this.pesoCliente = 0; }
+            })
+        );
+    }
+
+    // --- Custom presets ---
+
+    loadPresets(): void {
+        this.subs.push(
+            this.presetService.getAll().subscribe({
+                next: (list) => {
+                    this.presets = list;
+                    this.cdr.markForCheck();
+                },
+                error: () => { this.presets = []; }
+            })
+        );
+    }
+
+    onPresetSelected(preset: PresetObiettivoDto): void {
+        this.pctProteine = preset.pctProteine;
+        this.pctCarboidrati = preset.pctCarboidrati;
+        this.pctGrassi = preset.pctGrassi;
+
+        if (this.obiettivo?.tdee) {
+            this.targetCalorie = Math.round(this.obiettivo.tdee * preset.moltiplicatoreTdee);
+            this.onCalorieChanged();
+        }
+    }
+
+    saveAsPreset(): void {
+        if (!this.presetName.trim()) return;
+        const dto: PresetObiettivoDto = {
+            nome: this.presetName.trim(),
+            pctProteine: this.pctProteine,
+            pctCarboidrati: this.pctCarboidrati,
+            pctGrassi: this.pctGrassi,
+            moltiplicatoreTdee: this.obiettivo?.tdee && this.targetCalorie
+                ? +(this.targetCalorie / this.obiettivo.tdee).toFixed(2)
+                : 1.0
+        };
+        this.presetService.crea(dto).subscribe({
+            next: (saved) => {
+                this.presets.push(saved);
+                this.presetName = '';
+                this.showPresetForm = false;
+                this.cdr.markForCheck();
+            },
+            error: (err) => {
+                this.errore = 'Errore salvataggio preset';
+                console.error(err);
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    deletePreset(preset: PresetObiettivoDto, event: Event): void {
+        event.stopPropagation();
+        if (!preset.id) return;
+        this.presetService.delete(preset.id).subscribe({
+            next: () => {
+                this.presets = this.presets.filter(p => p.id !== preset.id);
+                this.cdr.markForCheck();
+            },
+            error: (err) => {
+                console.error(err);
+            }
+        });
     }
 
     loadObiettivo(): void {
@@ -132,6 +266,18 @@ export class ObiettivoNutrizionale implements OnInit, OnChanges {
         this.pctCarboidrati = dto.pctCarboidrati || 50;
         this.pctGrassi = dto.pctGrassi || 25;
         this.note = dto.note || '';
+
+        // Restore lock states
+        this.lockedPct = {
+            proteine: !!dto.lockedPctProteine,
+            carboidrati: !!dto.lockedPctCarboidrati,
+            grassi: !!dto.lockedPctGrassi
+        };
+        this.lockedGrammi = {
+            proteine: !!dto.lockedGProteine,
+            carboidrati: !!dto.lockedGCarboidrati,
+            grassi: !!dto.lockedGGrassi
+        };
     }
 
     onCalcola(): void {
@@ -169,20 +315,7 @@ export class ObiettivoNutrizionale implements OnInit, OnChanges {
         this.errore = '';
         this.cdr.markForCheck();
 
-        const form: ObiettivoNutrizionaleFormDto = {
-            obiettivo: this.tipoObiettivo,
-            targetCalorie: this.targetCalorie || undefined,
-            targetProteine: this.targetProteine || undefined,
-            targetCarboidrati: this.targetCarboidrati || undefined,
-            targetGrassi: this.targetGrassi || undefined,
-            targetFibre: this.targetFibre || undefined,
-            pctProteine: this.pctProteine || undefined,
-            pctCarboidrati: this.pctCarboidrati || undefined,
-            pctGrassi: this.pctGrassi || undefined,
-            note: this.note || undefined
-        };
-
-        this.obiettivoService.creaOAggiorna(this.clienteId, form).subscribe({
+        this.obiettivoService.creaOAggiorna(this.clienteId, this.buildForm()).subscribe({
             next: (dto) => {
                 this.obiettivo = dto;
                 this.populateForm(dto);
@@ -202,51 +335,167 @@ export class ObiettivoNutrizionale implements OnInit, OnChanges {
 
     onCalorieChanged(): void {
         if (!this.targetCalorie) return;
-        this.targetProteine = +(this.targetCalorie * this.pctProteine / 100 / 4).toFixed(1);
-        this.targetCarboidrati = +(this.targetCalorie * this.pctCarboidrati / 100 / 4).toFixed(1);
-        this.targetGrassi = +(this.targetCalorie * this.pctGrassi / 100 / 9).toFixed(1);
+        if (!this.lockedPct.proteine && !this.lockedGrammi.proteine)
+            this.targetProteine = +(this.targetCalorie * this.pctProteine / 100 / 4).toFixed(1);
+        if (!this.lockedPct.carboidrati && !this.lockedGrammi.carboidrati)
+            this.targetCarboidrati = +(this.targetCalorie * this.pctCarboidrati / 100 / 4).toFixed(1);
+        if (!this.lockedPct.grassi && !this.lockedGrammi.grassi)
+            this.targetGrassi = +(this.targetCalorie * this.pctGrassi / 100 / 9).toFixed(1);
+
     }
 
     onGrammiChanged(): void {
         const kcal = (this.targetProteine * 4) + (this.targetCarboidrati * 4) + (this.targetGrassi * 9);
         this.targetCalorie = Math.round(kcal);
         if (this.targetCalorie > 0) {
-            this.pctProteine = +((this.targetProteine * 4) / this.targetCalorie * 100).toFixed(1);
-            this.pctCarboidrati = +((this.targetCarboidrati * 4) / this.targetCalorie * 100).toFixed(1);
-            this.pctGrassi = +((this.targetGrassi * 9) / this.targetCalorie * 100).toFixed(1);
+            if (!this.lockedPct.proteine)
+                this.pctProteine = +((this.targetProteine * 4) / this.targetCalorie * 100).toFixed(1);
+            if (!this.lockedPct.carboidrati)
+                this.pctCarboidrati = +((this.targetCarboidrati * 4) / this.targetCalorie * 100).toFixed(1);
+            if (!this.lockedPct.grassi)
+                this.pctGrassi = +((this.targetGrassi * 9) / this.targetCalorie * 100).toFixed(1);
         }
     }
 
     onPercentualeChanged(changed: 'proteine' | 'carboidrati' | 'grassi'): void {
-        // Ribilancia le altre due proporzionalmente
-        const remaining = 100 - (this as any)[`pct${changed.charAt(0).toUpperCase() + changed.slice(1)}`];
+        // Ribilancia solo tra le % NON bloccate (esclusa quella appena modificata)
+        const changedValue = (this as any)[`pct${changed.charAt(0).toUpperCase() + changed.slice(1)}`];
         const others = (['proteine', 'carboidrati', 'grassi'] as const).filter(x => x !== changed);
-        const otherTotal = others.reduce((s, k) => s + ((this as any)[`pct${k.charAt(0).toUpperCase() + k.slice(1)}`] || 0), 0);
+        const unlocked = others.filter(x => !this.lockedPct[x]);
+        const lockedTotal = others.filter(x => this.lockedPct[x])
+            .reduce((s, k) => s + ((this as any)[`pct${k.charAt(0).toUpperCase() + k.slice(1)}`] || 0), 0);
 
-        if (otherTotal > 0) {
-            for (const k of others) {
+        const remaining = 100 - changedValue - lockedTotal;
+
+        if (unlocked.length > 0) {
+            const unlockedTotal = unlocked.reduce((s, k) => s + ((this as any)[`pct${k.charAt(0).toUpperCase() + k.slice(1)}`] || 0), 0);
+            for (const k of unlocked) {
                 const key = `pct${k.charAt(0).toUpperCase() + k.slice(1)}`;
-                (this as any)[key] = +((this as any)[key] / otherTotal * remaining).toFixed(1);
+                (this as any)[key] = unlockedTotal > 0
+                    ? +((this as any)[key] / unlockedTotal * remaining).toFixed(1)
+                    : +(remaining / unlocked.length).toFixed(1);
             }
         }
 
         if (this.targetCalorie > 0) {
-            this.targetProteine = +(this.targetCalorie * this.pctProteine / 100 / 4).toFixed(1);
-            this.targetCarboidrati = +(this.targetCalorie * this.pctCarboidrati / 100 / 4).toFixed(1);
-            this.targetGrassi = +(this.targetCalorie * this.pctGrassi / 100 / 9).toFixed(1);
+            if (!this.lockedGrammi.proteine)
+                this.targetProteine = +(this.targetCalorie * this.pctProteine / 100 / 4).toFixed(1);
+            if (!this.lockedGrammi.carboidrati)
+                this.targetCarboidrati = +(this.targetCalorie * this.pctCarboidrati / 100 / 4).toFixed(1);
+            if (!this.lockedGrammi.grassi)
+                this.targetGrassi = +(this.targetCalorie * this.pctGrassi / 100 / 9).toFixed(1);
         }
     }
 
     onObiettivoChanged(): void {
         const d = DEFAULTS[this.tipoObiettivo];
-        this.pctProteine = d.pct_p;
-        this.pctCarboidrati = d.pct_c;
-        this.pctGrassi = d.pct_g;
+        // Applica preset solo alle % non bloccate
+        if (!this.lockedPct.proteine) this.pctProteine = d.pct_p;
+        if (!this.lockedPct.carboidrati) this.pctCarboidrati = d.pct_c;
+        if (!this.lockedPct.grassi) this.pctGrassi = d.pct_g;
+
+        // Ribilancia le % non bloccate per arrivare a 100%
+        const lockedKeys = (['proteine', 'carboidrati', 'grassi'] as const).filter(k => this.lockedPct[k]);
+        const unlockedKeys = (['proteine', 'carboidrati', 'grassi'] as const).filter(k => !this.lockedPct[k]);
+        if (lockedKeys.length > 0 && unlockedKeys.length > 0) {
+            const lockedTotal = lockedKeys.reduce((s, k) => (this as any)[`pct${k.charAt(0).toUpperCase() + k.slice(1)}`] + s, 0);
+            const remaining = 100 - lockedTotal;
+            const unlockedTotal = unlockedKeys.reduce((s, k) => (this as any)[`pct${k.charAt(0).toUpperCase() + k.slice(1)}`] + s, 0);
+            for (const k of unlockedKeys) {
+                const key = `pct${k.charAt(0).toUpperCase() + k.slice(1)}`;
+                (this as any)[key] = unlockedTotal > 0
+                    ? +((this as any)[key] / unlockedTotal * remaining).toFixed(1)
+                    : +(remaining / unlockedKeys.length).toFixed(1);
+            }
+        }
+
         // If we have a TDEE, recalculate
         if (this.obiettivo?.tdee) {
             this.targetCalorie = Math.round(this.obiettivo.tdee * d.moltiplicatore);
             this.onCalorieChanged();
         }
+    }
+
+    toggleLock(macro: 'proteine' | 'carboidrati' | 'grassi'): void {
+        this.lockedPct[macro] = !this.lockedPct[macro];
+        this.cdr.markForCheck();
+    }
+
+    toggleLockGrammi(macro: 'proteine' | 'carboidrati' | 'grassi'): void {
+        this.lockedGrammi[macro] = !this.lockedGrammi[macro];
+        this.cdr.markForCheck();
+    }
+
+    getDelta(attuale: number, target: number): number {
+        return Math.round(attuale - target);
+    }
+
+    // --- g/kg metrics ---
+
+    getGPerKg(macro: 'proteine' | 'carboidrati' | 'grassi'): number {
+        if (!this.pesoCliente) return 0;
+        const grammi = macro === 'proteine' ? this.targetProteine
+            : macro === 'carboidrati' ? this.targetCarboidrati
+                : this.targetGrassi;
+        return +(grammi / this.pesoCliente).toFixed(2);
+    }
+
+    onGPerKgChanged(macro: 'proteine' | 'carboidrati' | 'grassi', gPerKg: number): void {
+        if (!this.pesoCliente || !gPerKg || gPerKg <= 0) return;
+        const grammi = +(gPerKg * this.pesoCliente).toFixed(1);
+        if (macro === 'proteine') this.targetProteine = grammi;
+        else if (macro === 'carboidrati') this.targetCarboidrati = grammi;
+        else this.targetGrassi = grammi;
+        this.onGrammiChanged();
+    }
+
+    // --- Clinical Alerts ---
+
+    getAlerts(): { tipo: 'warning' | 'danger'; msg: string }[] {
+        const alerts: { tipo: 'warning' | 'danger'; msg: string }[] = [];
+
+        // Calorie sotto BMR
+        if (this.obiettivo?.bmr && this.targetCalorie > 0
+            && this.targetCalorie < this.obiettivo.bmr) {
+            alerts.push({
+                tipo: 'warning',
+                msg: `Calorie target (${this.targetCalorie}) sotto il BMR (${Math.round(this.obiettivo.bmr)}). Monitorare attentamente.`
+            });
+        }
+
+        // Grassi essenziali troppo bassi
+        if (this.pesoCliente && this.targetGrassi > 0) {
+            const gPerKg = this.targetGrassi / this.pesoCliente;
+            if (gPerKg < 0.8) {
+                alerts.push({
+                    tipo: 'danger',
+                    msg: `Grassi (${gPerKg.toFixed(1)} g/kg) sotto soglia minima (0.8 g/kg). Rischio ormonale.`
+                });
+            }
+        }
+
+        // Proteine molto alte
+        if (this.pesoCliente && this.targetProteine > 0) {
+            const gPerKg = this.targetProteine / this.pesoCliente;
+            if (gPerKg > 2.5) {
+                alerts.push({
+                    tipo: 'warning',
+                    msg: `Proteine elevate (${gPerKg.toFixed(1)} g/kg). Verificare funzionalità renale.`
+                });
+            }
+        }
+
+        return alerts;
+    }
+
+    // --- Percentuale validation ---
+
+    getPctTotal(): number {
+        return +(this.pctProteine + this.pctCarboidrati + this.pctGrassi).toFixed(1);
+    }
+
+    isPctValid(): boolean {
+        return Math.abs(this.getPctTotal() - 100) < 0.5;
     }
 
     // --- Progress bars (attuale vs target) ---

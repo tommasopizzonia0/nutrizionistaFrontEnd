@@ -544,3 +544,19 @@
   font-size:.9rem;
 }
 .dark-mode .hint{ color:#d1d5db; }
+
+/* ====================== */
+/* DANGER PANEL */
+/* ====================== */
+.panel-danger {
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.dark-mode .panel-danger {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Sostituisce il verde di default del titolo solo per questo pannello */
+.icon-danger {
+  color: #ef4444 !important; 
+}

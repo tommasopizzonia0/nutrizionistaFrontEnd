@@ -170,12 +170,4 @@ export class UserProfileComponent implements OnInit {
       }
     });
   }
-
-  deleteProfile(): void {
-    if (!confirm('Sei sicuro?')) return;
-
-    this.userService.deleteMyProfile().subscribe(() => {
-      window.location.href = '/login';
-    });
-  }
 }

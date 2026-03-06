@@ -558,44 +558,86 @@
   color: #e5e7eb;
 }
 
-/* ====================== */
-/* DANGER ZONE */
-/* ====================== */
-.danger-zone {
-  margin-top: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: 16px;
-  background: rgba(239, 68, 68, .08);
-  border: 1px solid rgba(239, 68, 68, .18);
+/* Aggiunte ai tuoi stili esistenti per migliorare l'ordine */
+
+.form-section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--green-dark);
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed var(--border);
+  grid-column: 1 / -1;
+}
+
+.photo-section {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .1);
+  text-align: center;
+  gap: 1.5rem;
 }
 
-.dark-mode .danger-zone {
-  background: rgba(239, 68, 68, .12);
-  border-color: rgba(239, 68, 68, .22);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+.btn-upload {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 2px solid var(--green-primary);
+  color: var(--green-darker);
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.danger-zone h3 {
-  margin: 0 0 .4rem 0;
-  color: #b91c1c;
-  font-weight: 800;
+.btn-upload:hover {
+  background: var(--green-primary);
+  color: white;
+}
+
+.file-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* Input readonly più pulito */
+.form-group input[readonly] {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  padding-left: 0;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.dark-mode .form-group input[readonly] {
+  color: #e5e7eb;
+  border-bottom-color: #374151 !important;
+}
+
+.form-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
   display: flex;
-  align-items: center;
-  gap: .6rem;
+  justify-content: flex-end;
 }
 
-.danger-zone p {
-  margin: 0;
-  color: #6b7280;
-  font-weight: 650;
+.mt-10 { margin-top: 10px; }
+.uppercase { text-transform: uppercase; }
+
+/* Bottoni outline per uno stile più leggero */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
 }
 
-.dark-mode .danger-zone p {
-  color: #d1d5db;
+.btn-outline:hover {
+  border-color: var(--green-primary);
+  color: var(--green-primary);
 }

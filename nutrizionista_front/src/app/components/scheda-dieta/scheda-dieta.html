@@ -238,6 +238,11 @@
                                     <span class="col-macro kcal">{{ calcolaMacro(alimentoPasto, 'calorie') |
                                         number:'1.0-0' }}</span>
                                     <span class="col-actions">
+                                        <button class="btn-row-alt" (click)="toggleAlternativeExpand(alimentoPasto.id)"
+                                            [class.active]="isAlternativeExpanded(alimentoPasto.id)"
+                                            title="Proponi alternativa">
+                                            <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                                        </button>
                                         <button class="btn-row-remove"
                                             (click)="onRimuoviAlimento(pasto, alimentoPasto.alimento.id ?? 0)"
                                             title="Rimuovi">
@@ -245,6 +250,19 @@
                                         </button>
                                     </span>
                                 </div>
+                                <!-- Expandable per-food alternatives panel -->
+                                @if (isAlternativeExpanded(alimentoPasto.id)) {
+                                <div class="alternative-expand-panel">
+                                    <app-lista-alternative [alimentoPasto]="alimentoPasto"
+                                        [alternatives]="getAlternatives(alimentoPasto.id)" [isDarkMode]="isDarkMode"
+                                        [showMode]="'search-only'"
+                                        (alternativeSelected)="onAlternativeFromComponent(alimentoPasto, $event)"
+                                        (alternativeRemoved)="onAlternativeRemovedFromComponent(alimentoPasto.id, $event)"
+                                        (quantitaChanged)="onAlternativeQuantitaFromComponent(alimentoPasto.id, $event)"
+                                        (modeChanged)="onAlternativeModeFromComponent(alimentoPasto, $event)">
+                                    </app-lista-alternative>
+                                </div>
+                                }
                                 }
                             </div>
                             } @else {
@@ -280,15 +298,24 @@
                                 </div>
                             </div>
 
-                            <!-- Alternative aggregate per pasto -->
+                            <!-- Alternative proposte (display only, below macros) -->
                             @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
-                            <app-lista-alternative [alimentoPasto]="pasto.alimentiPasto[0]"
-                                [alternatives]="getAggregatedAlternatives(pasto)" [isDarkMode]="isDarkMode"
-                                (alternativeSelected)="onAggregatedAlternativeSelected(pasto, $event)"
-                                (alternativeRemoved)="onAggregatedAlternativeRemoved(pasto, $event)"
-                                (quantitaChanged)="onAggregatedAlternativeQuantita(pasto, $event)"
-                                (modeChanged)="onAggregatedAlternativeMode(pasto, $event)">
-                            </app-lista-alternative>
+                            @for (ap of pasto.alimentiPasto; track ap.id) {
+                            @if (getAlternativeEntries(ap.id).length > 0) {
+                            <div class="alternative-display-section">
+                                <div class="alternative-display-header">
+                                    <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                                    Alternative per: <strong>{{ ap.nomeVisualizzato || ap.alimento.nome }}</strong>
+                                </div>
+                                <app-lista-alternative [alimentoPasto]="ap" [alternatives]="getAlternatives(ap.id)"
+                                    [isDarkMode]="isDarkMode" [showMode]="'display-only'"
+                                    (alternativeRemoved)="onAlternativeRemovedFromComponent(ap.id, $event)"
+                                    (quantitaChanged)="onAlternativeQuantitaFromComponent(ap.id, $event)"
+                                    (modeChanged)="onAlternativeModeFromComponent(ap, $event)">
+                                </app-lista-alternative>
+                            </div>
+                            }
+                            }
                             }
                         </div>
                     </div>
@@ -328,7 +355,16 @@
                     </div>
                 </div>
 
-                <!-- Feature 12: Macro distribution bars -->
+                @if (!macroChartHasData) {
+                <div class="chart-empty">Dati insufficienti per calcolare le percentuali.</div>
+                } @else {
+                <div class="chart-wrapper">
+                    <canvas #macroPieChart role="img"
+                        [attr.aria-label]="'Distribuzione macronutrienti: Proteine, Carboidrati e Grassi'"></canvas>
+                </div>
+                }
+
+                <!-- Macro distribution bars -->
                 <div class="macro-bars">
                     <div class="macro-bar-row">
                         <span class="macro-bar-label">
@@ -359,18 +395,6 @@
                         <span class="macro-bar-pct">{{ macroPercentage('grassi') | number:'1.0-0' }}%</span>
                     </div>
                 </div>
-            </aside>
-
-            <aside class="macro-chart-panel" [class.dark-mode]="isDarkMode">
-                <div class="chart-title">Media percentuale macronutrienti (scheda)</div>
-                @if (!macroChartHasData) {
-                <div class="chart-empty">Dati insufficienti per calcolare le percentuali.</div>
-                } @else {
-                <div class="chart-wrapper">
-                    <canvas #macroPieChart role="img"
-                        [attr.aria-label]="'Distribuzione macronutrienti: Proteine, Carboidrati e Grassi'"></canvas>
-                </div>
-                }
             </aside>
 
             <aside class="macro-chart-panel" [class.dark-mode]="isDarkMode">

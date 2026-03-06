@@ -1,4 +1,5 @@
 <div class="alternative-section" [class.dark-mode]="isDarkMode">
+    @if (showMode === 'all' || showMode === 'search-only') {
     <div class="add-area">
         @if (editingSlot !== null) {
         <div class="search-panel">
@@ -31,63 +32,63 @@
         </button>
         }
     </div>
+    }
 
+    @if (showMode === 'all' || showMode === 'display-only') {
     <div class="alternatives-grid">
         @for (entry of validAlternatives; track entry.alt.savedId ?? entry.index) {
         <div class="alternative-card" [class.saving]="!!entry.alt.saving" [class.manual]="entry.alt.manual">
-            <div class="alternative-header">
-                <div class="alternative-nome-row">
-                    <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
-                    @if (entry.alt.manual) {
-                    <span class="manual-badge">Manuale</span>
-                    }
-                </div>
-                <div class="alternative-quantita">
-                    <input type="number" [ngModel]="entry.alt.quantita" [disabled]="!!entry.alt.saving"
-                        (ngModelChange)="onQuantitaChange(entry.index, $event)" min="1" class="quantita-input" />
-                    <span class="misura">g</span>
-                </div>
+            <div class="col-nome">
+                <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
+                @if (entry.alt.manual) {
+                <span class="manual-badge">Manuale</span>
+                }
             </div>
 
-            <div class="macro-badges">
-                <span class="badge proteine" title="Proteine">
-                    <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
-                    {{ calcolaMacro(entry.alt, 'proteine') | number:'1.0-1' }}g
-                </span>
-                <span class="badge carboidrati" title="Carboidrati">
-                    <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
-                    {{ calcolaMacro(entry.alt, 'carboidrati') | number:'1.0-1' }}g
-                </span>
-                <span class="badge grassi" title="Grassi">
-                    <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
-                    {{ calcolaMacro(entry.alt, 'grassi') | number:'1.0-1' }}g
-                </span>
-                <span class="badge calorie" title="Calorie">
-                    <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
-                    {{ calcolaMacro(entry.alt, 'calorie') | number:'1.0-0' }}
-                </span>
+            <div class="col-qty">
+                <input type="number" [ngModel]="entry.alt.quantita" [disabled]="!!entry.alt.saving"
+                    (ngModelChange)="onQuantitaChange(entry.index, $event)" min="1" class="quantita-input" />
+                <span class="misura">g</span>
             </div>
 
-            <div class="alternative-actions">
-                <div class="mode-selector">
-                    @for (mode of modes; track mode) {
-                    <button class="mode-btn" [class.active]="entry.alt.mode === mode" [disabled]="!!entry.alt.saving"
-                        (click)="onModeChange(entry.index, mode)" [title]="mode">
-                        <fa-icon [icon]="getModeIcon(mode)" size="xs"></fa-icon>
+            <span class="col-macro p" title="Proteine">{{ calcolaMacro(entry.alt, 'proteine') | number:'1.0-1' }}</span>
+            <span class="col-macro c" title="Carboidrati">{{ calcolaMacro(entry.alt, 'carboidrati') | number:'1.0-1'
+                }}</span>
+            <span class="col-macro g" title="Grassi">{{ calcolaMacro(entry.alt, 'grassi') | number:'1.0-1' }}</span>
+            <span class="col-macro kcal" title="Calorie">{{ calcolaMacro(entry.alt, 'calorie') | number:'1.0-0'
+                }}</span>
+
+            <div class="col-actions">
+                <div class="mode-dropdown">
+                    <button class="mode-active-btn" [ngClass]="'mode-' + entry.alt.mode" type="button"
+                        [disabled]="!!entry.alt.saving" (click)="toggleModeMenu(entry.index)"
+                        [attr.aria-expanded]="openModeForIndex===entry.index" [title]="entry.alt.mode">
+                        <fa-icon [icon]="getModeIcon(entry.alt.mode)" size="xs"></fa-icon>
+                        <span class="mode-label">{{ entry.alt.mode }}</span>
                     </button>
+                    @if (openModeForIndex === entry.index) {
+                    <div class="mode-menu" role="menu">
+                        @for (mode of modes; track mode) {
+                        @if (mode !== entry.alt.mode) {
+                        <button type="button" class="mode-menu-item" role="menuitem"
+                            (click)="selectMode(entry.index, mode)">
+                            <fa-icon [icon]="getModeIcon(mode)" size="xs"></fa-icon>
+                            <span>{{ mode }}</span>
+                        </button>
+                        }
+                        }
+                    </div>
                     }
                 </div>
-
                 <button class="btn-remove" [disabled]="!!entry.alt.saving"
-                    (click)="removeAlternative(entry.index, entry.alt.savedId)">
+                    (click)="removeAlternative(entry.index, entry.alt.savedId)" title="Rimuovi">
                     <fa-icon [icon]="icons.xmark"></fa-icon>
                 </button>
             </div>
 
-            @if (entry.alt.saving) {
-            <div class="alternative-sync">Sync...</div>
-            }
+
         </div>
         }
     </div>
+    }
 </div>

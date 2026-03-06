@@ -1,0 +1,126 @@
+.ufficio-container {
+  padding: 2rem;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.header-section h1 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, min-index(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card .value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.chart-container {
+  grid-column: span 2;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Dark Mode support */
+.dark-mode {
+  background-color: #1a1a1a;
+}
+
+.dark-mode h1 {
+  color: #f0f0f0;
+}
+
+.dark-box {
+  background: #2d2d2d !important;
+  color: white !important;
+}
+
+.dark-box .value {
+  color: #3498db !important;
+}
+
+.dark-box h3 {
+  color: #bbb !important;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    grid-column: span 1;
+  }
+}
+
+/* ... altre classi esistenti ... */
+
+/* Assicuriamoci che il container principale occupi altezza */
+.ufficio-container {
+  padding: 2rem;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  display: flex; /* Aggiunto per gestire il layout globale */
+  flex-direction: column;
+}
+
+/* Container del caricamento: occupa tutto lo spazio restate e cnetra */
+.loading-container {
+  flex: 1; /* Occupa tutto lo spazio verticale rimanente sotto l'header */
+  display: flex;
+  justify-content: center; /* Centra orizzontalmente */
+  align-items: center;    /* Centra verticalmente */
+  width: 100%;
+}
+
+/* Contenuto specifico del caricamento */
+.loading-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; /* Spazio tra GIF e testo */
+}
+
+/* Stile della GIF */
+.loading-gif {
+  max-width: 150px; /* Regola la dimensione massima della tua gif */
+  height: auto;
+  /* Opzionale: aggiungi un'ombra leggera se la gif ha sfondo trasparente */
+  /* filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); */
+}
+
+/* Stile del testo di caricamento */
+.loading-text {
+  font-size: 1.2rem;
+  color: #666;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Supporto Dark Mode per il testo di caricamento */
+.dark-mode .loading-text {
+  color: #bbb;
+}

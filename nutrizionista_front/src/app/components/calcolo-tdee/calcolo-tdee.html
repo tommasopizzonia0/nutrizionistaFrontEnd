@@ -1,0 +1,119 @@
+<div class="tdee-container" [class.dark-mode]="themeService.isDarkMode$ | async">
+  
+  <div class="header-section">
+    <h1><i class="fas fa-calculator"></i> Calcolo TDEE e Storico</h1>
+    <p>Calcola il fabbisogno calorico e mantieni lo storico per ogni paziente.</p>
+  </div>
+
+  <div class="tdee-grid">
+    
+    <div class="input-panel card" [class.dark-box]="themeService.isDarkMode$ | async">
+      <h3>Dati e Parametri</h3>
+      
+      <div class="form-group">
+        <label>Paziente di Riferimento</label>
+        <select [(ngModel)]="clienteSelezionatoId" (change)="onClienteChange()" [disabled]="loadingClienti">
+          <option [ngValue]="null">-- Seleziona un Paziente --</option>
+          @for (cliente of clienti; track cliente.id) {
+            <option [ngValue]="cliente.id">{{cliente.nome}} {{cliente.cognome}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Sesso</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="sesso" [(ngModel)]="dati.sesso" value="M"> Maschio
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="sesso" [(ngModel)]="dati.sesso" value="F"> Femmina
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label>Età (anni)</label>
+          <input type="number" [(ngModel)]="dati.eta" placeholder="Es: 28">
+        </div>
+        <div class="form-group">
+          <label>Peso (kg)</label>
+          <input type="number" [(ngModel)]="dati.peso" placeholder="Es: 75.5">
+        </div>
+        <div class="form-group">
+          <label>Altezza (cm)</label>
+          <input type="number" [(ngModel)]="dati.altezza" placeholder="Es: 180">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Livello di Attività Fisica (LAF)</label>
+        <select [(ngModel)]="dati.livelloAttivita">
+          <option [value]="1.2">Sedentario (Poco o zero esercizio)</option>
+          <option [value]="1.375">Leggermente Attivo (Esercizio leggero 1-3 gg/settimana)</option>
+          <option [value]="1.55">Moderatamente Attivo (Esercizio moderato 3-5 gg/settimana)</option>
+          <option [value]="1.725">Molto Attivo (Esercizio intenso 6-7 gg/settimana)</option>
+          <option [value]="1.9">Estremamente Attivo (Lavoro fisico pesante)</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-calc" (click)="calcolaTdee()">
+          <i class="fas fa-bolt"></i> Calcola & Salva
+        </button>
+        <button class="btn-reset" (click)="resetForm()">
+          <i class="fas fa-undo"></i> Azzera
+        </button>
+      </div>
+    </div>
+
+    <div class="results-panel">
+      
+      @if (risultatoAttuale) {
+        <div class="current-result card" [class.dark-box]="themeService.isDarkMode$ | async">
+          <h3>Ultimo Calcolo Effettuato</h3>
+          <div class="metrics-row">
+            <div class="metric">
+              <span class="label">BMR (Metabolismo Basale)</span>
+              <span class="val">{{ risultatoAttuale.bmr }} <small>kcal</small></span>
+            </div>
+            <div class="metric highlight">
+              <span class="label">TDEE (Fabbisogno Stimato)</span>
+              <span class="val">{{ risultatoAttuale.tdee }} <small>kcal</small></span>
+            </div>
+          </div>
+        </div>
+      } @else if (!clienteSelezionatoId) {
+        <div class="empty-state card" [class.dark-box]="themeService.isDarkMode$ | async">
+          <i class="fas fa-user-check"></i>
+          <p>Seleziona un paziente dal menu per iniziare.</p>
+        </div>
+      }
+
+      @if (storicoValutazioni.length > 0) {
+        <div class="storico-container">
+          <h3 class="section-title">Storico Paziente</h3>
+          
+          <div class="storico-list">
+            @for (item of storicoValutazioni; track item.id) {
+              <div class="storico-item card" [class.dark-box]="themeService.isDarkMode$ | async">
+                <div class="storico-info">
+                  <strong><i class="far fa-calendar-alt"></i> {{ item.dataCalcolo }}</strong>
+                  <span class="details">Peso: {{item.peso}}kg | LAF: {{item.livelloAttivita}}</span>
+                </div>
+                <div class="storico-values">
+                  <span>TDEE: <b>{{item.tdee}}</b> kcal</span>
+                  <button class="btn-icon-delete" (click)="eliminaDalStorico(item.id!)" title="Elimina Calcolo">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

@@ -74,15 +74,13 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
 
   /** Feature 9: Category filter */
   categoriaFiltro = '';
+  private categorieGlobali: string[] = [];
   isEvitarePanelOpen = false;
 
   /** Feature 9: Extract unique categories from available foods */
   get categorie(): string[] {
-    const cats = new Set<string>();
-    for (const a of this.alimentiDisponibili) {
-      if (a.categoria) cats.add(a.categoria);
-    }
-    return Array.from(cats).sort((a, b) => a.localeCompare(b, 'it'));
+    if (this.categorieGlobali.length > 0) return this.categorieGlobali;
+    return this.computeDynamicCats();
   }
 
   /** Feature 9: Filtered foods */
@@ -165,6 +163,15 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
 
     this.query$.next(this.searchQuery);
     this.page$.next(0);
+
+    // Carica elenco globale categorie (fallback dinamico su errore)
+    this.alimentoService.getCategorie().pipe(
+      map(cats => (cats || []).slice().sort((a, b) => a.localeCompare(b, 'it'))),
+      catchError(() => of(this.computeDynamicCats()))
+    ).subscribe(cats => {
+      this.categorieGlobali = cats;
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy(): void {
@@ -208,5 +215,20 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
   onAddAlimento(alimento: AlimentoBaseDto, event: Event): void {
     event.stopPropagation();
     this.alimentoSelezionato.emit(alimento);
+  }
+
+  onCategoriaChange(value: string): void {
+    this.categoriaFiltro = value || '';
+    this.currentPage = 0;
+    this.page$.next(0);
+  }
+
+  private computeDynamicCats(): string[] {
+    const cats = new Set<string>();
+    const source = this.searchResultsAll.length > 0 ? this.searchResultsAll : this.alimentiDisponibili;
+    for (const a of source) {
+      if (a.categoria) cats.add(a.categoria);
+    }
+    return Array.from(cats).sort((a, b) => a.localeCompare(b, 'it'));
   }
 }

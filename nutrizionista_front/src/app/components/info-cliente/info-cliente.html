@@ -1,0 +1,210 @@
+<div class="dashboard-info-container" [class.dark-mode]="isDarkMode">
+
+  <div class="stats-grid-top">
+    
+    <div class="stat-card widget-scheda" 
+         [class.clickable]="schedaAttiva" 
+         (click)="onSchedaClick()">
+      <div class="stat-icon"><fa-icon [icon]="faClipboardList"></fa-icon></div>
+      <div class="stat-details">
+        <span class="stat-title">Scheda Attiva</span>
+        <span class="stat-value" [title]="schedaAttiva?.nome || 'Nessuna scheda'">
+          @if (schedaAttiva?.nome) {
+            {{ schedaAttiva.nome.length > 20 ? (schedaAttiva.nome | slice:0:20) + '...' : schedaAttiva.nome }}
+          } @else {
+            <span class="empty-val">Nessuna dieta attiva</span>
+          }
+        </span>
+      </div>
+      @if (schedaAttiva) {
+        <div class="hover-overlay">
+          <span>Visualizza scheda</span>
+        </div>
+      }
+    </div>
+
+    <div class="stat-card widget-visita"
+         [class.clickable]="ultimaMisurazione || ultimaPlicometria"
+         (click)="onMisurazioneClick()">
+      <div class="stat-icon"><fa-icon [icon]="faCalendar"></fa-icon></div>
+      <div class="stat-details">
+        <span class="stat-title">Ultima Misurazione</span>
+        <span class="stat-value">
+          @if (ultimaMisurazione?.dataMisurazione) {
+            {{ formatData(ultimaMisurazione.dataMisurazione) }}
+          } @else if (ultimaPlicometria?.dataMisurazione) {
+            {{ formatData(ultimaPlicometria.dataMisurazione) }}
+          } @else {
+            <span class="empty-val">Nessuna</span>
+          }
+        </span>
+      </div>
+      @if (ultimaMisurazione || ultimaPlicometria) {
+        <div class="hover-overlay">
+          <span>Visualizza misurazioni</span>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <div class="dettaglio-grid layout-info">
+    
+    <div class="column-stack">
+      <div class="dettaglio-section medical-card anagrafica-card">
+        <h4><fa-icon [icon]="faUser"></fa-icon> Informazioni Anagrafiche</h4>
+        <div class="medical-rows">
+          <div class="medical-row">
+            <div class="row-label"><fa-icon [icon]="faEnvelope"></fa-icon> Email</div>
+            <div class="row-value">{{ cliente.email || 'N/D' }}</div>
+          </div>
+          <div class="medical-row">
+            <div class="row-label"><fa-icon [icon]="faPhone"></fa-icon> Telefono</div>
+            <div class="row-value">{{ cliente.telefono || 'N/D' }}</div>
+          </div>
+          <div class="medical-row">
+            <div class="row-label"><fa-icon [icon]="faCalendar"></fa-icon> Data nascita</div>
+            <div class="row-value">{{ formatData(cliente.dataNascita) }}</div>
+          </div>
+          <div class="medical-row">
+            <div class="row-label"><fa-icon [icon]="faIdCard"></fa-icon> Età</div>
+            <div class="row-value">{{ calcolaEta(cliente.dataNascita) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dettaglio-section medical-card tdee-card">
+        
+        <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 0;">
+          <span style="display: flex; align-items: center; gap: 0.6rem;">
+            <fa-icon [icon]="faBolt"></fa-icon> Storico TDEE & BMR
+          </span>
+          @if (storicoTdee && storicoTdee.length > 0) {
+            <button class="btn-delete-all" (click)="eliminaTuttiTdee()" title="Svuota Storico">
+              <fa-icon [icon]="faTrash"></fa-icon>
+            </button>
+          }
+        </h4>
+
+        <div class="medical-rows">
+          @if (storicoTdee && storicoTdee.length > 0) {
+            @for (calcolo of storicoTdee; track calcolo.id) {
+              <div class="medical-row">
+                <div class="row-label">
+                  <fa-icon [icon]="faCalendar"></fa-icon> {{ formatData(calcolo.dataCalcolo) }}
+                </div>
+                
+                <div class="tdee-row-actions">
+                  <div class="row-value" style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
+                    <span>TDEE: {{ calcolo.tdee }} <small>kcal</small></span>
+                    <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">BMR: {{ calcolo.bmr }} <small>kcal</small></span>
+                  </div>
+                  <button class="btn-icon-delete" (click)="eliminaSingoloTdee(calcolo.id!)" title="Elimina singolo calcolo">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                  </button>
+                </div>
+
+              </div>
+            }
+          } @else {
+            <div class="medical-row" style="justify-content: center; background: transparent; border: none;">
+              <span class="empty-val">Nessun calcolo registrato</span>
+            </div>
+          }
+        </div>
+      </div>
+      </div>
+
+    <div class="column-stack">
+      <div class="dettaglio-section medical-card metrics-card">
+        <h4><fa-icon [icon]="faRunning"></fa-icon> Composizione Corporea</h4>
+
+        <div class="metrics-grid">
+          
+          <div class="metric-box widget-peso">
+            <div class="metric-icon"><fa-icon [icon]="faWeight"></fa-icon></div>
+            <div class="metric-info">
+              <span class="metric-label">Peso</span>
+              <span class="metric-value">{{ cliente.peso ? cliente.peso + ' kg' : '--' }}</span>
+            </div>
+          </div>
+
+          <div class="metric-box widget-altezza">
+            <div class="metric-icon"><fa-icon [icon]="faRuler"></fa-icon></div>
+            <div class="metric-info">
+              <span class="metric-label">Altezza</span>
+              <span class="metric-value">{{ cliente.altezza ? cliente.altezza + ' cm' : '--' }}</span>
+            </div>
+          </div>
+
+          <div class="metric-box widget-grassa">
+            <div class="metric-icon"><fa-icon [icon]="faPercentage"></fa-icon></div>
+            <div class="metric-info">
+              <span class="metric-label">Massa Grassa</span>
+              <span class="metric-value">
+                @if (mgPercent !== null) {
+                  {{ mgPercent | number:'1.1-1' }}%
+                } @else {
+                  --
+                }
+              </span>
+            </div>
+          </div>
+
+          <div class="metric-box widget-magra">
+            <div class="metric-icon"><fa-icon [icon]="faDumbbell"></fa-icon></div>
+            <div class="metric-info">
+              <span class="metric-label">Massa Magra</span>
+              <span class="metric-value">
+                @if (mmPercent !== null) {
+                  {{ mmPercent | number:'1.1-1' }}%
+                } @else {
+                  --
+                }
+              </span>
+            </div>
+          </div>
+
+          @if (bmi !== null && bmiCategoria !== null) {
+            <div class="metric-box widget-bmi bmi-box-full" [attr.data-cat]="bmiCategoria.key">
+              
+              <div class="metric-icon"><fa-icon [icon]="faHeartbeat"></fa-icon></div>
+              
+              <div class="metric-info bmi-graph-integrated">
+                <div class="bmi-header-inline">
+                  <span class="metric-label">BMI: {{ bmi | number:'1.1-1' }}</span>
+                  <span class="metric-sublabel badge-bmi">({{ bmiCategoria.label }})</span>
+                </div>
+                
+                <div class="bmi-graph-container">
+                  <div class="bmi-bar" aria-label="Indicatore BMI">
+                    <div class="bmi-seg under" title="Sottopeso"></div>
+                    <div class="bmi-seg normal" title="Normopeso"></div>
+                    <div class="bmi-seg over" title="Sovrappeso"></div>
+                    <div class="bmi-seg obese" title="Obesità"></div>
+                    <div class="bmi-marker" [style.left.%]="bmiPercent"></div>
+                  </div>
+                  <div class="bmi-legend-integrated">
+                    <span>18.5</span>
+                    <span>25</span>
+                    <span>30</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="metric-box widget-bmi bmi-box-full empty-state-mini">
+              <div class="metric-icon"><fa-icon [icon]="faHeartbeat"></fa-icon></div>
+              <div class="metric-info">
+                <span class="metric-label">BMI</span>
+                <span class="empty-val">Mancano dati</span>
+              </div>
+            </div>
+          }
+
+        </div> 
+      </div> 
+    </div> 
+    
+  </div>
+</div>
