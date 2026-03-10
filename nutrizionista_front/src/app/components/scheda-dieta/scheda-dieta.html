@@ -100,8 +100,26 @@
                 </div>
             </div>
             }
-            <div class="pasti-container">
-                @for (pasto of pasti; track pastoKey(pasto); let i = $index) {
+            @if (isSettimanale) {
+            <div class="day-tabs-header-wrap">
+                <div class="day-tabs-bar">
+                    @for (giorno of giorni; track giorno.key) {
+                    <button class="day-tab" [class.active]="selectedGiorno === giorno.key"
+                        (click)="selectGiorno(giorno.key)">
+                        <span class="day-short">{{ giorno.short }}</span>
+                        <span class="day-full">{{ giorno.label }}</span>
+                    </button>
+                    }
+                </div>
+                <!-- Pulsante "Copia Giorno" -->
+                <button class="btn-copy-day" (click)="openCopyDayModal()" [disabled]="saving || !schedaId"
+                    title="Copia i pasti di {{ getGiornoLabel(selectedGiorno) }} su altri giorni">
+                    <fa-icon [icon]="icons.copy"></fa-icon> Copia Giorno
+                </button>
+            </div>
+            }
+            <div class="pasti-container" [class.day-animating]="dayAnimating">
+                @for (pasto of filteredPasti; track pastoKey(pasto); let i = $index) {
                 <div class="pasto-card" [class.expanded]="pastoEspansoKey === pastoKey(pasto)"
                     [class.dragging]="dragIndex === i" [class.drop-target]="dropIndex === i && dragIndex !== i"
                     [attr.draggable]="pastoEspansoKey === pastoKey(pasto) ? 'false' : 'true'"
@@ -259,7 +277,8 @@
                                         (alternativeSelected)="onAlternativeFromComponent(alimentoPasto, $event)"
                                         (alternativeRemoved)="onAlternativeRemovedFromComponent(alimentoPasto.id, $event)"
                                         (quantitaChanged)="onAlternativeQuantitaFromComponent(alimentoPasto.id, $event)"
-                                        (modeChanged)="onAlternativeModeFromComponent(alimentoPasto, $event)">
+                                        (modeChanged)="onAlternativeModeFromComponent(alimentoPasto, $event)"
+                                        (displayNameChange)="onAlternativeDisplayNameChange($event)">
                                     </app-lista-alternative>
                                 </div>
                                 }
@@ -311,7 +330,8 @@
                                     [isDarkMode]="isDarkMode" [showMode]="'display-only'"
                                     (alternativeRemoved)="onAlternativeRemovedFromComponent(ap.id, $event)"
                                     (quantitaChanged)="onAlternativeQuantitaFromComponent(ap.id, $event)"
-                                    (modeChanged)="onAlternativeModeFromComponent(ap, $event)">
+                                    (modeChanged)="onAlternativeModeFromComponent(ap, $event)"
+                                    (displayNameChange)="onAlternativeDisplayNameChange($event)">
                                 </app-lista-alternative>
                             </div>
                             }
@@ -440,4 +460,99 @@
     <app-modal-dati-mancanti [open]="modalDatiMancanti" [campiMancanti]="campiMancanti" [isDarkMode]="isDarkMode"
         (closed)="modalDatiMancanti = false" (compilaDati)="modalDatiMancanti = false; navigateToCliente()">
     </app-modal-dati-mancanti>
+
+    <!-- COPY DAY MODAL -->
+    @if (showCopyDayModal) {
+    <div class="modal-overlay" (click)="closeCopyDayModal()">
+        <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Copia {{ getGiornoLabel(selectedGiorno) }}</h3>
+                <button class="icon-btn close" (click)="closeCopyDayModal()">
+                    <fa-icon [icon]="icons.close"></fa-icon>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Seleziona i giorni su cui incollare i dati di <strong>{{ getGiornoLabel(selectedGiorno) }}</strong>:
+                </p>
+                <div class="day-checkboxes"
+                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; margin-bottom: 2rem;">
+                    @for (g of giorni; track g.key) {
+                    @if (g.key !== selectedGiorno) {
+                    <label class="custom-checkbox target-day-check"
+                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" [(ngModel)]="copyDayTargetDays[g.key]"
+                            style="width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: var(--green-primary);" />
+                        <span style="font-weight: 700;">{{ g.label }}</span>
+                    </label>
+                    }
+                    }
+                </div>
+
+                <div class="copy-items-selection" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <p
+                        style="margin-bottom: 1rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem;">
+                        Cosa vuoi copiare?</p>
+
+                    @if (filteredPasti.length === 0) {
+                    <p style="font-style: italic; color: var(--text-muted);">Nessun pasto presente in questa giornata.
+                    </p>
+                    }
+
+                    <div class="copy-pasti-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                        @for (pasto of filteredPasti; track pasto.id) {
+                        @if (pasto.alimentiPasto && pasto.alimentiPasto.length > 0) {
+                        <div class="copy-pasto-group"
+                            style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 12px;">
+
+                            <!-- Intestazione Pasto (Master Checkbox) -->
+                            <label class="custom-checkbox"
+                                style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 10px;">
+                                <input type="checkbox" [checked]="isPastoFullySelected(pasto)"
+                                    [indeterminate]="isPastoPartiallySelected(pasto)"
+                                    (change)="togglePastoSelection(pasto, $event)"
+                                    style="width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: var(--green-primary);" />
+                                <span style="font-weight: 800; color: var(--text); font-size: 1.05rem;">{{ pasto.nome
+                                    }}</span>
+                            </label>
+
+                            <!-- Lista Alimenti -->
+                            <div class="copy-alimenti-list"
+                                style="display: flex; flex-direction: column; gap: 8px; margin-left: 2rem;">
+                                @for (ap of pasto.alimentiPasto; track ap.id) {
+                                <label class="custom-checkbox"
+                                    style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" [(ngModel)]="copyDaySelectedAlimenti[ap.id!]"
+                                        style="width: 1rem; height: 1rem; cursor: pointer; accent-color: var(--green-primary); margin-top: 3px;" />
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-weight: 700; color: var(--text); font-size: 0.9rem;">
+                                            {{ ap.nomeVisualizzato || ap.nomeCustom || ap.alimento.nome }}
+                                        </span>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">{{ ap.quantita
+                                            }}g</span>
+                                    </div>
+                                </label>
+                                }
+                            </div>
+
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn-secondary" (click)="closeCopyDayModal()" [disabled]="copyDaySaving"
+                    style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);">Annulla</button>
+                <button class="btn-primary" (click)="eseguiCopiaGiorno()"
+                    [disabled]="copyDaySaving || !hasSelectedTargetDays()">
+                    @if (copyDaySaving) {
+                    <fa-icon [icon]="icons.spinner" animation="spin"></fa-icon> Copia in corso...
+                    } @else {
+                    <fa-icon [icon]="icons.save"></fa-icon> Applica Copia
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+    }
 </div>

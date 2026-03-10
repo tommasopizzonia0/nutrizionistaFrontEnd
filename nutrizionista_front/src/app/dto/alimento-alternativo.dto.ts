@@ -13,6 +13,8 @@ export interface AlimentoAlternativoDto {
     mode?: AlternativeModeDto;
     manual?: boolean;
     note?: string;
+    nomeCustom?: string | null;
+    nomeVisualizzato?: string | null;
     createdAt?: string;
     updatedAt?: string;
 }

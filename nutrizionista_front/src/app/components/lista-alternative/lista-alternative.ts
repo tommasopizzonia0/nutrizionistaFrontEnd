@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faEdit, faXmark, faFire, faDumbbell, faWheatAlt, faDroplet } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faXmark, faFire, faDumbbell, faWheatAlt, faDroplet, faPen, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { AlimentoPastoDto } from '../../dto/alimento-pasto.dto';
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
 import { AlimentoService } from '../../services/alimento-service';
@@ -17,6 +17,8 @@ export type AlternativeProposal = {
   manual: boolean;
   savedId?: number;
   saving?: boolean;
+  nomeCustom?: string | null;
+  nomeVisualizzato?: string | null;
 };
 
 @Component({
@@ -37,6 +39,9 @@ export class ListaAlternative {
   @Output() alternativeRemoved = new EventEmitter<{ index: number; savedId?: number }>();
   @Output() quantitaChanged = new EventEmitter<{ slot: number; quantita: number }>();
   @Output() modeChanged = new EventEmitter<{ slot: number; mode: AlternativeMode }>();
+  @Output() displayNameChange = new EventEmitter<{ alternativaId: number; nome: string | null }>();
+
+  @ViewChild('altNomeInput') altNomeInput?: ElementRef<HTMLInputElement>;
 
   private cdr = inject(ChangeDetectorRef);
   private alimentoService = inject(AlimentoService);
@@ -44,6 +49,9 @@ export class ListaAlternative {
   readonly icons = {
     plus: faPlus,
     edit: faEdit,
+    pen: faPen,
+    confirm: faCheck,
+    cancel: faXmark,
     xmark: faXmark,
     fire: faFire,
     dumbbell: faDumbbell,
@@ -60,6 +68,8 @@ export class ListaAlternative {
   searchResults: AlimentoBaseDto[] = [];
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
   openModeForIndex: number | null = null;
+  editingNomeIndex: number | null = null;
+  editNomeValue = '';
 
   get validAlternatives(): { index: number; alt: AlternativeProposal }[] {
     return this.alternatives
@@ -162,6 +172,53 @@ export class ListaAlternative {
     const misura = alt.alimento?.misuraInGrammi || 100;
     const value = (macros as any)[macro] || 0;
     return value * (alt.quantita || 0) / misura;
+  }
+
+  getNomeVisualizzato(alt: AlternativeProposal): string {
+    return alt.nomeVisualizzato || alt.nomeCustom || alt.alimento?.nome || 'Alternativa';
+  }
+
+  startEditNome(index: number, alt: AlternativeProposal): void {
+    this.editingNomeIndex = index;
+    this.editNomeValue = alt.nomeCustom || alt.alimento?.nome || '';
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.altNomeInput?.nativeElement?.focus();
+      this.altNomeInput?.nativeElement?.select();
+    }, 0);
+  }
+
+  cancelEditNome(): void {
+    this.editingNomeIndex = null;
+    this.editNomeValue = '';
+    this.cdr.detectChanges();
+  }
+
+  confirmEditNome(alt: AlternativeProposal): void {
+    if (!alt.savedId) {
+      this.cancelEditNome();
+      return;
+    }
+    const nome = this.editNomeValue.trim();
+    const catalogo = (alt.alimento?.nome || '').trim();
+    this.editingNomeIndex = null;
+
+    if (!nome || nome === catalogo) {
+      this.displayNameChange.emit({ alternativaId: alt.savedId, nome: null });
+    } else {
+      this.displayNameChange.emit({ alternativaId: alt.savedId, nome });
+    }
+    this.cdr.detectChanges();
+  }
+
+  onNomeKeydown(event: KeyboardEvent, alt: AlternativeProposal): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.confirmEditNome(alt);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.cancelEditNome();
+    }
   }
 
   private suggestQuantity(alimento: AlimentoBaseDto): number {

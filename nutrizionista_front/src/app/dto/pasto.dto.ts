@@ -1,6 +1,8 @@
 import { AlimentoPastoDto } from "./alimento-pasto.dto";
 import { SchedaDto } from "./scheda.dto";
 
+export type GiornoSettimana = 'LUNEDI' | 'MARTEDI' | 'MERCOLEDI' | 'GIOVEDI' | 'VENERDI' | 'SABATO' | 'DOMENICA';
+
 export interface PastoDto {
     id: number;
     nome: string;
@@ -12,6 +14,7 @@ export interface PastoDto {
     alimentiPasto?: AlimentoPastoDto[];
     orarioInizio?: string;
     orarioFine?: string;
+    giorno?: GiornoSettimana;
 }
 
 
@@ -23,4 +26,5 @@ export interface PastoFormDto {
     orarioFine?: string;
     descrizione?: string;
     ordineVisualizzazione?: number;
+    giorno?: GiornoSettimana;
 }

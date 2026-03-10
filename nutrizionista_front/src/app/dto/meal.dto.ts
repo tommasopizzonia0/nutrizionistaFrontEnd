@@ -5,6 +5,7 @@ export interface MealCreateRequest {
   nome: string;
   descrizione?: string;
   ordineVisualizzazione?: number;
+  giorno?: string;
 }
 
 export interface MealUpdateRequest {

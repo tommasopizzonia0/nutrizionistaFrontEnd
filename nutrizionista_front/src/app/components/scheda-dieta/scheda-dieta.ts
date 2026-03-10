@@ -13,11 +13,11 @@ import {
   faAppleWhole, faTrash, faChevronRight, faChevronDown,
   faChartPie, faDumbbell, faWheatAlt, faDroplet, faFire,
   faPlus, faEdit, faXmark, faToggleOn, faToggleOff, faCalendarDays,
-  faMagnifyingGlass
+  faMagnifyingGlass, faCopy, faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
 import { SchedaDto } from '../../dto/scheda.dto';
-import { PastoDto, PastoFormDto } from '../../dto/pasto.dto';
+import { PastoDto, PastoFormDto, GiornoSettimana } from '../../dto/pasto.dto';
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
 import { AlimentoPastoDto, AlimentoPastoRequest } from '../../dto/alimento-pasto.dto';
 
@@ -51,6 +51,8 @@ type AlternativeProposal = {
   manual: boolean;
   savedId?: number; // ID from backend for persistence
   saving?: boolean;
+  nomeCustom?: string | null;
+  nomeVisualizzato?: string | null;
 };
 
 type AlternativeEntry = { index: number; alt: AlternativeProposal };
@@ -94,6 +96,132 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   pastoEspansoLabel?: string;
   autoSaving = false;
 
+  // === WEEKLY PLAN ===
+  readonly giorni: { key: GiornoSettimana; label: string; short: string }[] = [
+    { key: 'LUNEDI', label: 'Lunedì', short: 'Lun' },
+    { key: 'MARTEDI', label: 'Martedì', short: 'Mar' },
+    { key: 'MERCOLEDI', label: 'Mercoledì', short: 'Mer' },
+    { key: 'GIOVEDI', label: 'Giovedì', short: 'Gio' },
+    { key: 'VENERDI', label: 'Venerdì', short: 'Ven' },
+    { key: 'SABATO', label: 'Sabato', short: 'Sab' },
+    { key: 'DOMENICA', label: 'Domenica', short: 'Dom' }
+  ];
+  selectedGiorno: GiornoSettimana = 'LUNEDI';
+
+  get isSettimanale(): boolean {
+    return this.scheda?.tipo === 'SETTIMANALE';
+  }
+
+  get filteredPasti(): PastoDto[] {
+    if (!this.isSettimanale) return this.pasti;
+    return this.pasti.filter(p => p.giorno === this.selectedGiorno);
+  }
+
+  selectGiorno(giorno: GiornoSettimana): void {
+    if (this.selectedGiorno === giorno) return;
+    this.selectedGiorno = giorno;
+
+    // Riavvia l'animazione attivando la classe per 300ms
+    this.dayAnimating = false;
+    this.cdr.detectChanges(); // forza rimozione
+    setTimeout(() => {
+      this.dayAnimating = true;
+      this.cdr.detectChanges();
+    }, 10);
+  }
+
+  dayAnimating = false;
+
+  getGiornoLabel(key: string): string {
+    const found = this.giorni.find(g => g.key === key);
+    return found ? found.label : key;
+  }
+
+  // --- COPY DAY LOGIC ---
+  openCopyDayModal(): void {
+    this.showCopyDayModal = true;
+    this.copyDayTargetDays = {};
+    for (const g of this.giorni) {
+      if (g.key !== this.selectedGiorno) {
+        this.copyDayTargetDays[g.key] = false; // Initialize to false
+      }
+    }
+
+    // Inizializza la selezione alimenti
+    this.copyDaySelectedAlimenti = {};
+    for (const pasto of this.filteredPasti) {
+      if (pasto.alimentiPasto) {
+        for (const ap of pasto.alimentiPasto) {
+          if (ap.id) {
+            this.copyDaySelectedAlimenti[ap.id] = true; // Preselezionati tutti
+          }
+        }
+      }
+    }
+  }
+
+  closeCopyDayModal(): void {
+    this.showCopyDayModal = false;
+  }
+
+  hasSelectedTargetDays(): boolean {
+    return Object.values(this.copyDayTargetDays).some(val => val);
+  }
+
+  // Helper Methods for UI Checkboxes
+  isPastoFullySelected(pasto: PastoDto): boolean {
+    if (!pasto.alimentiPasto || pasto.alimentiPasto.length === 0) return false;
+    return pasto.alimentiPasto.every(ap => ap.id && this.copyDaySelectedAlimenti[ap.id]);
+  }
+
+  isPastoPartiallySelected(pasto: PastoDto): boolean {
+    if (!pasto.alimentiPasto || pasto.alimentiPasto.length === 0) return false;
+    const selectedCount = pasto.alimentiPasto.filter(ap => ap.id && this.copyDaySelectedAlimenti[ap.id]).length;
+    return selectedCount > 0 && selectedCount < pasto.alimentiPasto.length;
+  }
+
+  togglePastoSelection(pasto: PastoDto, event: any): void {
+    const isChecked = event.target.checked;
+    if (pasto.alimentiPasto) {
+      for (const ap of pasto.alimentiPasto) {
+        if (ap.id) {
+          this.copyDaySelectedAlimenti[ap.id] = isChecked;
+        }
+      }
+    }
+  }
+
+  eseguiCopiaGiorno(): void {
+    if (!this.schedaId) return;
+
+    const targetDays = Object.keys(this.copyDayTargetDays).filter(k => this.copyDayTargetDays[k]);
+    if (targetDays.length === 0) return;
+
+    // Raccogli solo gli ID degli alimenti spuntati
+    const selectedAlimentoIds = Object.keys(this.copyDaySelectedAlimenti)
+      .filter(idStr => this.copyDaySelectedAlimenti[Number(idStr)])
+      .map(idStr => Number(idStr));
+
+    this.copyDaySaving = true;
+    this.schedaService.copyDay(this.schedaId, this.selectedGiorno, targetDays, selectedAlimentoIds).subscribe({
+      next: (schedaAggiornata) => {
+        this.copyDaySaving = false;
+        this.closeCopyDayModal();
+        this.successMessage = 'Giorno copiato con successo!';
+        // Ricarica la scheda per avere i dati aggiornati
+        this.schedaCache.invalidate(this.schedaId!);
+        this.loadScheda();
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        console.error('Errore copia giorno:', err);
+        this.copyDaySaving = false;
+        this.errorMessage = 'Errore durante la copia del giorno.';
+        setTimeout(() => this.errorMessage = '', 3000);
+      }
+    });
+  }
+
   showCreateMeal = false;
   createMealNome = '';
   createMealDescrizione = '';
@@ -103,10 +231,16 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   modalQuantita = 100;
 
   editingNomeScheda = false;
-  editNomeScheda = '';
   editNomeSchedaOriginale = '';
+  editNomeScheda = '';
   editNomeSchedaError = '';
   savingNomeScheda = false;
+
+  // -- COPY DAY MODAL STATE --
+  showCopyDayModal = false;
+  copyDayTargetDays: Record<string, boolean> = {};
+  copyDaySelectedAlimenti: Record<number, boolean> = {};
+  copyDaySaving = false;
 
   // Obiettivo - missing data modal
   modalDatiMancanti = false;
@@ -134,7 +268,7 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     wheat: faWheatAlt, droplet: faDroplet, fire: faFire,
     plus: faPlus, edit: faEdit, close: faXmark,
     toggleOn: faToggleOn, toggleOff: faToggleOff, calendar: faCalendarDays,
-    search: faMagnifyingGlass
+    search: faMagnifyingGlass, copy: faCopy, spinner: faSpinner
   };
 
   defaultAlternativeMode: AlternativeMode = 'calorie';
@@ -158,11 +292,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     if (routeClienteId && !this.clienteId) {
       this.clienteId = Number(routeClienteId);
     }
-    if (this.schedaId) {
-      this.loadScheda();
-    } else {
-      this.initializePastiVuoti();
-    }
+    // rimosso il loadScheda da qui perché ngOnChanges viene scatenato PRIMA di ngOnInit in Angular, 
+    // e chiamandolo anche qui si generavano 2 richieste HTTP sovrapposte per caricare la scheda
+    // e le sue alternative ad ogni singolo avvio.
 
     // Load alimenti da evitare per il cliente (Features 6, 10)
     if (this.clienteId) {
@@ -299,6 +431,12 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         // Merge: sempre 4 pasti di default + dati dal server
         this.mergePastiConDefault(scheda.pasti || []);
         this.syncAlternativeState();
+
+        // Single batch call for alternatives after the scheda is loaded
+        if (this.scheda?.id) {
+          this.loadAllAlternativesForScheda(this.scheda.id);
+        }
+
         this.updateMacroChartFromPasti();
         this.loading = false;
         this.cdr.detectChanges();
@@ -315,8 +453,25 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   /**
    * Merge i pasti dal backend con i 4 pasti di default.
    * Questo assicura che tutti e 4 i pasti siano sempre visibili.
+   * Per schede SETTIMANALI, i pasti vengono usati direttamente dal server
+   * (il backend crea già 28 pasti: 4 per ciascuno dei 7 giorni).
    */
   private mergePastiConDefault(pastiDalServer: PastoDto[]): void {
+    // Per schede settimanali: il backend ha già creato i pasti per ogni giorno,
+    // non dobbiamo fare alcun merge per evitare di sovrascrivere i dati
+    if (this.isSettimanale) {
+      this.pasti = pastiDalServer.sort((a, b) => {
+        const ao = a.ordineVisualizzazione ?? 999;
+        const bo = b.ordineVisualizzazione ?? 999;
+        if (ao !== bo) return ao - bo;
+        return (a.nome ?? '').localeCompare(b.nome ?? '');
+      });
+      this.syncAlternativeState();
+      this.updateMacroChartFromPasti();
+      return;
+    }
+
+    // Per schede giornaliere: merge con i 4 pasti di default
     const defaultNames = ['Colazione', 'Pranzo', 'Merenda', 'Cena'];
     const isDefaultByNameOrCode = (p: PastoDto) => {
       const code = (p.defaultCode ?? '').toLowerCase();
@@ -669,7 +824,8 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       schedaId: this.schedaId,
       nome,
       descrizione: this.createMealDescrizione.trim() || undefined,
-      ordineVisualizzazione: maxOrder + 1
+      ordineVisualizzazione: maxOrder + 1,
+      giorno: this.isSettimanale ? this.selectedGiorno : undefined
     }).subscribe({
       next: (created) => {
         this.pasti = [...this.pasti, { ...created, alimentiPasto: created.alimentiPasto ?? [] }]
@@ -765,6 +921,41 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
       error: (err) => {
         console.error('Errore aggiornamento nome visualizzato alimento:', err);
         this.showError('Errore aggiornamento nome alimento.');
+      }
+    });
+  }
+
+  onAlternativeDisplayNameChange(event: { alternativaId: number; nome: string | null }): void {
+    const call$ = event.nome
+      ? this.alternativoService.setDisplayName(event.alternativaId, event.nome)
+      : this.alternativoService.deleteDisplayName(event.alternativaId);
+
+    call$.subscribe({
+      next: (updated) => {
+        // Update local alternatives arrays with the new display name
+        for (const key of Object.keys(this.alternativeByAlimentoPastoId)) {
+          const list = this.alternativeByAlimentoPastoId[Number(key)];
+          if (!list) continue;
+          for (let i = 0; i < list.length; i++) {
+            if (list[i]?.savedId === updated.id) {
+              list[i] = { ...list[i]!, nomeCustom: updated.nomeCustom, nomeVisualizzato: updated.nomeVisualizzato };
+            }
+          }
+        }
+        for (const key of Object.keys(this.alternativeByPastoId)) {
+          const list = this.alternativeByPastoId[Number(key)];
+          if (!list) continue;
+          for (let i = 0; i < list.length; i++) {
+            if (list[i]?.savedId === updated.id) {
+              list[i] = { ...list[i]!, nomeCustom: updated.nomeCustom, nomeVisualizzato: updated.nomeVisualizzato };
+            }
+          }
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Errore aggiornamento nome alternativa:', err);
+        this.showError('Errore aggiornamento nome alternativa.');
       }
     });
   }
@@ -1256,7 +1447,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
             mode: this.fromBackendMode(alt.mode),
             manual: alt.manual ?? true,
             savedId: alt.id,
-            saving: false
+            saving: false,
+            nomeCustom: alt.nomeCustom,
+            nomeVisualizzato: alt.nomeVisualizzato
           }));
           this.alternativeByAlimentoPastoId[id].push(null);
         } else if (ap?.alternative) {
@@ -1271,11 +1464,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         this.recomputeAlternativesForAlimentoPasto(id);
       }
     }
-
-    // Load all per-pasto alternatives in a single batch call
-    if (this.scheda?.id) {
-      this.loadAllAlternativesForScheda(this.scheda.id);
-    }
   }
 
   private loadAlternativesFromBackend(alimentoPastoId: number): void {
@@ -1289,7 +1477,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
             mode: this.fromBackendMode(alt.mode),
             manual: alt.manual ?? true,
             savedId: alt.id,
-            saving: false
+            saving: false,
+            nomeCustom: alt.nomeCustom,
+            nomeVisualizzato: alt.nomeVisualizzato
           }));
           // Add null slot for "add new" button
           this.alternativeByAlimentoPastoId[alimentoPastoId].push(null);
@@ -1323,7 +1513,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
               mode: this.fromBackendMode(alt.mode),
               manual: alt.manual ?? true,
               savedId: alt.id,
-              saving: false
+              saving: false,
+              nomeCustom: alt.nomeCustom,
+              nomeVisualizzato: alt.nomeVisualizzato
             }));
             this.alternativeByPastoId[pastoId].push(null);
           } else {
@@ -1359,7 +1551,9 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
             mode: this.fromBackendMode(alt.mode),
             manual: alt.manual ?? true,
             savedId: alt.id,
-            saving: false
+            saving: false,
+            nomeCustom: alt.nomeCustom,
+            nomeVisualizzato: alt.nomeVisualizzato
           }));
           this.alternativeByPastoId[pastoId].push(null);
         } else {
