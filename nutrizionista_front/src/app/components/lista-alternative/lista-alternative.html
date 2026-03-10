@@ -39,7 +39,26 @@
         @for (entry of validAlternatives; track entry.alt.savedId ?? entry.index) {
         <div class="alternative-card" [class.saving]="!!entry.alt.saving" [class.manual]="entry.alt.manual">
             <div class="col-nome">
-                <span class="alternative-nome">{{ entry.alt.alimento.nome }}</span>
+                @if (editingNomeIndex === entry.index) {
+                <div class="nome-edit-row">
+                    <input #altNomeInput type="text" class="nome-input" [(ngModel)]="editNomeValue"
+                        (keydown)="onNomeKeydown($event, entry.alt)" (blur)="confirmEditNome(entry.alt)" />
+                    <button class="btn-inline confirm" (mousedown)="$event.preventDefault(); confirmEditNome(entry.alt)"
+                        title="Conferma" aria-label="Conferma">
+                        <fa-icon [icon]="icons.confirm"></fa-icon>
+                    </button>
+                    <button class="btn-inline cancel" (mousedown)="$event.preventDefault(); cancelEditNome()"
+                        title="Annulla" aria-label="Annulla">
+                        <fa-icon [icon]="icons.cancel"></fa-icon>
+                    </button>
+                </div>
+                } @else {
+                <span class="alternative-nome" (dblclick)="startEditNome(entry.index, entry.alt)" title="Doppio click per modificare">{{ getNomeVisualizzato(entry.alt) }}</span>
+                <button class="btn-edit-nome" (click)="startEditNome(entry.index, entry.alt)" title="Modifica nome visualizzato"
+                    aria-label="Modifica nome visualizzato">
+                    <fa-icon [icon]="icons.pen" size="xs"></fa-icon>
+                </button>
+                }
                 @if (entry.alt.manual) {
                 <span class="manual-badge">Manuale</span>
                 }

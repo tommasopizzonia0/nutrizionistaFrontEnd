@@ -6,10 +6,10 @@ import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faTrash, faChevronRight, faChevronLeft, faPlus,
-  faUtensils, faCalendarDays, faCheckCircle, faBan, faEdit, faClipboardList
+  faUtensils, faCalendarDays, faCheckCircle, faBan, faEdit, faClipboardList, faCalendarWeek
 } from '@fortawesome/free-solid-svg-icons';
 
-import { SchedaDto } from '../../dto/scheda.dto';
+import { SchedaDto, TipoScheda } from '../../dto/scheda.dto';
 import { PageResponse } from '../../dto/page-response.dto';
 import { SchedaService } from '../../services/scheda-service';
 import { SchedaCacheService } from '../../services/scheda-cache.service';
@@ -27,7 +27,7 @@ export class ListaSchede implements OnChanges {
   @Input() isDarkMode = false;
   @Output() schedaSelected = new EventEmitter<SchedaDto>();
   @Output() schedaPreview = new EventEmitter<SchedaDto>();
-  @Output() createNew = new EventEmitter<void>();
+  @Output() createNew = new EventEmitter<TipoScheda>();
   @Output() schedaRenamed = new EventEmitter<SchedaDto>();
 
   private schedaService = inject(SchedaService);
@@ -59,7 +59,10 @@ export class ListaSchede implements OnChanges {
   icCalendar = faCalendarDays;
   icCheck = faCheckCircle;
   icBan = faBan;
-  icClipboardList = faClipboardList; // Aggiunta icona header
+  icClipboardList = faClipboardList;
+  icCalendarWeek = faCalendarWeek;
+
+  showTypeSelector = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['clienteId'] && this.clienteId) {
@@ -122,7 +125,17 @@ export class ListaSchede implements OnChanges {
   goToPage(page: number): void { if (page >= 0) { this.currentPage = page; this.loadSchede(); } }
   onSelezionaScheda(scheda: SchedaDto): void { this.schedaSelected.emit(scheda); }
   onPreviewScheda(scheda: SchedaDto): void { this.schedaPreview.emit(scheda); }
-  onCreaNuova(): void { this.createNew.emit(); }
+  onCreaNuova(): void { this.createNew.emit('GIORNALIERA'); }
+
+  toggleTypeSelector(event: Event): void {
+    event.stopPropagation();
+    this.showTypeSelector = !this.showTypeSelector;
+  }
+
+  onCreaNuovaConTipo(tipo: TipoScheda): void {
+    this.showTypeSelector = false;
+    this.createNew.emit(tipo);
+  }
 
   startRename(scheda: SchedaDto, event: Event): void {
     event.stopPropagation();

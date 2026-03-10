@@ -60,4 +60,14 @@ export class SchedaService {
     // Nota: passiamo un body vuoto {} perché è una POST
     return this.http.post<SchedaDto>(`${this.apiUrl}/import`, {}, { params });
   }
+
+  // COPIA GIORNO (Copia i pasti da un giorno a uno o più altri giorni)
+  copyDay(schedaId: number, sourceDay: string, targetDays: string[], alimentoPastoIds?: number[]): Observable<SchedaDto> {
+    const body = {
+      sourceDay,
+      targetDays,
+      alimentoPastoIds
+    };
+    return this.http.post<SchedaDto>(`${this.apiUrl}/${schedaId}/copy-day`, body);
+  }
 }

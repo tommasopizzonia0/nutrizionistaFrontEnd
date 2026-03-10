@@ -1,6 +1,8 @@
 import { ClienteDto } from "./cliente.dto";
 import { PastoDto } from "./pasto.dto";
 
+export type TipoScheda = 'GIORNALIERA' | 'SETTIMANALE';
+
 export interface SchedaDto {
 
     id: number;
@@ -10,6 +12,7 @@ export interface SchedaDto {
     pasti?: PastoDto[];
     dataCreazione: string;
     numeroPasti?: number;
+    tipo: TipoScheda;
 }
 
 export interface SchedaFormDto {
@@ -18,5 +21,6 @@ export interface SchedaFormDto {
     cliente: { id: number };
     attiva?: boolean;
     dataCreazione?: string;
+    tipo?: TipoScheda;
 }
 

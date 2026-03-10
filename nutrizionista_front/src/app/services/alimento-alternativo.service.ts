@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AlimentoAlternativoDto, AlimentoAlternativoFormDto, AlimentoAlternativoUpsertDto } from '../dto/alimento-alternativo.dto';
+import { DisplayNameRequest } from '../dto/display-name.dto';
 
 @Injectable({
     providedIn: 'root'
@@ -141,5 +142,16 @@ export class AlimentoAlternativoService {
         return this.http.get<Record<number, AlimentoAlternativoDto[]>>(
             `${this.legacyApiUrl}/scheda/${schedaId}`
         );
+    }
+
+    // === DISPLAY NAME ===
+
+    setDisplayName(alternativaId: number, nome: string): Observable<AlimentoAlternativoDto> {
+        const body: DisplayNameRequest = { nome };
+        return this.http.put<AlimentoAlternativoDto>(`${this.legacyApiUrl}/${alternativaId}/display-name`, body);
+    }
+
+    deleteDisplayName(alternativaId: number): Observable<AlimentoAlternativoDto> {
+        return this.http.delete<AlimentoAlternativoDto>(`${this.legacyApiUrl}/${alternativaId}/display-name`);
     }
 }

@@ -2,9 +2,19 @@
 
     <div class="lista-header">
         <h3><fa-icon [icon]="icClipboardList"></fa-icon> Storico Schede Dieta</h3>
-        <button class="btn-new" (click)="onCreaNuova()">
+        <button class="btn-new" (click)="toggleTypeSelector($event)">
             <fa-icon [icon]="icPlus"></fa-icon> Nuova Scheda
         </button>
+        @if (showTypeSelector) {
+        <div class="type-selector-dropdown">
+            <button class="type-option" (click)="onCreaNuovaConTipo('GIORNALIERA')">
+                <fa-icon [icon]="icCalendar"></fa-icon> Giornaliera
+            </button>
+            <button class="type-option" (click)="onCreaNuovaConTipo('SETTIMANALE')">
+                <fa-icon [icon]="icCalendarWeek"></fa-icon> Settimanale
+            </button>
+        </div>
+        }
     </div>
 
 
@@ -45,6 +55,9 @@
                             <span class="scheda-data">
                                 <fa-icon [icon]="icCalendar"></fa-icon>
                                 {{ scheda.dataCreazione | date:'dd MMMM yyyy' }}
+                            </span>
+                            <span class="tipo-badge" [class.settimanale]="scheda.tipo === 'SETTIMANALE'">
+                                {{ scheda.tipo === 'SETTIMANALE' ? '📅 Settimanale' : '📋 Giornaliera' }}
                             </span>
                         </div>
                     </td>
