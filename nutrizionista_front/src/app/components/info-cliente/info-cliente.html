@@ -77,38 +77,104 @@
         
         <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 0;">
           <span style="display: flex; align-items: center; gap: 0.6rem;">
-            <fa-icon [icon]="faBolt"></fa-icon> Storico TDEE & BMR
+            <fa-icon [icon]="faBolt"></fa-icon> Storico Valutazioni TDEE
           </span>
           @if (storicoTdee && storicoTdee.length > 0) {
-            <button class="btn-delete-all" (click)="eliminaTuttiTdee()" title="Svuota Storico">
+            <button class="btn-delete-all" (click)="apriModalElimina(null)" title="Svuota Storico">
               <fa-icon [icon]="faTrash"></fa-icon>
             </button>
           }
         </h4>
 
-        <div class="medical-rows">
+        <div class="medical-rows" style="margin-top: 10px;">
           @if (storicoTdee && storicoTdee.length > 0) {
             @for (calcolo of storicoTdee; track calcolo.id) {
-              <div class="medical-row">
-                <div class="row-label">
-                  <fa-icon [icon]="faCalendar"></fa-icon> {{ formatData(calcolo.dataCalcolo) }}
-                </div>
+              
+              <div class="tdee-accordion-item" [class.expanded]="tdeeEspansoId === calcolo.id" [id]="'tdee-item-' + calcolo.id">
                 
-                <div class="tdee-row-actions">
-                  <div class="row-value" style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
-                    <span>TDEE: {{ calcolo.tdee }} <small>kcal</small></span>
-                    <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 2px;">BMR: {{ calcolo.bmr }} <small>kcal</small></span>
+                <div class="tdee-accordion-header" (click)="toggleTdee(calcolo.id!)">
+                  <div class="tdee-header-left">
+                    <fa-icon [icon]="faCalendar"></fa-icon> 
+                    <span>{{ formatData(calcolo.dataCalcolo) }}</span>
                   </div>
-                  <button class="btn-icon-delete" (click)="eliminaSingoloTdee(calcolo.id!)" title="Elimina singolo calcolo">
-                    <fa-icon [icon]="faTrash"></fa-icon>
-                  </button>
+                  <div class="tdee-header-right">
+                    <span class="tdee-tot-badge">{{ calcolo.tdee }} kcal</span>
+                    <fa-icon [icon]="tdeeEspansoId === calcolo.id ? faChevronUp : faChevronDown" class="chevron-icon"></fa-icon>
+                  </div>
                 </div>
 
+                @if (tdeeEspansoId === calcolo.id) {
+                  <div class="tdee-accordion-body">
+                    
+                    <div class="tdee-grid-details">
+                      <div class="tdee-box">
+                        <small>BMR (Basale)</small>
+                        <strong>{{ calcolo.bmr }} <span class="unit">kcal</span></strong>
+                      </div>
+                      <div class="tdee-box highlight-sett">
+                        <small>Settimanale</small>
+                        <strong>{{ calcolo.tdeeSettimanale || (calcolo.tdee * 7) }} <span class="unit">kcal</span></strong>
+                      </div>
+                      <div class="tdee-box highlight-water">
+                        <small>Fabbisogno Idrico</small>
+                        <strong>{{ calcolo.fabbisognoIdrico || '--' }} <span class="unit">Litri</span></strong>
+                      </div>
+                      <div class="tdee-box param-box">
+                        <small>Peso Usato</small>
+                        <strong>{{ calcolo.peso }} <span class="unit">kg</span></strong>
+                      </div>
+                      <div class="tdee-box param-box" style="grid-column: span 2;">
+                        <small>Livello Attività (LAF)</small>
+                        <strong>{{ getLivelloAttivitaLabel(calcolo.livelloAttivita) }}</strong>
+                      </div>
+                    </div>
+
+                    <div class="tdee-goals-row">
+                      <div class="goal-chip dimagrimento">Dimagrimento: <b>{{ calcolo.calorieDimagrimento || (calcolo.tdee - 500) }}</b> kcal</div>
+                      <div class="goal-chip massa">Massa: <b>{{ calcolo.calorieMassa || (calcolo.tdee + 300) }}</b> kcal</div>
+                    </div>
+
+                    <div class="macro-accordion-section">
+                      <div class="macro-title"><fa-icon [icon]="faUtensils"></fa-icon> Ripartizione Macronutrienti</div>
+                      @if (getMacro(calcolo.tdee, calcolo.peso); as macro) {
+                        <div class="macro-mini-grid">
+                          <div class="m-box m-pro">
+                            <span>PROTEINE</span>
+                            <strong>{{macro.proG}}g</strong>
+                            <small>{{macro.proKcal}} kcal</small>
+                          </div>
+                          <div class="m-box m-fat">
+                            <span>GRASSI</span>
+                            <strong>{{macro.fatMinG}}-{{macro.fatMaxG}}g</strong>
+                            <small>{{macro.fatMinKcal}}-{{macro.fatMaxKcal}} kcal</small>
+                          </div>
+                          <div class="m-box m-carb">
+                            <span>CARBOIDRATI</span>
+                            <strong>{{macro.carbMinG}}-{{macro.carbMaxG}}g</strong>
+                            <small>{{macro.carbMinKcal}}-{{macro.carbMaxKcal}} kcal</small>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="tdee-footer-actions">
+                      <button class="btn-elimina-testo" (click)="apriModalElimina(calcolo.id!); $event.stopPropagation()">
+                        <fa-icon [icon]="faTrash"></fa-icon> Elimina questo calcolo
+                      </button>
+                    </div>
+
+                  </div>
+                }
               </div>
+
             }
           } @else {
-            <div class="medical-row" style="justify-content: center; background: transparent; border: none;">
-              <span class="empty-val">Nessun calcolo registrato</span>
+            <div class="empty-state-panel mini-empty" style="min-height: 120px;">
+              <fa-icon [icon]="faBolt" class="empty-state-icon mini" style="margin-bottom: 0.5rem;"></fa-icon>
+              <span class="empty-val" style="margin-bottom: 0.8rem;">Nessun calcolo registrato</span>
+              <button class="btn-calcola-ora" (click)="vaiACalcoloTdee()">
+                Calcola TDEE
+              </button>
             </div>
           }
         </div>
@@ -207,4 +273,33 @@
     </div> 
     
   </div>
+
+  @if (showDeleteModal) {
+    <div class="modal-overlay" (click)="chiudiModalElimina()">
+      <div class="delete-modal-content" (click)="$event.stopPropagation()">
+        
+        <div class="modal-icon-container">
+          <fa-icon [icon]="faExclamationTriangle"></fa-icon>
+        </div>
+        
+        <div class="modal-body-text">
+          <h3>Sei sicuro?</h3>
+          <p>
+            @if (deleteTargetId === null) {
+              Vuoi davvero eliminare <strong>TUTTI</strong> i calcoli TDEE di questo paziente?<br>Questa azione non può essere annullata.
+            } @else {
+              Vuoi davvero eliminare questo calcolo dallo storico?
+            }
+          </p>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button class="btn-modal-cancel" (click)="chiudiModalElimina()">Annulla</button>
+          <button class="btn-modal-confirm" (click)="confermaEliminazione()">Sì, elimina</button>
+        </div>
+
+      </div>
+    </div>
+  }
+
 </div>
