@@ -20,6 +20,10 @@ export class CalcoloTdeeService {
     return this.http.get<CalcoloTdeeDto[]>(`${this.apiUrl}/cliente/${clienteId}`);
   }
 
+getUltimiCalcoli(): Observable<CalcoloTdeeDto[]> {
+    return this.http.get<CalcoloTdeeDto[]>(`${this.apiUrl}/recenti`);
+  }
+
 eliminaCalcolo(calcoloId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${calcoloId}`);
   }

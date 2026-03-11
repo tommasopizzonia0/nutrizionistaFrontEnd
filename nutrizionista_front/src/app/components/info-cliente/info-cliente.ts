@@ -13,21 +13,21 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
   faUser, faEnvelope, faPhone, faCalendar, faIdCard, 
   faWeight, faRuler, faPercentage, faDumbbell, 
   faRulerCombined, faBullseye, faClipboardList, faRunning,
-  faHeartbeat, faBolt, // <-- Aggiunto faBolt per il TDEE
-  faTrash
+  faHeartbeat, faBolt, faTrash, faChevronDown, faChevronUp, faUtensils,
+  faExclamationTriangle // <-- NUOVA ICONA PER IL MODALE
 } from '@fortawesome/free-solid-svg-icons';
 
 import { ClienteDto } from '../../dto/cliente.dto';
 import { PlicometrieApiService } from '../../services/plicometria.service';
 import { MisurazioneAntropometricaService } from '../../services/misurazione-antropometrica.service';
 import { SchedaService } from '../../services/scheda-service';
-import { CalcoloTdeeService } from '../../services/calcolo-tdee.service'; // <-- Import Service
-import { CalcoloTdeeDto } from '../../dto/calcolo-tdee.dto'; // <-- Import DTO
-import { RouterModule } from '@angular/router';
+import { CalcoloTdeeService } from '../../services/calcolo-tdee.service';
+import { CalcoloTdeeDto } from '../../dto/calcolo-tdee.dto';
 
 @Component({
   selector: 'app-info-cliente',
@@ -46,14 +46,21 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   private plicoApi = inject(PlicometrieApiService);
   private misurazioneApi = inject(MisurazioneAntropometricaService);
   private schedaApi = inject(SchedaService);
-  private tdeeApi = inject(CalcoloTdeeService); // <-- Inject Service
+  private tdeeApi = inject(CalcoloTdeeService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
 
   ultimaPlicometria: any = null;
   ultimaMisurazione: any = null;
   schedaAttiva: any = null;
-  storicoTdee: CalcoloTdeeDto[] = []; // <-- Variabile per la lista
+  storicoTdee: CalcoloTdeeDto[] = []; 
+  tdeeEspansoId: number | null = null;
+
+  // --- STATO DEL MODALE DI ELIMINAZIONE ---
+  showDeleteModal = false;
+  deleteTargetId: number | null = null; // null = elimina tutti, numero = elimina singolo
   
   // Icone
   faUser = faUser; faEnvelope = faEnvelope; faPhone = faPhone;
@@ -61,10 +68,10 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   faWeight = faWeight; faRuler = faRuler; faRunning = faRunning;
   faPercentage = faPercentage; faDumbbell = faDumbbell; 
   faRulerCombined = faRulerCombined; faBullseye = faBullseye;
-  faClipboardList = faClipboardList;
-  faHeartbeat = faHeartbeat;
-  faBolt = faBolt;
-  faTrash = faTrash;
+  faClipboardList = faClipboardList; faHeartbeat = faHeartbeat;
+  faBolt = faBolt; faTrash = faTrash;
+  faChevronDown = faChevronDown; faChevronUp = faChevronUp;
+  faUtensils = faUtensils; faExclamationTriangle = faExclamationTriangle;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['cliente'] && this.cliente?.id) {
@@ -78,23 +85,14 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   }
 
   private loadDashboardData(clienteId: number): void {
-    // 1. Ultima Plicometria
     this.plicoApi.allByCliente(clienteId, 0, 1).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          this.ultimaPlicometria = res.contenuto?.[0] ?? null;
-          this.cdr.markForCheck();
-        }
+        next: (res) => { this.ultimaPlicometria = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
       });
 
-    // 2. Ultime Circonferenze
     this.misurazioneApi.getAllByCliente(clienteId, 0, 1).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          this.ultimaMisurazione = res.contenuto?.[0] ?? null;
-          this.cdr.markForCheck();
-        }
+        next: (res) => { this.ultimaMisurazione = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
       });
 
-    // 3. Scheda Attiva
     this.schedaApi.getAllByCliente(clienteId, 0, 50).pipe(takeUntil(this.destroy$)).subscribe({
         next: (res) => {
           if (res.contenuto && res.contenuto.length > 0) {
@@ -106,28 +104,32 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
         }
       });
 
-    // 4. Storico TDEE
     this.tdeeApi.getStoricoCliente(clienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.storicoTdee = res || [];
-        this.cdr.markForCheck();
+        this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+          const tId = params['tdeeId'];
+          if (tId) {
+            const parsedTdeeId = Number(tId);
+            if (this.storicoTdee.some(t => t.id === parsedTdeeId)) {
+              this.tdeeEspansoId = parsedTdeeId;
+              setTimeout(() => {
+                const element = document.getElementById('tdee-item-' + parsedTdeeId);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 300);
+            }
+          }
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
-  onSchedaClick(): void {
-    if (this.schedaAttiva?.id) {
-      this.apriScheda.emit(this.schedaAttiva.id);
-    }
-  }
+  onSchedaClick(): void { if (this.schedaAttiva?.id) this.apriScheda.emit(this.schedaAttiva.id); }
+  onMisurazioneClick(): void { if (this.ultimaMisurazione || this.ultimaPlicometria) this.apriMisurazioni.emit(); }
 
-  onMisurazioneClick(): void {
-    if (this.ultimaMisurazione || this.ultimaPlicometria) {
-      this.apriMisurazioni.emit();
-    }
-  }
-
-  // --- Helpers Dati ---
   formatData(value?: string): string {
     if (!value) return 'N/D';
     const d = new Date(value.includes('T') ? value : `${value}T00:00:00`);
@@ -142,7 +144,6 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     return String(Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970)) + ' anni';
   }
 
-  // Calcolo Percentuali
   get mgPercent(): number | null {
     if (!this.ultimaPlicometria) return null;
     const mg = this.ultimaPlicometria.massaGrassaKg ?? 0;
@@ -158,10 +159,6 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     const tot = mg + mm;
     return tot > 0 ? (mm / tot) * 100 : null;
   }
-
-  // ==========================================
-  // CALCOLI BMI E COMPOSIZIONE CORPOREA
-  // ==========================================
 
   get bmi(): number | null {
     if (!this.cliente?.peso || !this.cliente?.altezza) return null;
@@ -184,12 +181,56 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     return ((Math.min(30, Math.max(18.5, b)) - 18.5) / (30 - 18.5)) * 100;
   }
 
-  eliminaSingoloTdee(id: number): void {
-    if (confirm("Sei sicuro di voler eliminare questo calcolo dallo storico?")) {
-      this.tdeeApi.eliminaCalcolo(id).subscribe({
+  toggleTdee(id: number): void {
+    this.tdeeEspansoId = this.tdeeEspansoId === id ? null : id;
+  }
+
+  getLivelloAttivitaLabel(val: number): string {
+    if (!val) return 'N/D';
+    if (val === 1.2) return 'Sedentario';
+    if (val === 1.375) return 'Leggermente Attivo';
+    if (val === 1.55) return 'Moderatamente Attivo';
+    if (val === 1.725) return 'Molto Attivo';
+    if (val === 1.9) return 'Estremamente Attivo';
+    return val.toString();
+  }
+
+  vaiACalcoloTdee(): void {
+    if (this.cliente?.id) {
+      this.router.navigate(['/tdee'], { queryParams: { clienteId: this.cliente.id } });
+    }
+  }
+
+  // --- GESTIONE MODALE ELIMINAZIONE ---
+  apriModalElimina(id: number | null): void {
+    this.deleteTargetId = id;
+    this.showDeleteModal = true;
+  }
+
+  chiudiModalElimina(): void {
+    this.showDeleteModal = false;
+    this.deleteTargetId = null;
+  }
+
+  confermaEliminazione(): void {
+    if (this.deleteTargetId === null) {
+      // Elimina tutti i calcoli
+      if (!this.cliente?.id) return;
+      this.tdeeApi.eliminaTuttiCalcoliCliente(this.cliente.id).subscribe({
         next: () => {
-          // Rimuovi l'elemento dall'array locale senza ricaricare tutto dal backend
-          this.storicoTdee = this.storicoTdee.filter(c => c.id !== id);
+          this.storicoTdee = []; 
+          this.chiudiModalElimina();
+          this.cdr.markForCheck();
+        },
+        error: () => alert("Errore durante l'eliminazione dello storico.")
+      });
+    } else {
+      // Elimina singolo calcolo
+      const idToDelete = this.deleteTargetId;
+      this.tdeeApi.eliminaCalcolo(idToDelete).subscribe({
+        next: () => {
+          this.storicoTdee = this.storicoTdee.filter(c => c.id !== idToDelete);
+          this.chiudiModalElimina();
           this.cdr.markForCheck();
         },
         error: () => alert("Errore durante l'eliminazione.")
@@ -197,17 +238,18 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     }
   }
 
-  eliminaTuttiTdee(): void {
-    if (!this.cliente?.id) return;
-    
-    if (confirm("ATTENZIONE: Sei sicuro di voler eliminare TUTTI i calcoli TDEE di questo paziente? L'azione è irreversibile.")) {
-      this.tdeeApi.eliminaTuttiCalcoliCliente(this.cliente.id).subscribe({
-        next: () => {
-          this.storicoTdee = []; // Svuota l'array locale
-          this.cdr.markForCheck();
-        },
-        error: () => alert("Errore durante l'eliminazione dello storico.")
-      });
-    }
+  getMacro(tdee: number, peso: number) {
+    if (!tdee || !peso) return null;
+    const proG = Math.round(peso * 2.0);
+    const proKcal = proG * 4;
+    const fatMinG = Math.round(peso * 0.6);
+    const fatMaxG = Math.round(peso * 1.2);
+    const fatMinKcal = fatMinG * 9;
+    const fatMaxKcal = fatMaxG * 9;
+    const carbMinKcal = Math.max(0, tdee - proKcal - fatMaxKcal);
+    const carbMaxKcal = Math.max(0, tdee - proKcal - fatMinKcal);
+    const carbMinG = Math.round(carbMinKcal / 4);
+    const carbMaxG = Math.round(carbMaxKcal / 4);
+    return { proG, proKcal, fatMinG, fatMaxG, fatMinKcal, fatMaxKcal, carbMinG, carbMaxG, carbMinKcal, carbMaxKcal };
   }
 }
