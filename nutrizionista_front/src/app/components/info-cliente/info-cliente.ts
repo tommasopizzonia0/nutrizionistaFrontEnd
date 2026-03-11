@@ -32,7 +32,7 @@ import { CalcoloTdeeDto } from '../../dto/calcolo-tdee.dto';
 @Component({
   selector: 'app-info-cliente',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, DatePipe, RouterModule],
+  imports: [CommonModule, FontAwesomeModule, RouterModule],
   templateUrl: './info-cliente.html',
   styleUrls: ['./info-cliente.css'],
 })

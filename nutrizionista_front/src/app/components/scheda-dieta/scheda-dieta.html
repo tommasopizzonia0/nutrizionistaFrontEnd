@@ -200,6 +200,55 @@
                             </div>
                         </div>
 
+                        <div class="orari-section template-section">
+                            <div class="orario-group template-select-group">
+                                <label>Template</label>
+                                <select class="time-input template-select-input"
+                                    [(ngModel)]="selectedTemplateIdByPastoId[pasto.id]">
+                                    <option [ngValue]="null">— Seleziona —</option>
+                                    @for (t of pastiTemplates; track t.id) {
+                                    <option [ngValue]="t.id">{{ t.nome }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn-copy-day btn-apply-template" (click)="onOpenApplyTemplate(pasto)"
+                                [disabled]="!selectedTemplateIdByPastoId[pasto.id] || loadingPastiTemplates || applyingTemplate">
+                                @if (applyingTemplate) {
+                                <fa-icon [icon]="icons.spinner" animation="spin"></fa-icon> Applico...
+                                } @else {
+                                <fa-icon [icon]="icons.book"></fa-icon> Applica template
+                                }
+                            </button>
+                        </div>
+
+                        @if (getApplyTemplateReport(pasto.id)) {
+                        @let rep = getApplyTemplateReport(pasto.id);
+                        <div class="template-report" [class.has-skipped]="rep.skipped.length > 0">
+                            @if (hasApplyTemplateReportChanges(pasto.id)) {
+                            <div class="template-report-stats">
+                                <span class="template-chip add">+{{ rep.stats.addedAlimenti }}</span>
+                                <span class="template-chip update">~{{ rep.stats.updatedAlimenti }}</span>
+                                <span class="template-chip remove">-{{ rep.stats.removedAlimenti }}</span>
+                                <span class="template-chip skipped">Saltati: {{ rep.skipped.length }}</span>
+                            </div>
+                            } @else {
+                            <div class="template-report-stats">
+                                <span class="template-chip skipped">Nessuna modifica</span>
+                            </div>
+                            }
+                            @if (rep.skipped.length > 0) {
+                            <div class="template-skipped-list">
+                                @for (s of rep.skipped; track $index) {
+                                <div class="template-skipped-row">
+                                    <span class="template-skipped-type">{{ s.type }}</span>
+                                    <span class="template-skipped-msg">{{ s.message }}</span>
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        }
+
                         <!-- Bottone aggiungi alimento (drawer) -->
                         <button class="btn-aggiungi-alimento" (click)="openCatalogoDrawer()" [disabled]="!schedaId">
                             <fa-icon [icon]="icons.search"></fa-icon>
@@ -551,6 +600,31 @@
                     <fa-icon [icon]="icons.save"></fa-icon> Applica Copia
                     }
                 </button>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (showApplyTemplateModal) {
+    <div class="modal-overlay" (click)="closeApplyTemplateModal()">
+        <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Applica Template</h3>
+                <button class="icon-btn close" (click)="closeApplyTemplateModal()">
+                    <fa-icon [icon]="icons.close"></fa-icon>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Il pasto contiene già alimenti. Come vuoi applicare il template?</p>
+                @if (applyTemplateModalPasto && applyTemplateModalPasto.eliminabile === false) {
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    Nota: questo è un pasto default, nome/descrizione non verranno sovrascritti.
+                </p>
+                }
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:flex-end; gap: 0.75rem;">
+                <button class="btn-secondary" (click)="confirmApplyTemplate('MERGE')">Aggiungi (Merge)</button>
+                <button class="btn-primary" (click)="confirmApplyTemplate('REPLACE')">Sovrascrivi (Replace)</button>
             </div>
         </div>
     </div>

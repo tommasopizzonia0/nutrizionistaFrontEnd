@@ -16,13 +16,13 @@
   }
 
   @if (page && !loading) {
-  @if (!page.contenuto?.length) {
+  @if (!page.contenuto.length) {
   <div class="empty-msg">
     <p>Nessuna plicometria inserita.</p>
   </div>
   }
 
-  @if (page.contenuto?.length) {
+  @if (page.contenuto.length) {
   <div class="plico-layout">
 
     <div class="table-responsive">

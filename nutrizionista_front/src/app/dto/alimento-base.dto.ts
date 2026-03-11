@@ -14,6 +14,7 @@ export interface AlimentoBaseDto {
     misuraInGrammi: number;
     urlImmagine?: string;
     tracce?: string[];
+    personale?: boolean;
 }
 
 export interface AlimentoBaseFormDto {

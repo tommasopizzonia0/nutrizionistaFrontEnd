@@ -51,9 +51,12 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
   pageSize = 10;
   totalPages = 0;
   totalElements = 0;
+  private allAlimentiCache: AlimentoBaseDto[] = [];
+  private allAlimentiLoaded = false;
   private searchResultsAll: AlimentoBaseDto[] = [];
   private readonly query$ = new BehaviorSubject<string>('');
   private readonly page$ = new BehaviorSubject<number>(0);
+  private readonly filterChanged$ = new BehaviorSubject<void>(undefined);
   private readonly subscriptions: Subscription[] = [];
 
   protected readonly icons = {
@@ -79,14 +82,12 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
 
   /** Feature 9: Extract unique categories from available foods */
   get categorie(): string[] {
-    if (this.categorieGlobali.length > 0) return this.categorieGlobali;
-    return this.computeDynamicCats();
+    return this.categorieGlobali;
   }
 
-  /** Feature 9: Filtered foods */
+  /** Filtered foods — filtering now happens inside the subscribe, this just returns the result */
   get alimentiFiltrati(): AlimentoBaseDto[] {
-    if (!this.categoriaFiltro) return this.alimentiDisponibili;
-    return this.alimentiDisponibili.filter(a => a.categoria === this.categoriaFiltro);
+    return this.alimentiDisponibili;
   }
 
   ngOnInit(): void {
@@ -97,63 +98,73 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
     );
 
     this.subscriptions.push(
-      combineLatest([debouncedQuery$, this.page$]).pipe(
+      combineLatest([debouncedQuery$, this.page$, this.filterChanged$]).pipe(
         tap(() => {
           this.loadingAlimenti = true;
           this.cdr.detectChanges();
         }),
         switchMap(([query, page]) => {
-          if (!query) {
-            return this.alimentoService.getAll(page, this.pageSize).pipe(
-              map(resp => ({
-                mode: 'paged' as const,
-                page: resp.numeroPagina,
-                totalPages: resp.totalePagine,
-                totalElements: resp.totaleElementi,
-                items: (resp.contenuto || []).slice()
+          // Se c'è una query di ricerca, il search torna già tutto
+          if (query) {
+            return this.alimentoService.search(query).pipe(
+              map(items => ({
+                mode: 'search' as const, page,
+                items: this.sortByNome((items || []).slice())
               })),
-              catchError(() => of({
-                mode: 'paged' as const,
-                page: 0,
-                totalPages: 0,
-                totalElements: 0,
-                items: [] as AlimentoBaseDto[]
-              }))
+              catchError(() => of({ mode: 'search' as const, page: 0, items: [] as AlimentoBaseDto[] }))
             );
           }
 
-          return this.alimentoService.search(query).pipe(
-            map(items => {
-              const sorted = this.sortByNome((items || []).slice());
-              return {
-                mode: 'search' as const,
-                page,
-                totalPages: Math.max(1, Math.ceil(sorted.length / this.pageSize)),
-                totalElements: sorted.length,
-                items: sorted
-              };
-            }),
+          // Se c'è un filtro categoria attivo → carica TUTTI e filtra client-side
+          if (this.categoriaFiltro) {
+            if (this.allAlimentiLoaded) {
+              return of({ mode: 'all' as const, page, items: this.allAlimentiCache });
+            }
+            return this.alimentoService.getAll(0, 5000).pipe(
+              map(resp => {
+                this.allAlimentiCache = (resp.contenuto || []).slice();
+                this.allAlimentiLoaded = true;
+                return { mode: 'all' as const, page, items: this.allAlimentiCache };
+              }),
+              catchError(() => of({ mode: 'all' as const, page: 0, items: [] as AlimentoBaseDto[] }))
+            );
+          }
+
+          // Nessun filtro → paginazione server normale
+          return this.alimentoService.getAll(page, this.pageSize).pipe(
+            map(resp => ({
+              mode: 'paged' as const, page: resp.numeroPagina,
+              totalPages: resp.totalePagine, totalElements: resp.totaleElementi,
+              items: (resp.contenuto || []).slice()
+            })),
             catchError(() => of({
-              mode: 'search' as const,
-              page: 0,
-              totalPages: 0,
-              totalElements: 0,
-              items: [] as AlimentoBaseDto[]
+              mode: 'paged' as const, page: 0, totalPages: 0, totalElements: 0, items: [] as AlimentoBaseDto[]
             }))
           );
         })
-      ).subscribe((state) => {
-        this.currentPage = Math.max(0, Math.min(state.page, Math.max(0, state.totalPages - 1)));
-        this.totalPages = state.totalPages;
-        this.totalElements = state.totalElements;
-
-        if (state.mode === 'search') {
-          this.searchResultsAll = state.items;
-          const start = this.currentPage * this.pageSize;
-          this.alimentiDisponibili = this.searchResultsAll.slice(start, start + this.pageSize);
-        } else {
+      ).subscribe((state: any) => {
+        if (state.mode === 'paged') {
+          // Server-paginated, nessun filtro
+          this.currentPage = state.page;
+          this.totalPages = state.totalPages;
+          this.totalElements = state.totalElements;
           this.searchResultsAll = [];
           this.alimentiDisponibili = state.items;
+        } else {
+          // 'search' o 'all' → filtra client-side e pagina
+          let filtered = state.items as AlimentoBaseDto[];
+
+          // Applica filtro categoria
+          if (this.categoriaFiltro) {
+            filtered = filtered.filter((a: AlimentoBaseDto) => a.categoria === this.categoriaFiltro);
+          }
+
+          this.searchResultsAll = filtered;
+          this.totalElements = filtered.length;
+          this.totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
+          this.currentPage = Math.max(0, Math.min(state.page, this.totalPages - 1));
+          const start = this.currentPage * this.pageSize;
+          this.alimentiDisponibili = filtered.slice(start, start + this.pageSize);
         }
 
         this.loadingAlimenti = false;
@@ -164,10 +175,21 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
     this.query$.next(this.searchQuery);
     this.page$.next(0);
 
-    // Carica elenco globale categorie (fallback dinamico su errore)
+    // Carica elenco globale categorie
     this.alimentoService.getCategorie().pipe(
       map(cats => (cats || []).slice().sort((a, b) => a.localeCompare(b, 'it'))),
-      catchError(() => of(this.computeDynamicCats()))
+      catchError(() => {
+        // Endpoint categorie non disponibile → carica TUTTI gli alimenti per estrarre le categorie
+        return this.alimentoService.getAll(0, 5000).pipe(
+          map(resp => {
+            const items = resp.contenuto || [];
+            this.allAlimentiCache = items.slice();
+            this.allAlimentiLoaded = true;
+            return this.extractCategories(items);
+          }),
+          catchError(() => of([] as string[]))
+        );
+      })
     ).subscribe(cats => {
       this.categorieGlobali = cats;
       this.cdr.detectChanges();
@@ -221,12 +243,12 @@ export class CatalogoAlimenti implements OnInit, OnDestroy {
     this.categoriaFiltro = value || '';
     this.currentPage = 0;
     this.page$.next(0);
+    this.filterChanged$.next();
   }
 
-  private computeDynamicCats(): string[] {
+  private extractCategories(items: AlimentoBaseDto[]): string[] {
     const cats = new Set<string>();
-    const source = this.searchResultsAll.length > 0 ? this.searchResultsAll : this.alimentiDisponibili;
-    for (const a of source) {
+    for (const a of items) {
       if (a.categoria) cats.add(a.categoria);
     }
     return Array.from(cats).sort((a, b) => a.localeCompare(b, 'it'));

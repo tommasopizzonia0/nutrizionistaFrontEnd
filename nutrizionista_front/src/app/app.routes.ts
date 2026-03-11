@@ -20,6 +20,7 @@ import { Settings } from './components/settings/settings';
 import { PlicometriaComponent } from './components/plicometria/plicometria';
 import { UfficioComponent } from './components/ufficio/ufficio';
 import { CalcoloTdeeComponent } from './components/calcolo-tdee/calcolo-tdee';
+import { AlimentiPageComponent } from './screens/alimenti-page/alimenti-page';
 
 export const routes: Routes = [
 
@@ -86,6 +87,10 @@ export const routes: Routes = [
       {
         path: 'tdee',
         component: CalcoloTdeeComponent
+      },
+      {
+        path: 'alimenti',
+        component: AlimentiPageComponent
       },
       {
         path: 'settings',

@@ -1943,6 +1943,48 @@
   background: #4b5563;
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  font-weight: 850;
+  cursor: pointer;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--green-darker, #065f46);
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  font-size: 0.85rem;
+  transition: all 160ms ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.14);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.scheda-dieta-container.dark-mode .btn-secondary {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.40);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.scheda-dieta-container.dark-mode .btn-secondary:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
 .icon-btn {
   width: 32px;
   height: 32px;
@@ -2554,4 +2596,137 @@
 .scheda-dieta-container.dark-mode .modal-footer {
   border-top-color: #333;
   background: rgba(30, 30, 30, .95);
+}
+
+.orari-section.template-section {
+  padding-top: 0;
+  margin-top: -0.25rem;
+  margin-bottom: 0.75rem;
+  border-bottom: none;
+}
+
+.template-select-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.template-select-input {
+  min-width: 240px;
+  max-width: 100%;
+}
+
+.btn-copy-day.btn-apply-template {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+.template-report {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.scheda-dieta-container.dark-mode .template-report {
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.10);
+}
+
+.template-report.has-skipped {
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.scheda-dieta-container.dark-mode .template-report.has-skipped {
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.template-report-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.template-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text);
+}
+
+.scheda-dieta-container.dark-mode .template-chip {
+  border-color: rgba(255, 255, 255, 0.10);
+  background: rgba(15, 23, 42, 0.35);
+  color: #fff;
+}
+
+.scheda-dieta-container.dark-mode select.time-input {
+  color: #fff;
+  color-scheme: dark;
+}
+
+.template-chip.add {
+  color: #065f46;
+}
+
+.template-chip.update {
+  color: #1d4ed8;
+}
+
+.template-chip.remove {
+  color: #991b1b;
+}
+
+.template-chip.skipped {
+  color: #92400e;
+}
+
+.template-skipped-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.template-skipped-row {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.20);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.scheda-dieta-container.dark-mode .template-skipped-row {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.10);
+}
+
+.template-skipped-type {
+  font-weight: 900;
+  color: #b91c1c;
+}
+
+.scheda-dieta-container.dark-mode .template-skipped-type {
+  color: #fca5a5;
+}
+
+.template-skipped-msg {
+  color: var(--text);
+  font-size: 0.85rem;
+  opacity: 0.92;
 }

@@ -90,6 +90,28 @@
   border-color: rgba(16, 185, 129, .28);
 }
 
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.heart-btn {
+  color: var(--muted, #6b7280);
+}
+
+.heart-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.heart-btn.active {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
 .modal-body {
   padding: 16px 18px;
   overflow: auto;
@@ -473,6 +495,17 @@
 .modal.dark-mode .icon-btn:hover {
   background: rgba(16, 185, 129, .12);
   border-color: rgba(16, 185, 129, .35);
+}
+
+.modal.dark-mode .heart-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.modal.dark-mode .heart-btn.active {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .modal.dark-mode .panel {

@@ -118,32 +118,6 @@ export class AlimentoAlternativoService {
         );
     }
 
-    // === PER-PASTO METHODS ===
-
-    listByPasto(pastoId: number): Observable<AlimentoAlternativoDto[]> {
-        return this.http.get<AlimentoAlternativoDto[]>(`${this.legacyApiUrl}/pasto/${pastoId}`);
-    }
-
-    createForPasto(pastoId: number, body: AlimentoAlternativoUpsertDto): Observable<AlimentoAlternativoDto> {
-        return this.http.post<AlimentoAlternativoDto>(`${this.legacyApiUrl}/pasto/${pastoId}`, body);
-    }
-
-    updateForPasto(pastoId: number, alternativeId: number, body: AlimentoAlternativoUpsertDto): Observable<AlimentoAlternativoDto> {
-        return this.http.put<AlimentoAlternativoDto>(`${this.legacyApiUrl}/pasto/${pastoId}/${alternativeId}`, body);
-    }
-
-    deleteForPasto(pastoId: number, alternativeId: number): Observable<void> {
-        return this.http.delete<void>(`${this.legacyApiUrl}/pasto/${pastoId}/${alternativeId}`);
-    }
-
-    // === BATCH PER-SCHEDA ===
-
-    listByScheda(schedaId: number): Observable<Record<number, AlimentoAlternativoDto[]>> {
-        return this.http.get<Record<number, AlimentoAlternativoDto[]>>(
-            `${this.legacyApiUrl}/scheda/${schedaId}`
-        );
-    }
-
     // === DISPLAY NAME ===
 
     setDisplayName(alternativaId: number, nome: string): Observable<AlimentoAlternativoDto> {

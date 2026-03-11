@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCircleInfo, faDumbbell, faFire, faFlask, faLeaf, faSpoon, faWheatAlt, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faDumbbell, faFire, faFlask, faHeart, faLeaf, faSpoon, faWheatAlt, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
 
 interface MicroItem {
@@ -31,9 +31,11 @@ export class ModalAlimento implements OnChanges, OnDestroy {
   @Input() pastoTargetLabel?: string;
   @Input() quantita = 100;
   @Input() isDarkMode = false;
+  @Input() isPreferito = false;
 
   @Output() closed = new EventEmitter<void>();
   @Output() addRequested = new EventEmitter<{ alimento: AlimentoBaseDto; quantita: number }>();
+  @Output() togglePreferito = new EventEmitter<void>();
 
   @ViewChild('dialog') dialog?: ElementRef<HTMLElement>;
   @ViewChild('closeBtn') closeBtn?: ElementRef<HTMLButtonElement>;
@@ -46,7 +48,8 @@ export class ModalAlimento implements OnChanges, OnDestroy {
     carbs: faWheatAlt,
     fats: faLeaf,
     micro: faFlask,
-    portion: faSpoon
+    portion: faSpoon,
+    heart: faHeart
   };
 
   macroItems: Array<{ key: string; label: string; value: string; unit: string }> = [];

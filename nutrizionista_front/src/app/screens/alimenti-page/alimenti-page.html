@@ -1,0 +1,843 @@
+<div class="alimenti-page" [class.dark-mode]="themeService.isDarkMode$ | async">
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <fa-icon [icon]="icons.utensils" class="title-icon"></fa-icon>
+        Gestione Alimenti
+      </h1>
+      <p class="page-subtitle">Catalogo, preferiti, pasti personalizzati e strumenti avanzati</p>
+    </div>
+  </header>
+
+  <!-- ═══════ TAB BAR ═══════ -->
+  <nav class="tab-bar">
+    @for (tab of tabs; track tab.id) {
+    <button class="tab-btn" [class.active]="activeTab === tab.id" (click)="setTab(tab.id)">
+      <fa-icon [icon]="tab.icon" class="tab-icon"></fa-icon>
+      <span class="tab-label">{{ tab.label }}</span>
+    </button>
+    }
+  </nav>
+
+  <!-- ═══════ TAB CONTENT ═══════ -->
+  <main class="tab-content">
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  1. CATALOGO ALIMENTI               ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'catalogo') {
+    <section class="section-catalogo animate-in">
+
+      <!-- Search + Category Filter + Add button -->
+      <div class="catalogo-tools">
+        <div class="search-box">
+          <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
+          <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)"
+            placeholder="Cerca alimento nel catalogo..." class="search-input" id="catalogoSearch" />
+        </div>
+
+        @if (categorieGlobali.length > 0) {
+        <div class="filter-row">
+          <fa-icon [icon]="icons.filter" class="filter-icon"></fa-icon>
+          <select id="categoriaFilter" class="categoria-select" [ngModel]="categoriaFiltro"
+            (ngModelChange)="onCategoriaChange($event)">
+            <option [ngValue]="''">Tutte le categorie</option>
+            @for (cat of categorieGlobali; track cat) {
+            <option [ngValue]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+        }
+
+        <button class="btn-add-alimento" [class.active]="showFormAggiungi"
+          (click)="showFormAggiungi = !showFormAggiungi" title="Aggiungi nuovo alimento">
+          <fa-icon [icon]="icons.plus"></fa-icon>
+          <span class="btn-add-label">Nuovo</span>
+        </button>
+      </div>
+
+      <!-- Smart Tags -->
+      <div class="smart-tags">
+        <div class="tags-header">
+          <fa-icon [icon]="icons.tags" class="tags-icon"></fa-icon>
+          <span class="tags-title">Filtri rapidi</span>
+          @if (hasActiveTags) {
+          <button class="tags-clear" (click)="clearAllTags()">
+            <fa-icon [icon]="icons.xmark" size="xs"></fa-icon> Reset
+          </button>
+          }
+        </div>
+        <div class="tags-list">
+          @for (tag of smartTags; track tag.id) {
+          <button class="tag-chip" [class.active]="tag.active" (click)="toggleTag(tag)">
+            <fa-icon [icon]="tag.icon" size="xs"></fa-icon>
+            {{ tag.label }}
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- Risultati -->
+      @if (loadingAlimenti) {
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <span class="loader-text">Caricamento alimenti...</span>
+      </div>
+      }
+
+      @if (!loadingAlimenti && alimentiFiltrati.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.search" class="empty-icon"></fa-icon>
+        <h3>Nessun alimento trovato</h3>
+        <p>Prova con un termine diverso o rimuovi i filtri attivi.</p>
+      </div>
+      }
+
+      @if (!loadingAlimenti && alimentiFiltrati.length > 0) {
+      <div class="alimenti-grid">
+        @for (alimento of alimentiFiltrati; track alimento.id) {
+        <div class="alimento-card" (click)="openDettaglio(alimento)">
+          <div class="card-header">
+            <span class="card-nome">{{ alimento.nome }}</span>
+            <div class="card-actions">
+              @if (alimento.personale) {
+              <button class="delete-btn" (click)="eliminaAlimento(alimento, $event)"
+                title="Elimina alimento personale dal databse">
+                <fa-icon [icon]="icons.trash"></fa-icon>
+              </button>
+              }
+              <button class="pref-btn" [class.active]="isPreferito(alimento)"
+                (click)="togglePreferito(alimento, $event)" title="Preferito">
+                <fa-icon [icon]="icons.heart"></fa-icon>
+              </button>
+            </div>
+          </div>
+          @if (alimento.categoria) {
+          <span class="card-cat">{{ alimento.categoria }}</span>
+          }
+          @if (alimento.macroNutrienti) {
+          <div class="card-macros">
+            <span class="macro p">
+              <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.proteine | number:'1.0-1' }}g
+            </span>
+            <span class="macro c">
+              <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.carboidrati | number:'1.0-1' }}g
+            </span>
+            <span class="macro g">
+              <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.grassi | number:'1.0-1' }}g
+            </span>
+            <span class="macro kcal">
+              <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.calorie | number:'1.0-0' }}
+            </span>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" (click)="cambiaPagina(currentPage - 1)" [disabled]="currentPage === 0">
+          <fa-icon [icon]="icons.chevronLeft"></fa-icon>
+        </button>
+        <div class="page-info">
+          <span class="page-current">{{ paginaCorrente }}</span>
+          <span class="page-sep">/</span>
+          <span class="page-total">{{ totalPages }}</span>
+        </div>
+        <button class="page-btn" (click)="cambiaPagina(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+          <fa-icon [icon]="icons.chevronRight"></fa-icon>
+        </button>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  I MIEI ALIMENTI                     ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'imiei') {
+    <section class="section-imiei animate-in">
+      @if (loadingAlimenti) {
+      <div class="loading-state">
+        Caricamento de I Miei Alimenti...
+      </div>
+      } @else if (mieiAlimenti.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.user" class="empty-icon"></fa-icon>
+        <h3>Nessun alimento personale</h3>
+        <p>Usa il pulsante "Nuovo Alimento" dal catalogo per crearne uno.</p>
+      </div>
+      } @else {
+      <div class="preferiti-count">{{ mieiAlimenti.length }} aliment{{ mieiAlimenti.length === 1 ? 'o' : 'i' }} creat{{
+        mieiAlimenti.length === 1 ? 'o' : 'i' }} da te</div>
+      <div class="alimenti-grid">
+        @for (alimento of mieiAlimenti; track alimento.id) {
+        <div class="alimento-card" (click)="openDettaglio(alimento)">
+          <div class="card-header">
+            <span class="card-nome">{{ alimento.nome }}</span>
+            <div class="card-actions">
+              <button class="delete-btn" (click)="eliminaAlimento(alimento, $event)"
+                title="Elimina alimento personale dal databse">
+                <fa-icon [icon]="icons.trash"></fa-icon>
+              </button>
+              <button class="pref-btn" [class.active]="isPreferito(alimento)"
+                (click)="togglePreferito(alimento, $event)" title="Preferito">
+                <fa-icon [icon]="icons.heart"></fa-icon>
+              </button>
+            </div>
+          </div>
+          @if (alimento.categoria) {
+          <span class="card-cat">{{ alimento.categoria }}</span>
+          }
+          @if (alimento.macroNutrienti) {
+          <div class="card-macros">
+            <span class="macro p">
+              <fa-icon [icon]="icons.dumbbell" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.proteine | number:'1.0-1' }}g
+            </span>
+            <span class="macro c">
+              <fa-icon [icon]="icons.wheat" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.carboidrati | number:'1.0-1' }}g
+            </span>
+            <span class="macro g">
+              <fa-icon [icon]="icons.droplet" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.grassi | number:'1.0-1' }}g
+            </span>
+            <span class="macro kcal">
+              <fa-icon [icon]="icons.fire" size="xs"></fa-icon>
+              {{ alimento.macroNutrienti.calorie | number:'1.0-0' }}
+            </span>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  2. PREFERITI                        ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'preferiti') {
+    <section class="section-preferiti animate-in">
+      @if (preferiti.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.heart" class="empty-icon"></fa-icon>
+        <h3>Nessun alimento preferito</h3>
+        <p>Aggiungi alimenti ai preferiti dal catalogo cliccando l'icona ❤️</p>
+      </div>
+      } @else {
+      <div class="preferiti-count">{{ preferiti.length }} aliment{{ preferiti.length === 1 ? 'o' : 'i' }} preferit{{
+        preferiti.length === 1 ? 'o' : 'i' }}</div>
+      <div class="alimenti-grid">
+        @for (alimento of preferiti; track alimento.id) {
+        <div class="alimento-card" (click)="openDettaglio(alimento)">
+          <div class="card-header">
+            <span class="card-nome">{{ alimento.nome }}</span>
+            <button class="remove-btn" (click)="removePreferito(alimento); $event.stopPropagation()"
+              title="Rimuovi dai preferiti">
+              <fa-icon [icon]="icons.xmark"></fa-icon>
+            </button>
+          </div>
+          @if (alimento.categoria) {
+          <span class="card-cat">{{ alimento.categoria }}</span>
+          }
+          @if (alimento.macroNutrienti) {
+          <div class="card-macros">
+            <span class="macro p">{{ alimento.macroNutrienti.proteine | number:'1.0-1' }}g P</span>
+            <span class="macro c">{{ alimento.macroNutrienti.carboidrati | number:'1.0-1' }}g C</span>
+            <span class="macro g">{{ alimento.macroNutrienti.grassi | number:'1.0-1' }}g G</span>
+            <span class="macro kcal">{{ alimento.macroNutrienti.calorie | number:'1.0-0' }} kcal</span>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  3. PASTI PERSONALIZZATI             ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'pasti') {
+    <section class="section-pasti animate-in">
+
+      <!-- Creator -->
+      <div class="pasto-creator">
+        <h3 class="section-title">
+          <fa-icon [icon]="icons.plus"></fa-icon> Crea Nuovo Template Pasto
+        </h3>
+        <div class="pasto-form">
+          <input type="text" [(ngModel)]="nuovoPastoNome" placeholder="Nome pasto (es. Colazione Proteica)"
+            class="form-input" id="pastoNome" />
+          <input type="text" [(ngModel)]="nuovoPastoDescrizione" placeholder="Descrizione (opzionale)"
+            class="form-input" id="pastoDescrizione" />
+          <button class="btn-primary" (click)="creaPastoTemplate()" [disabled]="!nuovoPastoNome.trim()">
+            <fa-icon [icon]="icons.plus"></fa-icon> Crea Template
+          </button>
+        </div>
+      </div>
+
+      @if (pastiTemplates.length === 0 && !pastoInModifica) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.bowl" class="empty-icon"></fa-icon>
+        <h3>Nessun template pasto</h3>
+        <p>Crea il tuo primo template di pasto personalizzato.</p>
+      </div>
+      }
+
+      <!-- Template list -->
+      <div class="pasti-list">
+        @for (pasto of pastiTemplates; track pasto.id) {
+        <div class="pasto-card" [class.editing]="pastoInModifica?.id === pasto.id">
+          <div class="pasto-header">
+            <div class="pasto-info">
+              <h4 class="pasto-nome">{{ pasto.nome }}</h4>
+              @if (pasto.descrizione) {
+              <p class="pasto-desc">{{ pasto.descrizione }}</p>
+              }
+              <span class="pasto-count">{{ pasto.alimenti.length }} aliment{{ pasto.alimenti.length === 1 ? 'o' : 'i'
+                }}</span>
+            </div>
+            <div class="pasto-actions">
+              <button class="icon-btn" (click)="editPasto(pasto)" title="Modifica">
+                <fa-icon [icon]="icons.edit"></fa-icon>
+              </button>
+              <button class="icon-btn danger" (click)="eliminaPastoTemplate(pasto.id)" title="Elimina">
+                <fa-icon [icon]="icons.trash"></fa-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Macro totals -->
+          @if (pasto.alimenti.length > 0) {
+          <div class="pasto-macro-summary">
+            @let totals = getPastoMacroTotali(pasto);
+            <span class="macro kcal">{{ totals.calorie }} kcal</span>
+            <span class="macro p">{{ totals.proteine }}g P</span>
+            <span class="macro c">{{ totals.carboidrati }}g C</span>
+            <span class="macro g">{{ totals.grassi }}g G</span>
+          </div>
+          }
+
+          <!-- Editing panel -->
+          @if (pastoInModifica?.id === pasto.id) {
+          <div class="pasto-edit-panel">
+            <div class="template-edit-grid">
+              <div class="template-edit-left">
+                <div class="pasto-meta-edit">
+                  <input type="text" class="form-input" [ngModel]="pasto.nome"
+                    (ngModelChange)="pasto.nome = $event; onPastoTemplateMetaChange()" placeholder="Nome template" />
+                  <input type="text" class="form-input" [ngModel]="pasto.descrizione || ''"
+                    (ngModelChange)="pasto.descrizione = ($event && $event.trim().length ? $event : null); onPastoTemplateMetaChange()"
+                    placeholder="Descrizione (opzionale)" />
+                </div>
+
+                @if (pastoTemplateWarning) {
+                <div class="alert error">{{ pastoTemplateWarning }}</div>
+                }
+
+                <button class="btn-secondary" (click)="openCatalogoPastiDrawer()">
+                  <fa-icon [icon]="icons.plus"></fa-icon> Aggiungi alimenti
+                </button>
+
+                @if (pasto.alimenti.length > 0) {
+                <div class="template-alimenti-table">
+                  <div class="template-alimenti-table-header">
+                    <span class="col-nome">Alimento</span>
+                    <span class="col-qty">Qtà</span>
+                    <span class="col-macro p">P</span>
+                    <span class="col-macro c">C</span>
+                    <span class="col-macro g">G</span>
+                    <span class="col-macro kcal">kcal</span>
+                    <span class="col-actions"></span>
+                  </div>
+                  @for (item of pasto.alimenti; track item.alimento.id; let i = $index) {
+                  <div class="template-alimenti-table-row">
+                    <span class="col-nome">
+                      @if (editingTemplateItemIndex === i) {
+                      <input type="text" class="template-inline-nome-input" [(ngModel)]="editTemplateNomeValue"
+                        (keydown)="onTemplateInlineRenameKeydown($event)" (blur)="confirmTemplateInlineRename()" />
+                      } @else {
+                      <span class="nome-text" (dblclick)="startTemplateInlineRename(i)"
+                        title="Doppio click per rinominare">{{ item.nomeVisualizzato || item.nomeCustom ||
+                        item.alimento.nome || 'Alimento' }}</span>
+                      @if (item.alimento.categoria) {
+                      <span class="template-cat-chip">{{ item.alimento.categoria }}</span>
+                      }
+                      }
+                    </span>
+                    <span class="col-qty">
+                      <input type="number" [ngModel]="item.quantita" (ngModelChange)="updateQuantitaPasto(i, $event)"
+                        min="1" class="qty-input" />
+                      <span class="unit">g</span>
+                    </span>
+                    <span class="col-macro p">{{ getTemplateItemMacro(item, 'proteine') | number:'1.0-1' }}</span>
+                    <span class="col-macro c">{{ getTemplateItemMacro(item, 'carboidrati') | number:'1.0-1' }}</span>
+                    <span class="col-macro g">{{ getTemplateItemMacro(item, 'grassi') | number:'1.0-1' }}</span>
+                    <span class="col-macro kcal">{{ getTemplateItemMacro(item, 'calorie') | number:'1.0-0' }}</span>
+                    <span class="col-actions">
+                      <button class="icon-btn danger small" (click)="removeAlimentoFromPasto(i)" title="Rimuovi">
+                        <fa-icon [icon]="icons.xmark"></fa-icon>
+                      </button>
+                    </span>
+                  </div>
+                  }
+                </div>
+
+                <div class="template-alternative-display-list">
+                  @for (item of pasto.alimenti; track item.alimento.id; let i = $index) {
+                  <div class="template-alternative-display-section">
+                    <div class="template-alternative-display-header">
+                      <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                      Alternative per: <strong>{{ item.nomeVisualizzato || item.nomeCustom || item.alimento.nome ||
+                        'Alimento' }}</strong>
+                    </div>
+                    <app-lista-alternative-template [mainAlimento]="item.alimento" [mainQuantita]="item.quantita"
+                      [alternatives]="item.alternative || []" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
+                      (alternativesChange)="updateAlternativePasto(i, $event)">
+                    </app-lista-alternative-template>
+                  </div>
+                  }
+                </div>
+                }
+
+                <button class="btn-secondary" (click)="closePastoEdit()">Chiudi Editor</button>
+              </div>
+
+              <aside class="template-macro-panel" [class.dark-mode]="isDarkMode">
+                <div class="chart-title">Distribuzione macronutrienti</div>
+                @if (!templateMacroChartHasData) {
+                <div class="chart-empty">Dati insufficienti per calcolare le percentuali.</div>
+                } @else {
+                <div class="chart-wrapper">
+                  <canvas #templatePieChart role="img"
+                    [attr.aria-label]="'Distribuzione macronutrienti del template: Proteine, Carboidrati e Grassi'"></canvas>
+                </div>
+                }
+
+                @let totals = getPastoMacroTotali(pasto);
+                <div class="template-macro-kpis">
+                  <div class="kpi">
+                    <span class="kpi-value kcal">{{ totals.calorie }}</span>
+                    <span class="kpi-label">kcal</span>
+                  </div>
+                  <div class="kpi">
+                    <span class="kpi-value p">{{ totals.proteine | number:'1.0-1' }}</span>
+                    <span class="kpi-label">P</span>
+                  </div>
+                  <div class="kpi">
+                    <span class="kpi-value c">{{ totals.carboidrati | number:'1.0-1' }}</span>
+                    <span class="kpi-label">C</span>
+                  </div>
+                  <div class="kpi">
+                    <span class="kpi-value g">{{ totals.grassi | number:'1.0-1' }}</span>
+                    <span class="kpi-label">G</span>
+                  </div>
+                </div>
+
+                <div class="macro-bars">
+                  <div class="macro-bar-row">
+                    <span class="macro-bar-label">Proteine</span>
+                    <div class="macro-bar-track">
+                      <div class="macro-bar-fill p" [style.width.%]="templateMacroPercentage('proteine')"></div>
+                    </div>
+                    <span class="macro-bar-pct">{{ templateMacroPercentage('proteine') | number:'1.0-0' }}%</span>
+                  </div>
+                  <div class="macro-bar-row">
+                    <span class="macro-bar-label">Carboidrati</span>
+                    <div class="macro-bar-track">
+                      <div class="macro-bar-fill c" [style.width.%]="templateMacroPercentage('carboidrati')"></div>
+                    </div>
+                    <span class="macro-bar-pct">{{ templateMacroPercentage('carboidrati') | number:'1.0-0' }}%</span>
+                  </div>
+                  <div class="macro-bar-row">
+                    <span class="macro-bar-label">Grassi</span>
+                    <div class="macro-bar-track">
+                      <div class="macro-bar-fill g" [style.width.%]="templateMacroPercentage('grassi')"></div>
+                    </div>
+                    <span class="macro-bar-pct">{{ templateMacroPercentage('grassi') | number:'1.0-0' }}%</span>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  4. RICETTE SUGGERITE               ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'ricette') {
+    <section class="section-ricette animate-in">
+      <div class="ricette-grid">
+        @for (ricetta of ricetteSuggerite; track ricetta.id) {
+        <div class="ricetta-card">
+          <div class="ricetta-cat-badge">{{ ricetta.categoria }}</div>
+          <h4 class="ricetta-titolo">{{ ricetta.titolo }}</h4>
+          <p class="ricetta-desc">{{ ricetta.descrizione }}</p>
+          <div class="ricetta-ingredienti">
+            @for (ing of ricetta.ingredienti; track ing) {
+            <span class="ingrediente-chip">{{ ing }}</span>
+            }
+          </div>
+          <div class="ricetta-macros">
+            <span class="macro kcal">{{ ricetta.macroTotali.calorie }} kcal</span>
+            <span class="macro p">{{ ricetta.macroTotali.proteine }}g P</span>
+            <span class="macro c">{{ ricetta.macroTotali.carboidrati }}g C</span>
+            <span class="macro g">{{ ricetta.macroTotali.grassi }}g G</span>
+          </div>
+        </div>
+        }
+      </div>
+    </section>
+    }
+
+
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  6. PIÙ UTILIZZATI                  ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'top') {
+    <section class="section-top animate-in">
+      @if (topAlimenti.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.chart" class="empty-icon"></fa-icon>
+        <h3>Nessun dato disponibile</h3>
+        <p>I dati sugli alimenti più utilizzati appariranno man mano che li userai nelle schede dieta.</p>
+      </div>
+      } @else {
+      <div class="top-list">
+        @for (item of topAlimenti; track item.id; let i = $index) {
+        <div class="top-item" (click)="openDettaglio(item)">
+          <div class="top-rank">{{ i + 1 }}</div>
+          <div class="top-info">
+            <span class="top-nome">{{ item.nome }}</span>
+            @if (item.categoria) {
+            <span class="top-cat">{{ item.categoria }}</span>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  7. CONFRONTO ALIMENTI              ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'confronto') {
+    <section class="section-confronto animate-in">
+      <div class="confronto-tools">
+        <div class="search-box">
+          <fa-icon [icon]="icons.search" class="search-icon"></fa-icon>
+          <input type="text" [ngModel]="confrontoSearch" (ngModelChange)="searchConfronto($event)"
+            placeholder="Cerca alimento da confrontare..." class="search-input" id="confrontoSearch"
+            [disabled]="confrontoSelezionati.length >= 4" />
+        </div>
+        @if (confrontoSelezionati.length > 0) {
+        <button class="btn-secondary" (click)="clearConfronto()">
+          <fa-icon [icon]="icons.xmark"></fa-icon> Reset
+        </button>
+        }
+      </div>
+
+      @if (confrontoResults.length > 0) {
+      <div class="confronto-dropdown">
+        @for (result of confrontoResults; track result.id) {
+        <div class="dropdown-item" (click)="addToConfronto(result)">
+          <span>{{ result.nome }}</span>
+          @if (result.categoria) {
+          <span class="dd-cat">{{ result.categoria }}</span>
+          }
+          <fa-icon [icon]="icons.plus" class="add-icon"></fa-icon>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Selected chips -->
+      @if (confrontoSelezionati.length > 0) {
+      <div class="confronto-chips">
+        @for (al of confrontoSelezionati; track al.id; let i = $index) {
+        <div class="confronto-chip">
+          {{ al.nome }}
+          <button class="chip-remove" (click)="removeFromConfronto(i)">
+            <fa-icon [icon]="icons.xmark" size="xs"></fa-icon>
+          </button>
+        </div>
+        }
+        <span class="chips-hint">{{ 4 - confrontoSelezionati.length }} slot rimanent{{ (4 - confrontoSelezionati.length)
+          === 1 ? 'e' : 'i' }}</span>
+      </div>
+      }
+
+      <!-- Comparison table -->
+      @if (confrontoSelezionati.length >= 2) {
+      <div class="confronto-table-wrapper">
+        <table class="confronto-table">
+          <thead>
+            <tr>
+              <th class="label-col">Nutriente</th>
+              @for (al of confrontoSelezionati; track al.id) {
+              <th>{{ al.nome }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of confrontoRows; track row.key) {
+            <tr>
+              <td class="label-col">{{ row.label }} <span class="unit">({{ row.unit }})</span></td>
+              @for (al of confrontoSelezionati; track al.id) {
+              <td [class.highlight]="isMaxForKey(al, row.key)">
+                {{ getMacroValue(al, row.key) }}
+                @if (isMaxForKey(al, row.key)) {
+                <fa-icon [icon]="icons.arrowUp" size="xs" class="max-indicator"></fa-icon>
+                }
+              </td>
+              }
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      } @else if (confrontoSelezionati.length === 1) {
+      <div class="confronto-hint">
+        <fa-icon [icon]="icons.scale"></fa-icon>
+        Aggiungi almeno un altro alimento per visualizzare il confronto.
+      </div>
+      } @else {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.scale" class="empty-icon"></fa-icon>
+        <h3>Confronta Alimenti</h3>
+        <p>Cerca e seleziona da 2 a 4 alimenti per confrontare i loro valori nutrizionali.</p>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- ╔══════════════════════════════════════╗
+         ║  8. STATISTICHE CATALOGO            ║
+         ╚══════════════════════════════════════╝ -->
+    @if (activeTab === 'statistiche') {
+    <section class="section-statistiche animate-in">
+      @if (loadingStats) {
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <span class="loader-text">Calcolo statistiche...</span>
+      </div>
+      } @else {
+
+      <!-- Overview cards -->
+      <div class="stats-overview">
+        <div class="stat-card total">
+          <div class="stat-value">{{ statTotaleAlimenti }}</div>
+          <div class="stat-label">Alimenti Totali</div>
+        </div>
+        <div class="stat-card cal">
+          <div class="stat-value">{{ statMacroMedi.calorie }}</div>
+          <div class="stat-label">Calorie Medie</div>
+        </div>
+        <div class="stat-card pro">
+          <div class="stat-value">{{ statMacroMedi.proteine }}g</div>
+          <div class="stat-label">Proteine Medie</div>
+        </div>
+        <div class="stat-card carb">
+          <div class="stat-value">{{ statMacroMedi.carboidrati }}g</div>
+          <div class="stat-label">Carboidrati Medi</div>
+        </div>
+      </div>
+
+      <!-- Categories distribution -->
+      @if (statCategorie.length > 0) {
+      <div class="stats-section">
+        <h3 class="stats-title">Distribuzione per Categoria</h3>
+        <div class="stats-bars">
+          @for (cat of statCategorie; track cat.categoria) {
+          <div class="bar-row">
+            <span class="bar-label">{{ cat.categoria }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="cat.pct"></div>
+            </div>
+            <span class="bar-value">{{ cat.count }} ({{ cat.pct }}%)</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Top Proteine -->
+      <div class="stats-columns">
+        @if (statTopProteine.length > 0) {
+        <div class="stats-section">
+          <h3 class="stats-title">
+            <fa-icon [icon]="icons.dumbbell"></fa-icon> Top 5 – Proteine
+          </h3>
+          <div class="stats-ranking">
+            @for (al of statTopProteine; track al.id; let i = $index) {
+            <div class="rank-item">
+              <span class="rank-pos">{{ i + 1 }}</span>
+              <span class="rank-nome">{{ al.nome }}</span>
+              <span class="rank-value p">{{ al.macroNutrienti.proteine | number:'1.0-1' }}g</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        @if (statTopFibre.length > 0) {
+        <div class="stats-section">
+          <h3 class="stats-title">
+            <fa-icon [icon]="icons.leaf"></fa-icon> Top 5 – Fibre
+          </h3>
+          <div class="stats-ranking">
+            @for (al of statTopFibre; track al.id; let i = $index) {
+            <div class="rank-item">
+              <span class="rank-pos">{{ i + 1 }}</span>
+              <span class="rank-nome">{{ al.nome }}</span>
+              <span class="rank-value g">{{ al.macroNutrienti.fibre | number:'1.0-1' }}g</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+
+      }
+    </section>
+    }
+
+  </main>
+
+  <!-- CATALOGO DRAWER (slide-in da destra) -->
+  @if (catalogoPastiDrawerOpen) {
+  <div class="catalogo-backdrop" (click)="closeCatalogoPastiDrawer()"></div>
+  <div class="catalogo-drawer" [class.dark-mode]="!!(themeService.isDarkMode$ | async)">
+    <app-catalogo-alimenti [pastoEspanso]="pastoInModifica?.nome" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
+      [isDrawer]="true" (alimentoSelezionato)="onPastoTemplateAlimentoSelezionato($event)"
+      (alimentoDettaglioRichiesto)="openDettaglio($event)" (closeRequested)="closeCatalogoPastiDrawer()">
+    </app-catalogo-alimenti>
+  </div>
+  }
+
+  <!-- ═══════ MODAL DETTAGLIO ═══════ -->
+  <app-modal-alimento [open]="modalOpen" [loading]="modalLoading" [alimento]="alimentoDettaglio"
+    [isPreferito]="!!alimentoDettaglio && isPreferito(alimentoDettaglio)"
+    [isDarkMode]="!!(themeService.isDarkMode$ | async)" (closed)="onModalClosed()"
+    (togglePreferito)="alimentoDettaglio && togglePreferito(alimentoDettaglio)">
+  </app-modal-alimento>
+
+  <!-- ═══════ MODAL AGGIUNGI ALIMENTO ═══════ -->
+  @if (showFormAggiungi) {
+  <div class="modal-overlay" (click)="showFormAggiungi = false">
+    <div class="modal-aggiungi" (click)="$event.stopPropagation()">
+      <div class="modal-aggiungi-header">
+        <h3 class="section-title">
+          <fa-icon [icon]="icons.plus"></fa-icon> Nuovo Alimento Personalizzato
+        </h3>
+        <button class="modal-close-btn" (click)="showFormAggiungi = false">
+          <fa-icon [icon]="icons.xmark"></fa-icon>
+        </button>
+      </div>
+
+      @if (creazioneSuccesso) {
+      <div class="alert success">
+        <fa-icon [icon]="icons.check"></fa-icon> Alimento creato con successo!
+      </div>
+      }
+      @if (creazioneErrore) {
+      <div class="alert error">{{ creazioneErrore }}</div>
+      }
+
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="alimentoNome">Nome *</label>
+          <input type="text" id="alimentoNome" [(ngModel)]="nuovoAlimento.nome" placeholder="Nome dell'alimento"
+            class="form-input" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoCategoria">Categoria</label>
+          <select id="alimentoCategoria" class="form-input"
+            [ngModel]="categoriaCustomMode ? '__custom__' : nuovoAlimento.categoria"
+            (ngModelChange)="onCategoriaSelectChange($event)">
+            <option [ngValue]="''">— Seleziona —</option>
+            @for (cat of categorieGlobali; track cat) {
+            <option [ngValue]="cat">{{ cat }}</option>
+            }
+            <option [ngValue]="'__custom__'">✏️ Altra...</option>
+          </select>
+          @if (categoriaCustomMode) {
+          <input type="text" [(ngModel)]="nuovoAlimento.categoria" placeholder="Nuova categoria..." class="form-input"
+            style="margin-top: 8px" />
+          }
+        </div>
+        <div class="form-group">
+          <label for="alimentoMisura">Porzione (g)</label>
+          <input type="number" id="alimentoMisura" [(ngModel)]="nuovoAlimento.misuraInGrammi" class="form-input"
+            min="1" />
+        </div>
+
+        <div class="form-divider span-2">
+          <span>Macronutrienti</span>
+        </div>
+
+        <div class="form-group">
+          <label for="alimentoCalorie">Calorie (kcal)</label>
+          <input type="number" id="alimentoCalorie" [(ngModel)]="nuovoAlimento.calorie" class="form-input" min="0" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoProteine">Proteine (g)</label>
+          <input type="number" id="alimentoProteine" [(ngModel)]="nuovoAlimento.proteine" class="form-input" min="0"
+            step="0.1" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoCarboidrati">Carboidrati (g)</label>
+          <input type="number" id="alimentoCarboidrati" [(ngModel)]="nuovoAlimento.carboidrati" class="form-input"
+            min="0" step="0.1" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoGrassi">Grassi (g)</label>
+          <input type="number" id="alimentoGrassi" [(ngModel)]="nuovoAlimento.grassi" class="form-input" min="0"
+            step="0.1" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoFibre">Fibre (g)</label>
+          <input type="number" id="alimentoFibre" [(ngModel)]="nuovoAlimento.fibre" class="form-input" min="0"
+            step="0.1" />
+        </div>
+        <div class="form-group">
+          <label for="alimentoZuccheri">Zuccheri (g)</label>
+          <input type="number" id="alimentoZuccheri" [(ngModel)]="nuovoAlimento.zuccheri" class="form-input" min="0"
+            step="0.1" />
+        </div>
+      </div>
+
+      <button class="btn-primary full" (click)="creaAlimento()"
+        [disabled]="creatingAlimento || !nuovoAlimento.nome.trim()">
+        @if (creatingAlimento) {
+        <div class="btn-spinner"></div> Creazione in corso...
+        } @else {
+        <fa-icon [icon]="icons.plus"></fa-icon> Crea Alimento
+        }
+      </button>
+    </div>
+  </div>
+  }
+
+</div>
