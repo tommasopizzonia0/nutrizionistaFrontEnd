@@ -18,4 +18,8 @@ export interface CalcoloTdeeDto {
   bmr: number;
   tdee: number;
   clienteId: number;
+  tdeeSettimanale?: number;
+  calorieDimagrimento?: number;
+  calorieMassa?: number;
+  fabbisognoIdrico?: number;
 }
