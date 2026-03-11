@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PastoDto, PastoFormDto } from '../dto/pasto.dto';
 import { PageResponse } from '../dto/page-response.dto'; // Assicurati di importare PageResponse
+import { PastoApplyTemplateRequest, PastoApplyTemplateResultDto } from '../dto/pasto-apply-template.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -50,5 +51,9 @@ export class PastoService {
       .set('size', size.toString());
 
     return this.http.get<PageResponse<PastoDto>>(this.apiUrl, { params });
+  }
+
+  applyTemplate(pastoId: number, body: PastoApplyTemplateRequest): Observable<PastoApplyTemplateResultDto> {
+    return this.http.post<PastoApplyTemplateResultDto>(`${this.apiUrl}/${pastoId}/apply-template`, body);
   }
 }

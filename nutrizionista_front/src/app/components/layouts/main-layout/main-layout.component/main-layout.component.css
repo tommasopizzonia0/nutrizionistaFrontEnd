@@ -18,6 +18,10 @@
   margin-left: 0px;
 }
 
+.layout.dark-mode .main-content {
+  background: #0f172a;
+}
+
 .layout.collapsed .main-content {
   margin-left: 5px;
 }

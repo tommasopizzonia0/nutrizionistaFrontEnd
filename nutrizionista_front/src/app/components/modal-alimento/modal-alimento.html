@@ -16,9 +16,14 @@
                 </div>
                 }
             </div>
-            <button #closeBtn type="button" class="icon-btn" (click)="close()" aria-label="Chiudi">
-                <fa-icon [icon]="icons.close"></fa-icon>
-            </button>
+            <div class="modal-actions">
+                <button type="button" class="icon-btn heart-btn" [class.active]="isPreferito" (click)="togglePreferito.emit()" aria-label="Preferito">
+                    <fa-icon [icon]="icons.heart"></fa-icon>
+                </button>
+                <button #closeBtn type="button" class="icon-btn" (click)="close()" aria-label="Chiudi">
+                    <fa-icon [icon]="icons.close"></fa-icon>
+                </button>
+            </div>
         </header>
 
         <div class="modal-body">

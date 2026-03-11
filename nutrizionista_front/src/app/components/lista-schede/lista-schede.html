@@ -37,7 +37,7 @@
                                 @if (isEditing(scheda.id)) {
                                 <input class="scheda-nome-input" [class.invalid]="!!editError"
                                     [id]="'scheda-name-input-' + scheda.id" [value]="editNome"
-                                    [attr.aria-label]="'Modifica nome scheda ' + (scheda.nome ?? '')"
+                                    [attr.aria-label]="'Modifica nome scheda ' + scheda.nome"
                                     [attr.aria-invalid]="!!editError" [disabled]="savingNome"
                                     (click)="$event.stopPropagation()" (input)="editNome = $any($event.target).value"
                                     (keydown.enter)="confirmRename(scheda, $event)"

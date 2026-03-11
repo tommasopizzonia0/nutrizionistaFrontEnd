@@ -32,6 +32,8 @@ import { AlimentoAlternativoService } from '../../services/alimento-alternativo.
 import { AlimentoDaEvitareService } from '../../services/alimento-da-evitare-service';
 import { AlimentoAlternativoDto, AlimentoAlternativoUpsertDto, AlternativeModeDto } from '../../dto/alimento-alternativo.dto';
 import { AlimentoDaEvitareDto } from '../../dto/alimento-da-evitare.dto';
+import { PastoTemplateDto } from '../../dto/pasto-template.dto';
+import { PastoApplyTemplateResultDto, PastoApplyTemplateSkippedItemDto } from '../../dto/pasto-apply-template.dto';
 import { CatalogoAlimenti } from '../catalogo-alimenti/catalogo-alimenti';
 import { CalcoloMacro } from '../calcolo-macro/calcolo-macro';
 import { ListaAlternative } from '../lista-alternative/lista-alternative';
@@ -95,6 +97,16 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   pastoEspansoKey?: string;
   pastoEspansoLabel?: string;
   autoSaving = false;
+
+  pastiTemplates: PastoTemplateDto[] = [];
+  loadingPastiTemplates = false;
+  selectedTemplateIdByPastoId: Record<number, number | null> = {};
+  applyTemplateReportsByPastoId: Record<number, { stats: PastoApplyTemplateResultDto['stats']; skipped: PastoApplyTemplateSkippedItemDto[] }> = {};
+
+  showApplyTemplateModal = false;
+  applyTemplateModalPasto?: PastoDto;
+  applyTemplateModalTemplateId?: number;
+  applyingTemplate = false;
 
   // === WEEKLY PLAN ===
   readonly giorni: { key: GiornoSettimana; label: string; short: string }[] = [
@@ -273,7 +285,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
 
   defaultAlternativeMode: AlternativeMode = 'calorie';
   alternativeByAlimentoPastoId: Record<number, (AlternativeProposal | null)[]> = {};
-  alternativeByPastoId: Record<number, (AlternativeProposal | null)[]> = {};
   alternativeUi: Record<string, { editing: boolean; query: string; loading: boolean; results: AlimentoBaseDto[] }> = {};
   private alternativeSearchTimers: Record<string, number> = {};
   expandedAlternativeAlimentoIds: Set<number> = new Set();
@@ -306,6 +317,18 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         error: () => { /* silently ignore */ }
       });
     }
+
+    this.loadingPastiTemplates = true;
+    this.alimentoService.getPastiTemplates().pipe(
+      catchError(() => of([] as PastoTemplateDto[])),
+      finalize(() => {
+        this.loadingPastiTemplates = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe(list => {
+      this.pastiTemplates = (list || []).slice();
+      this.cdr.detectChanges();
+    });
 
     // Setup debounce for alimento quantity updates
     this.subscriptions.push(
@@ -355,6 +378,163 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         this.cdr.detectChanges();
       })
     );
+  }
+
+  onOpenApplyTemplate(pasto: PastoDto): void {
+    const templateId = this.selectedTemplateIdByPastoId[pasto.id] || null;
+    if (!templateId) {
+      this.showError('Seleziona un template.');
+      return;
+    }
+
+    const isEmpty = !pasto.alimentiPasto || pasto.alimentiPasto.length === 0;
+    if (isEmpty) {
+      this.applyTemplate(pasto, templateId, 'REPLACE');
+      return;
+    }
+
+    this.applyTemplateModalPasto = pasto;
+    this.applyTemplateModalTemplateId = templateId;
+    this.showApplyTemplateModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeApplyTemplateModal(): void {
+    this.showApplyTemplateModal = false;
+    this.applyTemplateModalPasto = undefined;
+    this.applyTemplateModalTemplateId = undefined;
+    this.cdr.detectChanges();
+  }
+
+  confirmApplyTemplate(mode: 'MERGE' | 'REPLACE'): void {
+    const pasto = this.applyTemplateModalPasto;
+    const templateId = this.applyTemplateModalTemplateId;
+    if (!pasto || !templateId) {
+      this.closeApplyTemplateModal();
+      return;
+    }
+    this.closeApplyTemplateModal();
+    this.applyTemplate(pasto, templateId, mode);
+  }
+
+  private applyTemplate(pasto: PastoDto, templateId: number, mode: 'MERGE' | 'REPLACE'): void {
+    const beforeSnapshot = (pasto.alimentiPasto || []).map(ap => ({
+      alimentoId: Number(ap?.alimento?.id || 0),
+      quantita: Number(ap?.quantita || 0),
+      nomeCustom: ap?.nomeCustom ?? null,
+      nomeVisualizzato: ap?.nomeVisualizzato ?? null
+    })).filter(x => x.alimentoId > 0);
+
+    this.applyingTemplate = true;
+    this.cdr.detectChanges();
+
+    this.pastoService.applyTemplate(pasto.id, {
+      templateId,
+      mode,
+      restrizioniPolicy: 'SKIP_WARNINGS'
+    }).pipe(
+      finalize(() => {
+        this.applyingTemplate = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (res) => {
+        const updated = res?.pasto;
+        const target = this.pasti.find(p => p.id === pasto.id);
+        if (target && updated) {
+          target.nome = updated.nome;
+          target.descrizione = updated.descrizione;
+          target.alimentiPasto = updated.alimentiPasto || [];
+        }
+
+        const afterSnapshot = (updated?.alimentiPasto || []).map(ap => ({
+          alimentoId: Number(ap?.alimento?.id || 0),
+          quantita: Number(ap?.quantita || 0),
+          nomeCustom: ap?.nomeCustom ?? null,
+          nomeVisualizzato: ap?.nomeVisualizzato ?? null
+        })).filter(x => x.alimentoId > 0);
+
+        const computedStats = this.computeApplyTemplateStats(beforeSnapshot, afterSnapshot);
+        const backendStats = res?.stats;
+        const useBackend = !!backendStats && this.hasAnyApplyTemplateStat(backendStats);
+
+        this.applyTemplateReportsByPastoId[pasto.id] = {
+          stats: useBackend ? backendStats : computedStats,
+          skipped: res.skipped || []
+        };
+
+        this.syncAlternativeState();
+        this.updateMacroChartFromPasti();
+        this.showSuccess(`Template applicato (${mode}). Saltati: ${(res.skipped || []).length}`);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || err?.message || 'Errore applicazione template';
+        this.showError(msg);
+      }
+    });
+  }
+
+  getApplyTemplateReport(pastoId: number) {
+    return this.applyTemplateReportsByPastoId[pastoId];
+  }
+
+  hasApplyTemplateReportChanges(pastoId: number): boolean {
+    const rep = this.applyTemplateReportsByPastoId[pastoId];
+    if (!rep) return false;
+    if ((rep.skipped || []).length > 0) return true;
+    return this.hasAnyApplyTemplateStat(rep.stats);
+  }
+
+  private hasAnyApplyTemplateStat(stats: PastoApplyTemplateResultDto['stats']): boolean {
+    if (!stats) return false;
+    return !!(
+      stats.addedAlimenti ||
+      stats.updatedAlimenti ||
+      stats.removedAlimenti ||
+      stats.addedAlternative ||
+      stats.updatedAlternative ||
+      stats.removedAlternative
+    );
+  }
+
+  private computeApplyTemplateStats(
+    before: Array<{ alimentoId: number; quantita: number; nomeCustom: string | null; nomeVisualizzato: string | null }>,
+    after: Array<{ alimentoId: number; quantita: number; nomeCustom: string | null; nomeVisualizzato: string | null }>
+  ): PastoApplyTemplateResultDto['stats'] {
+    const beforeMap = new Map<number, { quantita: number; nomeCustom: string | null; nomeVisualizzato: string | null }>();
+    const afterMap = new Map<number, { quantita: number; nomeCustom: string | null; nomeVisualizzato: string | null }>();
+
+    for (const b of before) beforeMap.set(b.alimentoId, { quantita: b.quantita, nomeCustom: b.nomeCustom, nomeVisualizzato: b.nomeVisualizzato });
+    for (const a of after) afterMap.set(a.alimentoId, { quantita: a.quantita, nomeCustom: a.nomeCustom, nomeVisualizzato: a.nomeVisualizzato });
+
+    let addedAlimenti = 0;
+    let removedAlimenti = 0;
+    let updatedAlimenti = 0;
+
+    for (const [id, a] of afterMap) {
+      const b = beforeMap.get(id);
+      if (!b) {
+        addedAlimenti++;
+        continue;
+      }
+      const qtyChanged = Math.round(b.quantita) !== Math.round(a.quantita);
+      const nomeChanged = (b.nomeCustom || '') !== (a.nomeCustom || '');
+      if (qtyChanged || nomeChanged) updatedAlimenti++;
+    }
+
+    for (const id of beforeMap.keys()) {
+      if (!afterMap.has(id)) removedAlimenti++;
+    }
+
+    return {
+      addedAlimenti,
+      updatedAlimenti,
+      removedAlimenti,
+      addedAlternative: 0,
+      updatedAlternative: 0,
+      removedAlternative: 0
+    };
   }
 
   ngAfterViewInit(): void {
@@ -432,10 +612,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         this.mergePastiConDefault(scheda.pasti || []);
         this.syncAlternativeState();
 
-        // Single batch call for alternatives after the scheda is loaded
-        if (this.scheda?.id) {
-          this.loadAllAlternativesForScheda(this.scheda.id);
-        }
 
         this.updateMacroChartFromPasti();
         this.loading = false;
@@ -935,15 +1111,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
         // Update local alternatives arrays with the new display name
         for (const key of Object.keys(this.alternativeByAlimentoPastoId)) {
           const list = this.alternativeByAlimentoPastoId[Number(key)];
-          if (!list) continue;
-          for (let i = 0; i < list.length; i++) {
-            if (list[i]?.savedId === updated.id) {
-              list[i] = { ...list[i]!, nomeCustom: updated.nomeCustom, nomeVisualizzato: updated.nomeVisualizzato };
-            }
-          }
-        }
-        for (const key of Object.keys(this.alternativeByPastoId)) {
-          const list = this.alternativeByPastoId[Number(key)];
           if (!list) continue;
           for (let i = 0; i < list.length; i++) {
             if (list[i]?.savedId === updated.id) {
@@ -1495,77 +1662,6 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
     });
   }
 
-  /**
-   * Carica tutte le alternative di tutti i pasti in una sola chiamata batch.
-   * Sostituisce N chiamate loadAlternativesForPasto() con 1 sola.
-   */
-  private loadAllAlternativesForScheda(schedaId: number): void {
-    this.alternativoService.listByScheda(schedaId).subscribe({
-      next: (mapByPastoId) => {
-        // Popola alternativeByPastoId per ogni pasto
-        for (const pastoIdStr of Object.keys(mapByPastoId)) {
-          const pastoId = Number(pastoIdStr);
-          const alternatives = mapByPastoId[pastoId];
-          if (alternatives && alternatives.length > 0) {
-            this.alternativeByPastoId[pastoId] = alternatives.map(alt => ({
-              alimento: alt.alimentoAlternativo,
-              quantita: alt.quantita,
-              mode: this.fromBackendMode(alt.mode),
-              manual: alt.manual ?? true,
-              savedId: alt.id,
-              saving: false,
-              nomeCustom: alt.nomeCustom,
-              nomeVisualizzato: alt.nomeVisualizzato
-            }));
-            this.alternativeByPastoId[pastoId].push(null);
-          } else {
-            this.alternativeByPastoId[pastoId] = [null];
-          }
-        }
-        // Pasti senza alternative: imposta [null]
-        for (const pasto of this.pasti) {
-          if (pasto?.id && !this.alternativeByPastoId[pasto.id]) {
-            this.alternativeByPastoId[pasto.id] = [null];
-          }
-        }
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        // Fallback: imposta [null] per tutti i pasti
-        for (const pasto of this.pasti) {
-          if (pasto?.id) {
-            this.alternativeByPastoId[pasto.id] = [null];
-          }
-        }
-      }
-    });
-  }
-
-  private loadAlternativesForPasto(pastoId: number): void {
-    this.alternativoService.listByPasto(pastoId).subscribe({
-      next: (alternatives) => {
-        if (alternatives.length > 0) {
-          this.alternativeByPastoId[pastoId] = alternatives.map(alt => ({
-            alimento: alt.alimentoAlternativo,
-            quantita: alt.quantita,
-            mode: this.fromBackendMode(alt.mode),
-            manual: alt.manual ?? true,
-            savedId: alt.id,
-            saving: false,
-            nomeCustom: alt.nomeCustom,
-            nomeVisualizzato: alt.nomeVisualizzato
-          }));
-          this.alternativeByPastoId[pastoId].push(null);
-        } else {
-          this.alternativeByPastoId[pastoId] = [null];
-        }
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.alternativeByPastoId[pastoId] = [null];
-      }
-    });
-  }
 
   private ensureAlternativeEntry(alimentoPastoId: number): void {
     const existing = this.alternativeByAlimentoPastoId[alimentoPastoId];
@@ -2215,225 +2311,4 @@ export class SchedaDietaComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   // === AGGREGATED ALTERNATIVES PER PASTO ===
-
-  getAggregatedAlternatives(pasto: PastoDto): (AlternativeProposal | null)[] {
-    // Read directly from per-pasto map
-    const list = this.alternativeByPastoId[pasto.id];
-    if (!list) return [];
-    return list.filter(a => a !== null) as AlternativeProposal[];
-  }
-
-  addAggregatedAlternativeSlot(pasto: PastoDto): void {
-    if (!this.alternativeByPastoId[pasto.id]) {
-      this.alternativeByPastoId[pasto.id] = [null];
-    }
-    const list = this.alternativeByPastoId[pasto.id];
-    const existingNull = list.findIndex(v => v === null);
-    if (existingNull === -1) {
-      list.push(null);
-    }
-    this.cdr.detectChanges();
-  }
-
-  onAggregatedAlternativeSelected(
-    pasto: PastoDto,
-    event: { alimento: AlimentoBaseDto; quantita: number; slot: number }
-  ): void {
-    if (!this.alternativeByPastoId[pasto.id]) {
-      this.alternativeByPastoId[pasto.id] = [];
-    }
-    const list = this.alternativeByPastoId[pasto.id];
-    const mode = this.defaultAlternativeMode;
-
-    // Use first food in meal for quantity suggestion
-    const firstAp = pasto.alimentiPasto?.[0];
-    const suggested = firstAp ? this.suggestAlternativeQuantity(firstAp, event.alimento, mode) : null;
-    const quantita = suggested ?? event.quantita ?? 100;
-
-    // Optimistic UI: add to per-pasto list
-    const proposal: AlternativeProposal = {
-      alimento: event.alimento,
-      quantita,
-      mode,
-      manual: false,
-      saving: true
-    };
-
-    // Replace null slot or append
-    const nullIdx = list.findIndex(v => v === null);
-    if (nullIdx !== -1) {
-      list[nullIdx] = proposal;
-    } else {
-      list.push(proposal);
-    }
-    const insertedIdx = nullIdx !== -1 ? nullIdx : list.length - 1;
-    this.cdr.detectChanges();
-
-    // Persist via per-pasto endpoint
-    const body: AlimentoAlternativoUpsertDto = {
-      alimentoAlternativoId: event.alimento.id!,
-      quantita: null,
-      priorita: insertedIdx + 1,
-      mode: this.toBackendMode(mode),
-      manual: false,
-      note: null
-    };
-    this.alternativoService.createForPasto(pasto.id, body).pipe(
-      timeout(8000)
-    ).subscribe({
-      next: (saved) => {
-        const current = list[insertedIdx];
-        if (current) {
-          list[insertedIdx] = {
-            ...current,
-            savedId: saved.id,
-            quantita: saved.quantita,
-            manual: saved.manual ?? current.manual,
-            mode: this.fromBackendMode(saved.mode),
-            saving: false
-          };
-        }
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('Errore salvataggio alternativa per pasto:', err);
-        this.showAlternativeHttpError(err, 'Errore nel salvataggio dell\'alternativa');
-        // Rollback
-        list[insertedIdx] = null;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  onAggregatedAlternativeRemoved(
-    pasto: PastoDto,
-    event: { index: number; savedId?: number }
-  ): void {
-    const list = this.alternativeByPastoId[pasto.id];
-    if (!list) return;
-    // Find the real index: event.index is index among non-null items
-    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
-    if (event.index < 0 || event.index >= nonNullItems.length) return;
-    const realIndex = nonNullItems[event.index].i;
-    const toRemove = list[realIndex];
-    const savedId = toRemove?.savedId;
-
-    // Optimistic UI
-    list.splice(realIndex, 1);
-    if (list.length === 0 || list.every(v => v === null && list.length === 0)) {
-      this.alternativeByPastoId[pasto.id] = [null];
-    }
-    this.cdr.detectChanges();
-
-    // Delete from backend
-    if (savedId) {
-      this.alternativoService.deleteForPasto(pasto.id, savedId).subscribe({
-        error: (err: any) => {
-          console.error('Errore eliminazione alternativa per pasto:', err);
-          this.showAlternativeHttpError(err, 'Errore nell\'eliminazione dell\'alternativa');
-        }
-      });
-    }
-  }
-
-  onAggregatedAlternativeQuantita(
-    pasto: PastoDto,
-    event: { slot: number; quantita: number }
-  ): void {
-    const list = this.alternativeByPastoId[pasto.id];
-    if (!list) return;
-    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
-    if (event.slot < 0 || event.slot >= nonNullItems.length) return;
-    const realIndex = nonNullItems[event.slot].i;
-    const proposal = list[realIndex];
-    if (!proposal || !event.quantita || event.quantita <= 0) return;
-
-    // Optimistic UI
-    list[realIndex] = { ...proposal, quantita: event.quantita, manual: true };
-    this.cdr.detectChanges();
-
-    // Save to backend
-    if (proposal.savedId) {
-      const body: AlimentoAlternativoUpsertDto = {
-        id: proposal.savedId,
-        alimentoAlternativoId: proposal.alimento.id!,
-        quantita: event.quantita,
-        priorita: event.slot + 1,
-        mode: this.toBackendMode(proposal.mode),
-        manual: true,
-        note: null
-      };
-      this.alternativoService.updateForPasto(pasto.id, proposal.savedId, body).pipe(
-        timeout(8000)
-      ).subscribe({
-        next: (saved) => {
-          const current = list[realIndex];
-          if (current) {
-            list[realIndex] = {
-              ...current,
-              quantita: saved.quantita,
-              manual: saved.manual ?? current.manual,
-              mode: this.fromBackendMode(saved.mode),
-              saving: false
-            };
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          this.showAlternativeHttpError(err, 'Errore nel salvataggio della quantità alternativa');
-        }
-      });
-    }
-  }
-
-  onAggregatedAlternativeMode(
-    pasto: PastoDto,
-    event: { slot: number; mode: AlternativeMode }
-  ): void {
-    const list = this.alternativeByPastoId[pasto.id];
-    if (!list) return;
-    const nonNullItems = list.map((v, i) => ({ v, i })).filter(x => x.v !== null);
-    if (event.slot < 0 || event.slot >= nonNullItems.length) return;
-    const realIndex = nonNullItems[event.slot].i;
-    const proposal = list[realIndex];
-    if (!proposal) return;
-
-    // For per-pasto, suggest quantity using first food in meal
-    const firstAp = pasto.alimentiPasto?.[0];
-    const suggested = firstAp ? this.suggestAlternativeQuantity(firstAp, proposal.alimento, event.mode) : null;
-    list[realIndex] = { ...proposal, mode: event.mode, manual: false, quantita: suggested ?? proposal.quantita };
-    this.cdr.detectChanges();
-
-    if (proposal.savedId) {
-      const body: AlimentoAlternativoUpsertDto = {
-        id: proposal.savedId,
-        alimentoAlternativoId: proposal.alimento.id!,
-        quantita: null,
-        priorita: event.slot + 1,
-        mode: this.toBackendMode(event.mode),
-        manual: false,
-        note: null
-      };
-      this.alternativoService.updateForPasto(pasto.id, proposal.savedId, body).pipe(
-        timeout(8000)
-      ).subscribe({
-        next: (saved) => {
-          const current = list[realIndex];
-          if (current) {
-            list[realIndex] = {
-              ...current,
-              quantita: saved.quantita,
-              manual: saved.manual ?? current.manual,
-              mode: this.fromBackendMode(saved.mode),
-              saving: false
-            };
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          this.showAlternativeHttpError(err, 'Errore nel salvataggio della modalità alternativa');
-        }
-      });
-    }
-  }
 }

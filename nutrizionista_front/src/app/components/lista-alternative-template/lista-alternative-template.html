@@ -1,0 +1,108 @@
+<div class="alternative-section" [class.dark-mode]="isDarkMode">
+  <div class="add-area">
+    @if (editingSearch) {
+    <div class="search-panel">
+      <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchInput($event)"
+        placeholder="Cerca alimento alternativo..." class="search-input" autofocus />
+      <button class="btn-close" (click)="closeSearch()">
+        <fa-icon [icon]="icons.xmark"></fa-icon>
+      </button>
+
+      @if (warningMessage) {
+      <div class="search-warning">{{ warningMessage }}</div>
+      }
+
+      @if (searchLoading) {
+      <div class="search-loading">Ricerca...</div>
+      }
+
+      @if (searchResults.length > 0) {
+      <div class="search-results">
+        @for (alimento of searchResults; track alimento.id) {
+        <div class="result-item" (click)="selectAlternative(alimento)">
+          <span class="result-nome">{{ alimento.nome }}</span>
+          <span class="result-cal">{{ alimento.macroNutrienti?.calorie }} kcal/{{ alimento.misuraInGrammi }}g</span>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <button class="btn-add-alternative" (click)="openSearch()">
+      <fa-icon [icon]="icons.plus"></fa-icon>
+      Aggiungi alternativa
+    </button>
+    }
+  </div>
+
+  <div class="alternatives-grid">
+    @for (alt of alternatives; track alt.id ?? alt.alimentoAlternativo.id) {
+    @let idx = $index;
+    <div class="alternative-card" [class.manual]="alt.manual">
+      <div class="col-nome">
+        @if (editingNomeIndex === idx) {
+        <div class="nome-edit-row">
+          <input #altNomeInput type="text" class="nome-input" [(ngModel)]="editNomeValue"
+            (keydown)="onNomeKeydown($event, idx)" (blur)="confirmEditNome(idx)" />
+          <button class="btn-inline confirm" (mousedown)="$event.preventDefault(); confirmEditNome(idx)"
+            title="Conferma" aria-label="Conferma">
+            <fa-icon [icon]="icons.confirm"></fa-icon>
+          </button>
+          <button class="btn-inline cancel" (mousedown)="$event.preventDefault(); cancelEditNome()" title="Annulla"
+            aria-label="Annulla">
+            <fa-icon [icon]="icons.xmark"></fa-icon>
+          </button>
+        </div>
+        } @else {
+        <span class="alternative-nome" (dblclick)="startEditNome(idx, alt)" title="Doppio click per modificare">{{
+          getNomeVisualizzato(alt) }}</span>
+        <button class="btn-edit-nome" (click)="startEditNome(idx, alt)" title="Modifica nome visualizzato"
+          aria-label="Modifica nome visualizzato">
+          <fa-icon [icon]="icons.pen" size="xs"></fa-icon>
+        </button>
+        }
+        @if (alt.manual) {
+        <span class="manual-badge">Manuale</span>
+        }
+      </div>
+
+      <div class="col-qty">
+        <input type="number" [ngModel]="alt.quantita" (ngModelChange)="onQuantitaChange(idx, $event)" min="1"
+          class="quantita-input" />
+        <span class="misura">g</span>
+      </div>
+
+      <span class="col-macro p" title="Proteine">{{ calcolaMacro(alt, 'proteine') | number:'1.0-1' }}</span>
+      <span class="col-macro c" title="Carboidrati">{{ calcolaMacro(alt, 'carboidrati') | number:'1.0-1' }}</span>
+      <span class="col-macro g" title="Grassi">{{ calcolaMacro(alt, 'grassi') | number:'1.0-1' }}</span>
+      <span class="col-macro kcal" title="Calorie">{{ calcolaMacro(alt, 'calorie') | number:'1.0-0' }}</span>
+
+      <div class="col-actions">
+        <div class="mode-dropdown">
+          <button class="mode-active-btn" [ngClass]="'mode-' + fromBackendMode(alt.mode)" type="button"
+            (click)="toggleModeMenu(idx)" [attr.aria-expanded]="openModeForIndex===idx"
+            [title]="fromBackendMode(alt.mode)">
+            <fa-icon [icon]="getModeIcon(fromBackendMode(alt.mode))" size="xs"></fa-icon>
+            <span class="mode-label">{{ fromBackendMode(alt.mode) }}</span>
+          </button>
+          @if (openModeForIndex === idx) {
+          <div class="mode-menu" role="menu">
+            @for (mode of modes; track mode) {
+            @if (mode !== fromBackendMode(alt.mode)) {
+            <button type="button" class="mode-menu-item" role="menuitem" (click)="selectMode(idx, mode)">
+              <fa-icon [icon]="getModeIcon(mode)" size="xs"></fa-icon>
+              <span>{{ mode }}</span>
+            </button>
+            }
+            }
+          </div>
+          }
+        </div>
+        <button class="btn-remove" (click)="removeAlternative(idx)" title="Rimuovi">
+          <fa-icon [icon]="icons.xmark"></fa-icon>
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+</div>
