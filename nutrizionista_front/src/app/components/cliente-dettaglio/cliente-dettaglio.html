@@ -47,7 +47,8 @@
          [cliente]="cliente"
          [isDarkMode]="(themeService.isDarkMode$ | async) ?? false"
          (apriScheda)="onNavigaASchedaAttiva($event)"
-         (apriMisurazioni)="onNavigaAMisurazioni()">
+         (apriMisurazioni)="onNavigaAMisurazioni()"
+         (creaNuovaScheda)="onCreaNuovaSchedaDallaDashboard()">
       </app-info-cliente>
     }
 

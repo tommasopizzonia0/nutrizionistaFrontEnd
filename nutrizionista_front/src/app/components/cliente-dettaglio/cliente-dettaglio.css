@@ -142,7 +142,9 @@
 }
 
 .dark-mode .cliente-hero {
-  background: #2d2d2d;
+  background: #191c20; 
+  border: 1px solid rgba(16, 185, 129, 0.25); 
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); 
 }
 
 .cliente-hero:hover {
@@ -260,7 +262,8 @@
 }
 
 .dark-mode .dettaglio-nav {
-  background: #2d2d2d;
+  background: #191c20;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .nav-item {

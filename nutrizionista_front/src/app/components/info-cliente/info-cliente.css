@@ -170,12 +170,104 @@
 @media (max-width: 768px) { .layout-info { grid-template-columns: 1fr; } }
 
 /* ========================================================= */
-/* PULSANTE ELIMINA TUTTI TDEE */
+/* CHECKBOX PERSONALIZZATE E AZIONI DI MASSA TDEE */
 /* ========================================================= */
-.btn-delete-all { background: transparent; border: none; color: var(--muted, #9ca3af); font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background-color 0.2s, color 0.2s; }
-.btn-delete-all:hover { color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
-.dark-mode .btn-delete-all { color: #64748b; }
-.dark-mode .btn-delete-all:hover { color: #f87171; background-color: rgba(239, 68, 68, 0.15); }
+.tdee-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-delete-selected {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.btn-delete-selected:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(239, 68, 68, 0.3);
+}
+
+.dark-mode .btn-delete-selected {
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1);
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.custom-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  height: 20px;
+  width: 20px;
+  background-color: transparent;
+  border: 2px solid var(--muted, #9ca3af);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.check-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted, #6b7280);
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+  border-color: var(--green-primary);
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+  background-color: var(--green-primary);
+  border-color: var(--green-primary);
+}
+
+.checkmark:after {
+  content: "";
+  display: none;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.dark-mode .checkmark { border-color: #64748b; background: rgba(0,0,0,0.2); }
+.dark-mode .check-label { color: #94a3b8; }
+.dark-mode .custom-checkbox:hover input ~ .checkmark { border-color: var(--green-primary); }
+.dark-mode .custom-checkbox input:checked ~ .checkmark { background-color: var(--green-primary); border-color: var(--green-primary); }
 
 /* ========================================================= */
 /* TDEE ACCORDION STYLES */
@@ -343,11 +435,81 @@
 @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* Modale Dark Mode */
-.dark-mode .delete-modal-content {
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+.dark-mode .delete-modal-content { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
 .dark-mode .modal-body-text h3 { color: #ffffff; }
 .dark-mode .modal-body-text p { color: #cbd5e1; }
 .dark-mode .btn-modal-cancel { background: rgba(255,255,255,0.1); color: #cbd5e1; }
 .dark-mode .btn-modal-cancel:hover { background: rgba(255,255,255,0.2); color: #ffffff; }
+
+
+/* ========================================================= */
+/* PALLINO LUMINOSO SCHEDA ATTIVA */
+/* ========================================================= */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--green-primary, #10b981);
+  border-radius: 50%;
+  margin-left: 8px;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+  animation: pulseAnimation 2s infinite;
+  flex-shrink: 0; /* Evita che si rimpicciolisca */
+}
+
+/* Animazione a onda (pulse) */
+@keyframes pulseAnimation {
+  0% { 
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); 
+  }
+  70% { 
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); 
+  }
+  100% { 
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); 
+  }
+}
+
+/* Adattamento per la Dark Mode */
+.dark-mode .pulse-dot {
+  background-color: #34d399; /* Un verde un po' più brillante per lo scuro */
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.9);
+}
+
+@keyframes pulseAnimationDark {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+.dark-mode .pulse-dot {
+  animation: pulseAnimationDark 2s infinite;
+}
+
+/* ========================================================= */
+/* PALLINO ROSSO (SCHEDA NON ATTIVA) */
+/* ========================================================= */
+.inactive-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444; /* Rosso */
+  border-radius: 50%;
+  margin-left: 8px;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.5); /* Leggero alone fisso */
+  flex-shrink: 0;
+}
+
+/* Adattamento per la Dark Mode */
+.dark-mode .inactive-dot {
+  background-color: #f87171; /* Rosso leggermente più chiaro per contrasto */
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.6);
+}
+
+/* ========================================================= */
+/* PULSANTE MINI PER WIDGET SUPERIORI */
+/* ========================================================= */
+.btn-calcola-ora.btn-mini {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  white-space: nowrap; /* Evita che il testo vada a capo */
+}
