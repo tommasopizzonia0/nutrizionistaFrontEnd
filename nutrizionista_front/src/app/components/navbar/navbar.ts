@@ -51,6 +51,7 @@ export class NavbarComponent implements OnInit {
   utente$!: Observable<UtenteDto>;
   previewUrl: string | null = null;
   errorMessage = '';
+  showLogoutModal: boolean = false;
 
   // Icone FontAwesome
   faHome = faHome;
@@ -149,6 +150,22 @@ export class NavbarComponent implements OnInit {
     localStorage.removeItem('theme');
     localStorage.removeItem('sidebarCollapsed');
     this.router.navigate(['/login']);
+  }
+
+  // 2. Metodo collegato al pulsante nel menu laterale (Apre il modale)
+  openLogoutModal(): void {
+    this.showLogoutModal = true;
+  }
+
+  // 3. Metodo collegato al pulsante "Annulla" del modale
+  closeLogoutModal(): void {
+    this.showLogoutModal = false;
+  }
+
+  // 4. Metodo collegato al pulsante "Sì, esci" del modale
+  confirmLogout(): void {
+    this.closeLogoutModal(); // Prima chiudiamo il modale visivamente
+    this.logout();     // Poi eseguiamo la tua logica di disconnessione
   }
 
   getThemeIcon() {

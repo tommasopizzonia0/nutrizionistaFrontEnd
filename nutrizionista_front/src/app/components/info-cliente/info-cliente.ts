@@ -10,16 +10,16 @@ import {
   OnDestroy
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs'; // Aggiunto forkJoin
 import { takeUntil } from 'rxjs/operators';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
-  faUser, faEnvelope, faPhone, faCalendar, faIdCard, 
-  faWeight, faRuler, faPercentage, faDumbbell, 
+  faUser, faEnvelope, faPhone, faCalendar, faIdCard,
+  faWeight, faRuler, faPercentage, faDumbbell,
   faRulerCombined, faBullseye, faClipboardList, faRunning,
   faHeartbeat, faBolt, faTrash, faChevronDown, faChevronUp, faUtensils,
-  faExclamationTriangle // <-- NUOVA ICONA PER IL MODALE
+  faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 
 import { ClienteDto } from '../../dto/cliente.dto';
@@ -38,10 +38,11 @@ import { CalcoloTdeeDto } from '../../dto/calcolo-tdee.dto';
 })
 export class InfoClienteComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cliente!: ClienteDto;
-  @Input() isDarkMode = false; 
+  @Input() isDarkMode = false;
 
-  @Output() apriScheda = new EventEmitter<number>(); 
+  @Output() apriScheda = new EventEmitter<number>();
   @Output() apriMisurazioni = new EventEmitter<void>();
+  @Output() creaNuovaScheda = new EventEmitter<void>();
 
   private plicoApi = inject(PlicometrieApiService);
   private misurazioneApi = inject(MisurazioneAntropometricaService);
@@ -55,18 +56,19 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
   ultimaPlicometria: any = null;
   ultimaMisurazione: any = null;
   schedaAttiva: any = null;
-  storicoTdee: CalcoloTdeeDto[] = []; 
+  storicoTdee: CalcoloTdeeDto[] = [];
   tdeeEspansoId: number | null = null;
 
-  // --- STATO DEL MODALE DI ELIMINAZIONE ---
+  // --- STATO DELLE CHECKBOX E DEL MODALE ---
+  selezionatiTdee: number[] = [];
   showDeleteModal = false;
-  deleteTargetId: number | null = null; // null = elimina tutti, numero = elimina singolo
-  
+  deleteTargetIds: number[] = []; // Array di ID da eliminare
+
   // Icone
   faUser = faUser; faEnvelope = faEnvelope; faPhone = faPhone;
-  faCalendar = faCalendar; faIdCard = faIdCard; 
+  faCalendar = faCalendar; faIdCard = faIdCard;
   faWeight = faWeight; faRuler = faRuler; faRunning = faRunning;
-  faPercentage = faPercentage; faDumbbell = faDumbbell; 
+  faPercentage = faPercentage; faDumbbell = faDumbbell;
   faRulerCombined = faRulerCombined; faBullseye = faBullseye;
   faClipboardList = faClipboardList; faHeartbeat = faHeartbeat;
   faBolt = faBolt; faTrash = faTrash;
@@ -86,27 +88,28 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
 
   private loadDashboardData(clienteId: number): void {
     this.plicoApi.allByCliente(clienteId, 0, 1).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => { this.ultimaPlicometria = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
-      });
+      next: (res) => { this.ultimaPlicometria = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
+    });
 
     this.misurazioneApi.getAllByCliente(clienteId, 0, 1).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => { this.ultimaMisurazione = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
-      });
+      next: (res) => { this.ultimaMisurazione = res.contenuto?.[0] ?? null; this.cdr.markForCheck(); }
+    });
 
     this.schedaApi.getAllByCliente(clienteId, 0, 50).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          if (res.contenuto && res.contenuto.length > 0) {
-            this.schedaAttiva = res.contenuto.find((s: any) => s.attiva === true) || null;
-          } else {
-            this.schedaAttiva = null;
-          }
-          this.cdr.markForCheck();
+      next: (res) => {
+        if (res.contenuto && res.contenuto.length > 0) {
+          this.schedaAttiva = res.contenuto.find((s: any) => s.attiva === true) || null;
+        } else {
+          this.schedaAttiva = null;
         }
-      });
+        this.cdr.markForCheck();
+      }
+    });
 
     this.tdeeApi.getStoricoCliente(clienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.storicoTdee = res || [];
+        this.selezionatiTdee = []; // Reset selezione quando si ricaricano i dati
         this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
           const tId = params['tdeeId'];
           if (tId) {
@@ -181,6 +184,10 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     return ((Math.min(30, Math.max(18.5, b)) - 18.5) / (30 - 18.5)) * 100;
   }
 
+  vaiACreaScheda(): void {
+    this.creaNuovaScheda.emit();
+  }
+
   toggleTdee(id: number): void {
     this.tdeeEspansoId = this.tdeeEspansoId === id ? null : id;
   }
@@ -201,39 +208,74 @@ export class InfoClienteComponent implements OnChanges, OnDestroy {
     }
   }
 
+  vaiAMisurazioni(): void {
+    this.apriMisurazioni.emit();
+  }
+
+  // --- GESTIONE CHECKBOX ---
+  toggleSelezione(id: number, event: Event): void {
+    event.stopPropagation();
+    const index = this.selezionatiTdee.indexOf(id);
+    if (index > -1) {
+      this.selezionatiTdee.splice(index, 1);
+    } else {
+      this.selezionatiTdee.push(id);
+    }
+  }
+
+  toggleTutti(event: Event): void {
+    event.stopPropagation();
+    if (this.tuttiSelezionati()) {
+      this.selezionatiTdee = [];
+    } else {
+      this.selezionatiTdee = this.storicoTdee.filter(c => c.id).map(c => c.id!);
+    }
+  }
+
+  tuttiSelezionati(): boolean {
+    return this.storicoTdee.length > 0 && this.selezionatiTdee.length === this.storicoTdee.length;
+  }
+
   // --- GESTIONE MODALE ELIMINAZIONE ---
-  apriModalElimina(id: number | null): void {
-    this.deleteTargetId = id;
+  apriModalElimina(ids: number[]): void {
+    this.deleteTargetIds = ids;
     this.showDeleteModal = true;
   }
 
   chiudiModalElimina(): void {
     this.showDeleteModal = false;
-    this.deleteTargetId = null;
+    this.deleteTargetIds = [];
   }
 
   confermaEliminazione(): void {
-    if (this.deleteTargetId === null) {
-      // Elimina tutti i calcoli
-      if (!this.cliente?.id) return;
+    if (this.deleteTargetIds.length === 0 || !this.cliente?.id) return;
+
+    // Se stiamo eliminando tutti i calcoli presenti
+    if (this.deleteTargetIds.length === this.storicoTdee.length) {
       this.tdeeApi.eliminaTuttiCalcoliCliente(this.cliente.id).subscribe({
         next: () => {
-          this.storicoTdee = []; 
+          this.storicoTdee = [];
+          this.selezionatiTdee = [];
           this.chiudiModalElimina();
           this.cdr.markForCheck();
         },
         error: () => alert("Errore durante l'eliminazione dello storico.")
       });
     } else {
-      // Elimina singolo calcolo
-      const idToDelete = this.deleteTargetId;
-      this.tdeeApi.eliminaCalcolo(idToDelete).subscribe({
+      // Elimina calcoli multipli specifici tramite chiamate parallele
+      const deleteRequests = this.deleteTargetIds.map(id => this.tdeeApi.eliminaCalcolo(id));
+
+      forkJoin(deleteRequests).subscribe({
         next: () => {
-          this.storicoTdee = this.storicoTdee.filter(c => c.id !== idToDelete);
+          // Filtra via quelli eliminati dallo storico locale
+          this.storicoTdee = this.storicoTdee.filter(c => !this.deleteTargetIds.includes(c.id!));
+          // Rimuovi quelli eliminati dai selezionati
+          this.selezionatiTdee = this.selezionatiTdee.filter(id => !this.deleteTargetIds.includes(id));
+
           this.chiudiModalElimina();
           this.cdr.markForCheck();
         },
-        error: () => alert("Errore durante l'eliminazione.")
+        error: () => alert("Errore durante l'eliminazione dei calcoli selezionati.")
       });
     }
   }

@@ -42,10 +42,21 @@
   <!-- ================= BOTTOM ================= -->
   <div class="sidebar-bottom">
 
-    <!-- LOGOUT -->
-    <div class="menu-item" (click)="logout()">
+    <div class="menu-item" (click)="openLogoutModal()">
       <fa-icon [icon]="faSignOutAlt"></fa-icon>
       <span>Log Out</span>
+    </div>
+
+    <div class="modal-overlay" *ngIf="showLogoutModal">
+      <div class="modal-content">
+        <h3>Conferma Log Out</h3>
+        <p>Sei sicuro di voler effettuare il log out?</p>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closeLogoutModal()">Annulla</button>
+          <button class="btn-confirm" (click)="confirmLogout()">Sì, esci</button>
+        </div>
+      </div>
     </div>
 
     <!-- TOGGLE THEME -->

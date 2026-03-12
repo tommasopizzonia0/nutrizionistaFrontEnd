@@ -2,20 +2,34 @@
 
   <div class="stats-grid-top">
     
-    <div class="stat-card widget-scheda" 
+<div class="stat-card widget-scheda" 
          [class.clickable]="schedaAttiva" 
          (click)="onSchedaClick()">
       <div class="stat-icon"><fa-icon [icon]="faClipboardList"></fa-icon></div>
-      <div class="stat-details">
-        <span class="stat-title">Scheda Attiva</span>
-        <span class="stat-value" [title]="schedaAttiva?.nome || 'Nessuna scheda'">
+      <div class="stat-details" style="flex: 1;"> <span class="stat-title" style="display: flex; align-items: center;">
+          Scheda Attiva
           @if (schedaAttiva?.nome) {
-            {{ schedaAttiva.nome.length > 20 ? (schedaAttiva.nome | slice:0:20) + '...' : schedaAttiva.nome }}
+            <span class="pulse-dot" title="Attualmente in corso"></span>
           } @else {
-            <span class="empty-val">Nessuna dieta attiva</span>
+            <span class="inactive-dot" title="Nessuna scheda attiva"></span>
           }
         </span>
+        
+        @if (schedaAttiva?.nome) {
+          <span class="stat-value" [title]="schedaAttiva.nome">
+            {{ schedaAttiva.nome.length > 20 ? (schedaAttiva.nome | slice:0:20) + '...' : schedaAttiva.nome }}
+          </span>
+        } @else {
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.2rem;">
+            <span class="empty-val" style="font-size: 0.9rem;">Nessuna dieta</span>
+            <button class="btn-calcola-ora btn-mini" (click)="vaiACreaScheda(); $event.stopPropagation()">
+              Crea Nuova
+            </button>
+          </div>
+        }
+
       </div>
+      
       @if (schedaAttiva) {
         <div class="hover-overlay">
           <span>Visualizza scheda</span>
@@ -23,22 +37,33 @@
       }
     </div>
 
-    <div class="stat-card widget-visita"
+<div class="stat-card widget-visita"
          [class.clickable]="ultimaMisurazione || ultimaPlicometria"
          (click)="onMisurazioneClick()">
       <div class="stat-icon"><fa-icon [icon]="faCalendar"></fa-icon></div>
-      <div class="stat-details">
-        <span class="stat-title">Ultima Misurazione</span>
-        <span class="stat-value">
-          @if (ultimaMisurazione?.dataMisurazione) {
-            {{ formatData(ultimaMisurazione.dataMisurazione) }}
-          } @else if (ultimaPlicometria?.dataMisurazione) {
-            {{ formatData(ultimaPlicometria.dataMisurazione) }}
+      <div class="stat-details" style="flex: 1;"> <span class="stat-title" style="display: flex; align-items: center;">
+          Ultima Misurazione
+          @if (ultimaMisurazione || ultimaPlicometria) {
+            <span class="pulse-dot" title="Dati presenti"></span>
           } @else {
-            <span class="empty-val">Nessuna</span>
+            <span class="inactive-dot" title="Nessuna misurazione"></span>
           }
         </span>
+        
+        @if (ultimaMisurazione?.dataMisurazione) {
+          <span class="stat-value">{{ formatData(ultimaMisurazione.dataMisurazione) }}</span>
+        } @else if (ultimaPlicometria?.dataMisurazione) {
+          <span class="stat-value">{{ formatData(ultimaPlicometria.dataMisurazione) }}</span>
+        } @else {
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.2rem;">
+            <span class="empty-val" style="font-size: 0.9rem;">Nessun dato</span>
+            <button class="btn-calcola-ora btn-mini" (click)="vaiAMisurazioni(); $event.stopPropagation()">
+              Aggiungi
+            </button>
+          </div>
+        }
       </div>
+
       @if (ultimaMisurazione || ultimaPlicometria) {
         <div class="hover-overlay">
           <span>Visualizza misurazioni</span>
@@ -79,10 +104,21 @@
           <span style="display: flex; align-items: center; gap: 0.6rem;">
             <fa-icon [icon]="faBolt"></fa-icon> Storico Valutazioni TDEE
           </span>
+          
           @if (storicoTdee && storicoTdee.length > 0) {
-            <button class="btn-delete-all" (click)="apriModalElimina(null)" title="Svuota Storico">
-              <fa-icon [icon]="faTrash"></fa-icon>
-            </button>
+            <div class="tdee-bulk-actions">
+              @if (selezionatiTdee.length > 0) {
+                <button class="btn-delete-selected" (click)="apriModalElimina(selezionatiTdee)" title="Elimina Selezionati">
+                  <fa-icon [icon]="faTrash"></fa-icon> Elimina ({{ selezionatiTdee.length }})
+                </button>
+              }
+              
+              <div class="custom-checkbox" (click)="toggleTutti($event)">
+                <input type="checkbox" [checked]="tuttiSelezionati()" readonly>
+                <span class="checkmark"></span>
+                <span class="check-label">Tutti</span>
+              </div>
+            </div>
           }
         </h4>
 
@@ -94,6 +130,11 @@
                 
                 <div class="tdee-accordion-header" (click)="toggleTdee(calcolo.id!)">
                   <div class="tdee-header-left">
+                    <div class="custom-checkbox" (click)="toggleSelezione(calcolo.id!, $event)">
+                      <input type="checkbox" [checked]="selezionatiTdee.includes(calcolo.id!)" readonly>
+                      <span class="checkmark"></span>
+                    </div>
+
                     <fa-icon [icon]="faCalendar"></fa-icon> 
                     <span>{{ formatData(calcolo.dataCalcolo) }}</span>
                   </div>
@@ -158,7 +199,7 @@
                     </div>
 
                     <div class="tdee-footer-actions">
-                      <button class="btn-elimina-testo" (click)="apriModalElimina(calcolo.id!); $event.stopPropagation()">
+                      <button class="btn-elimina-testo" (click)="apriModalElimina([calcolo.id!]); $event.stopPropagation()">
                         <fa-icon [icon]="faTrash"></fa-icon> Elimina questo calcolo
                       </button>
                     </div>
@@ -179,7 +220,7 @@
           }
         </div>
       </div>
-      </div>
+    </div>
 
     <div class="column-stack">
       <div class="dettaglio-section medical-card metrics-card">
@@ -285,8 +326,10 @@
         <div class="modal-body-text">
           <h3>Sei sicuro?</h3>
           <p>
-            @if (deleteTargetId === null) {
+            @if (deleteTargetIds.length === storicoTdee.length && storicoTdee.length > 1) {
               Vuoi davvero eliminare <strong>TUTTI</strong> i calcoli TDEE di questo paziente?<br>Questa azione non può essere annullata.
+            } @else if (deleteTargetIds.length > 1) {
+              Vuoi davvero eliminare i <strong>{{ deleteTargetIds.length }}</strong> calcoli selezionati?
             } @else {
               Vuoi davvero eliminare questo calcolo dallo storico?
             }

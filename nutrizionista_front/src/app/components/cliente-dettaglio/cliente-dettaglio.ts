@@ -129,6 +129,17 @@ export class ClienteDettaglioComponent implements OnInit {
     ];
   }
 
+  
+onCreaNuovaSchedaDallaDashboard(): void {
+  
+    this.navigaTo('piano-alimentare');
+    
+    this.schedaSelezionataId = undefined;
+    this.schedaPreview = undefined;
+    
+    this.cdr.detectChanges(); 
+  }
+
   // --- HELPERS DATI CLIENTE ---
 
   get sessoClass(): string {

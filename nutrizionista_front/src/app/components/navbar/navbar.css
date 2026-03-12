@@ -723,3 +723,105 @@ input:checked+.slider:before {
     padding: 12px 0;
   }
 }
+
+/* Sfondo scuro semitrasparente */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Assicura che sia sopra tutto il resto */
+}
+
+/* Il riquadro bianco del modale */
+.modal-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+/* Contenitore dei pulsanti */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Stili base per i pulsanti */
+.modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+.modal-actions button:hover {
+  opacity: 0.8;
+}
+
+.btn-cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-confirm {
+  background-color: #d32f2f; /* Colore rosso per indicare un'azione distruttiva */
+  color: white;
+}
+
+/* ====================== */
+/* MODAL DARK MODE */
+/* ====================== */
+
+/* Quando il body o il contenitore ha la classe .dark, il modale cambia aspetto */
+.dark .modal-content {
+  background-color: #1a1a1a; /* Sfondo scuro (diverso dal nero puro per fare contrasto) */
+  border: 1px solid rgba(16, 185, 129, 0.2); /* Leggero bordo verde per richiamare il tuo tema */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8); /* Ombra più intensa per la dark mode */
+}
+
+.dark .modal-content h3 {
+  color: var(--white); /* Titolo bianco */
+}
+
+.dark .modal-content p {
+  color: #cbd5e1; /* Testo grigio chiaro, coerente con il resto della tua app */
+}
+
+/* Tasto Annulla in Dark Mode */
+.dark .btn-cancel {
+  background-color: #333333;
+  color: #cbd5e1;
+}
+
+.dark .btn-cancel:hover {
+  background-color: #4a4a4a;
+  color: var(--white);
+}
+
+/* Tasto Conferma in Dark Mode (Rosso leggermente più luminoso per risaltare sullo scuro) */
+.dark .btn-confirm {
+  background-color: #ef4444; 
+}
+
+/* Opzionale: scurire leggermente di più l'overlay in dark mode */
+.dark .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
