@@ -49,4 +49,11 @@ export class ClienteService {
     );
   }
 
+  listaCompleta(): Observable<ClienteDto[]> {
+    return this.http.get<ClienteDto[]>(
+      `${this.apiUrl}/lista-completa`,
+      { headers: this.getHeaders() }
+    );
+  }
+
 }

@@ -1,107 +1,164 @@
-<div class="tdee-container" [class.dark-mode]="themeService.isDarkMode$ | async">
-  
-  <div class="header-section">
-    <h2><fa-icon [icon]="faCalculator" class="icon-title"></fa-icon> Calcolo Fabbisogno Energetico</h2>
-    <p class="subtitle">Seleziona un paziente o inserisci i dati per calcolare BMR, TDEE e proiezioni di peso.</p>
-  </div>
+<div class="container" [class.dark-mode]="themeService.isDarkMode$ | async"
+  [class.sidebar-collapsed]="sidebarService.value">
+  <main class="main-content">
 
-  <div class="content-grid">
-    
-    <div class="left-panel">
-      
-      <div class="dettaglio-section card" [class.dark-box]="themeService.isDarkMode$ | async">
-        <h3><fa-icon [icon]="faUser"></fa-icon> Seleziona Paziente</h3>
-        @if (loadingClienti) {
-          <p class="loading-text">Caricamento pazienti in corso...</p>
-        } @else {
-          <select [(ngModel)]="clienteSelezionatoId" (change)="onClienteChange()" class="form-control">
-            <option [ngValue]="null">-- Seleziona o lascia vuoto per test manuale --</option>
-            @for (c of clienti; track c.id) {
-              <option [ngValue]="c.id">{{ c.nome }} {{ c.cognome }}</option>
-            }
-          </select>
-        }
-      </div>
-
-      <div class="dettaglio-section card form-card" [class.dark-box]="themeService.isDarkMode$ | async">
-        <h3><fa-icon [icon]="faWeight"></fa-icon> Dati Antropometrici</h3>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Sesso</label>
-            <select [(ngModel)]="dati.sesso" class="form-control">
-              <option value="M">Maschio</option>
-              <option value="F">Femmina</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Età (anni)</label>
-            <input type="number" [(ngModel)]="dati.eta" class="form-control" placeholder="es. 30">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Peso (kg)</label>
-            <input type="number" step="0.1" [(ngModel)]="dati.peso" class="form-control" placeholder="es. 75">
-          </div>
-          <div class="form-group">
-            <label>Altezza (cm)</label>
-            <input type="number" [(ngModel)]="dati.altezza" class="form-control" placeholder="es. 180">
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label>Livello di Attività Fisica (LAF)</label>
-          <select [(ngModel)]="dati.livelloAttivita" class="form-control">
-            <option [ngValue]="1.2">Sedentario (Poco o nessun esercizio)</option>
-            <option [ngValue]="1.375">Leggermente Attivo (Esercizio leggero 1-3 giorni/sett)</option>
-            <option [ngValue]="1.55">Moderatamente Attivo (Esercizio mod. 3-5 giorni/sett)</option>
-            <option [ngValue]="1.725">Molto Attivo (Esercizio intenso 6-7 giorni/sett)</option>
-            <option [ngValue]="1.9">Estremamente Attivo (Lavoro fisico pesante / 2x allenamenti)</option>
-          </select>
-        </div>
-
-        <div class="actions">
-          <button class="btn btn-primary" (click)="calcolaTdee()">
-            <fa-icon [icon]="faCalculator"></fa-icon> Calcola Ora
-          </button>
-          <button class="btn btn-secondary" (click)="resetForm()">Svuota Campi</button>
-        </div>
+    <div class="header header-tdee">
+      <div class="header-titles">
+        <h1>
+          <fa-icon [icon]="faCalculator"></fa-icon>
+          Calcolo Fabbisogno Energetico
+        </h1>
+        <p class="subtitle">Seleziona un paziente o inserisci i dati per calcolare BMR, TDEE e proiezioni di peso.</p>
       </div>
     </div>
 
-    <div class="right-panel">
-      @if (risultatoAttuale) {
-        <div class="dettaglio-section card result-card" [class.dark-box]="themeService.isDarkMode$ | async">
-          <h3><fa-icon [icon]="faBolt"></fa-icon> Ultimo Calcolo Effettuato</h3>
-          
-          <div class="metrics-row">
-            <div class="metric">
-              <span class="label">BMR (Basale)</span>
-              <span class="val">{{ risultatoAttuale.bmr }} <small>kcal/gg</small></span>
+    <div class="content-grid">
+
+      <div class="left-panel">
+
+        <div class="card">
+          <h3><fa-icon [icon]="faUser"></fa-icon> Cerca Paziente</h3>
+
+          @if (loadingClienti) {
+          <p class="loading-text">Caricamento pazienti in corso...</p>
+          } @else {
+          <div class="search-autocomplete-wrapper">
+
+            <div class="search-input-container">
+              <fa-icon [icon]="faSearch" class="search-icon-inside"></fa-icon>
+              <input type="text" class="form-control with-icon" placeholder="Digita nome o cognome..."
+                [(ngModel)]="searchQuery" (input)="filtraClienti()" (focus)="mostraDropdown = true"
+                (blur)="nascondiDropdown()">
+
+              @if (clienteSelezionatoId || searchQuery) {
+              <button class="clear-btn" (click)="pulisciRicerca()">
+                <fa-icon [icon]="faTimes"></fa-icon>
+              </button>
+              }
             </div>
-            <div class="metric metric-acqua">
-              <span class="label"><fa-icon [icon]="faTint"></fa-icon> Acqua Consigliata</span>
-              <span class="val">{{ risultatoAttuale.fabbisognoIdrico }} <small>Litri/gg</small></span>
+
+            <p style="font-size: 0.85rem; color: #6b7280; margin: 0.5rem 0 0 0.2rem;">
+              <fa-icon [icon]="faInfoCircle" style="color: var(--green-primary);"></fa-icon>
+              Lascia vuoto per un calcolo rapido (non verrà salvato).
+            </p>
+
+            @if (mostraDropdown && clientiFiltratiSearch.length > 0) {
+            <ul class="autocomplete-dropdown">
+              @for (c of clientiFiltratiSearch; track c.id) {
+              <li (mousedown)="selezionaCliente(c)">
+                <div class="c-avatar">{{ c.nome[0] }}{{ c.cognome[0] }}</div>
+                <span class="c-name">{{ c.nome }} {{ c.cognome }}</span>
+              </li>
+              }
+            </ul>
+            }
+
+            @if (mostraDropdown && clientiFiltratiSearch.length === 0 && searchQuery.length > 0) {
+            <ul class="autocomplete-dropdown">
+              <li class="no-results">Nessun paziente trovato.</li>
+            </ul>
+            }
+          </div>
+          }
+        </div>
+
+        <div class="card">
+          <h3><fa-icon [icon]="faWeight"></fa-icon> Dati Antropometrici</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sesso</label>
+              <select [(ngModel)]="dati.sesso" class="form-control">
+                <option value="M">Maschio</option>
+                <option value="F">Femmina</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Età (anni)</label>
+              <input type="number" [(ngModel)]="dati.eta" class="form-control" placeholder="es. 30">
             </div>
           </div>
 
-          <div class="metrics-row">
-            <div class="metric highlight">
-              <span class="label">TDEE Giornaliero</span>
-              <span class="val">{{ risultatoAttuale.tdee }} <small>kcal/gg</small></span>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Peso (kg)</label>
+              <input type="number" step="0.1" [(ngModel)]="dati.peso" class="form-control" placeholder="es. 75">
+            </div>
+            <div class="form-group">
+              <label>Altezza (cm)</label>
+              <input type="number" [(ngModel)]="dati.altezza" class="form-control" placeholder="es. 180">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Livello di Attività Fisica (LAF)</label>
+              <select [(ngModel)]="dati.livelloAttivita" class="form-control">
+                <option [ngValue]="1.2">Sedentario (Poco o nessun esercizio)</option>
+                <option [ngValue]="1.375">Leggermente Attivo (Esercizio leggero 1-3 giorni/sett)</option>
+                <option [ngValue]="1.55">Moderatamente Attivo (Esercizio mod. 3-5 giorni/sett)</option>
+                <option [ngValue]="1.725">Molto Attivo (Esercizio intenso 6-7 giorni/sett)</option>
+                <option [ngValue]="1.9">Estremamente Attivo (Lavoro fisico pesante / 2x allenamenti)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="info-alert">
+            <fa-icon [icon]="faInfoCircle"></fa-icon>
+            <div class="info-text">
+              <strong>Suggerimento</strong>
+              <span>Il Livello di Attività Fisica (LAF) incide notevolmente sul calcolo finale. Cerca di stimarlo nel
+                modo più accurato possibile per ottenere proiezioni precise.</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" (click)="calcolaTdee()">
+              <fa-icon [icon]="faCalculator"></fa-icon> Calcola Ora
+            </button>
+            <button class="btn btn-secondary" (click)="resetForm()">
+              <fa-icon [icon]="faTimes"></fa-icon> Svuota
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+
+@if (isCalculating) {
+          <div class="card empty-state-panel mini-empty calculating-box">
+            <div class="loader-pulse">
+              <fa-icon [icon]="faCalculator"></fa-icon>
+            </div>
+            <span class="empty-val">Elaborazione proiezioni e<br>calcolo del TDEE in corso...</span>
+          </div>
+        } @else if (risultatoAttuale) {
+          <div class="card result-card">
+          <h3><fa-icon [icon]="faBolt"></fa-icon> Ultimo Calcolo Effettuato</h3>
+
+          <div class="metrics-grid">
+            <div class="metric">
+              <span class="label">BMR (Basale)</span>
+              <span class="val">{{ risultatoAttuale.bmr }} <small>kcal</small></span>
+            </div>
+            <div class="metric metric-acqua">
+              <span class="label"><fa-icon [icon]="faTint"></fa-icon> Acqua</span>
+              <span class="val">{{ risultatoAttuale.fabbisognoIdrico }} <small>Litri</small></span>
             </div>
             <div class="metric highlight">
-              <span class="label">TDEE Settimanale</span>
-              <span class="val">{{ risultatoAttuale.tdeeSettimanale }} <small>kcal/sett</small></span>
+              <span class="label">TDEE Giornal.</span>
+              <span class="val">{{ risultatoAttuale.tdee }} <small>kcal</small></span>
+            </div>
+            <div class="metric highlight">
+              <span class="label">TDEE Settim.</span>
+              <span class="val">{{ risultatoAttuale.tdeeSettimanale }} <small>kcal</small></span>
             </div>
           </div>
 
           <hr class="separator">
-          
+
           <h3 class="sub-heading"><fa-icon [icon]="faBullseye"></fa-icon> Proiezioni Obiettivi</h3>
-          <div class="metrics-row">
+          <div class="metrics-grid due-col">
             <div class="metric metric-dimagrimento">
               <span class="label">Dimagrimento (-500)</span>
               <span class="val">{{ risultatoAttuale.calorieDimagrimento }} <small>kcal/gg</small></span>
@@ -113,17 +170,18 @@
           </div>
 
           <hr class="separator">
+
           <h3 class="sub-heading"><fa-icon [icon]="faUtensils"></fa-icon> Ripartizione Macronutrienti</h3>
           <p class="macro-desc">
-            <small><em>(Carboidrati e Proteine 1g = 4kcal, Grassi 1g = 9kcal)</em></small><br>
-            La proposta riguarda persone che si allenano sfruttando il sistema lattacido.
+            La proposta riguarda persone che si allenano sfruttando il sistema lattacido.<br>
+            <small><em>(Carb. e Pro 1g = 4kcal, Grassi 1g = 9kcal)</em></small>
           </p>
 
           <ng-container *ngIf="getMacro(risultatoAttuale.tdee, risultatoAttuale.peso) as macro">
             <div class="macro-grid">
               <div class="macro-box protein">
                 <div class="macro-header">Proteine</div>
-                <p class="macro-info">Carne, pesce, latte, uova e legumi</p>
+                <p class="macro-info">Carne, pesce, uova...</p>
                 <div class="macro-values">
                   <span class="g-val">{{ macro.proG }} <small>g</small></span>
                   <span class="k-val">{{ macro.proKcal }} kcal</span>
@@ -132,63 +190,67 @@
 
               <div class="macro-box fat">
                 <div class="macro-header">Grassi</div>
-                <p class="macro-info">Frutta secca, semi e avocado</p>
+                <p class="macro-info">Frutta secca, avocado...</p>
                 <div class="macro-values">
-                  <span class="g-val">{{ macro.fatMinG }}/{{ macro.fatMaxG }} <small>g</small></span>
-                  <span class="k-val">{{ macro.fatMinKcal }}/{{ macro.fatMaxKcal }} kcal</span>
+                  <span class="g-val">{{ macro.fatMinG }}-{{ macro.fatMaxG }} <small>g</small></span>
+                  <span class="k-val">{{ macro.fatMinKcal }}-{{ macro.fatMaxKcal }} kcal</span>
                 </div>
               </div>
 
               <div class="macro-box carb">
-                <div class="macro-header">Carboidrati</div>
-                <p class="macro-info">Riso, pasta e patate</p>
+                <div class="macro-header">Carbo</div>
+                <p class="macro-info">Riso, pasta, patate...</p>
                 <div class="macro-values">
-                  <span class="g-val">{{ macro.carbMinG }}/{{ macro.carbMaxG }} <small>g</small></span>
-                  <span class="k-val">{{ macro.carbMinKcal }}/{{ macro.carbMaxKcal }} kcal</span>
+                  <span class="g-val">{{ macro.carbMinG }}-{{ macro.carbMaxG }} <small>g</small></span>
+                  <span class="k-val">{{ macro.carbMinKcal }}-{{ macro.carbMaxKcal }} kcal</span>
                 </div>
               </div>
             </div>
           </ng-container>
-          
-          <button class="btn-info-cliente" (click)="vaiAInfoCliente()">
+
+          @if (clienteSelezionatoId) {
+          <button class="btn btn-info-cliente" (click)="vaiAInfoCliente()">
             Visualizza nelle Info Cliente <fa-icon [icon]="faArrowRight"></fa-icon>
           </button>
+          }
 
         </div>
-      } @else {
-        <div class="dettaglio-section card empty-state-panel mini-empty" [class.dark-box]="themeService.isDarkMode$ | async">
-          <fa-icon [icon]="faCalculator" class="empty-state-icon mini"></fa-icon>
-          <span class="empty-val">Compila il form e clicca su "Calcola Ora"<br>per visualizzare il fabbisogno del paziente.</span>
+        } @else {
+        <div class="card empty-state-panel mini-empty">
+          <div class="empty-state-icon mini">
+            <fa-icon [icon]="faCalculator"></fa-icon>
+          </div>
+          <span class="empty-val">Compila il form e clicca su "Calcola Ora"<br>per visualizzare il fabbisogno.</span>
         </div>
-      }
+        }
 
-      <div class="dettaglio-section card recent-card" [class.dark-box]="themeService.isDarkMode$ | async">
-        <h3><fa-icon [icon]="faHistory"></fa-icon> Ultimi Calcoli in Studio</h3>
-        
-        @if (ultimiCalcoli.length > 0) {
+        <div class="card">
+          <h3><fa-icon [icon]="faHistory"></fa-icon> Ultimi Calcoli in Studio</h3>
+
+          @if (ultimiCalcoli.length > 0) {
           <div class="recent-list">
-            @for (calc of ultimiCalcoli; track calc.id) {
-              
-              <div class="recent-item" (click)="vaiAInfoClienteDaStorico(calc.clienteId, calc.id!)" title="Apri nel profilo cliente">
-                <div class="r-avatar">
-                  <fa-icon [icon]="faUser"></fa-icon>
-                </div>
-                <div class="r-info">
-                  <span class="r-name">{{ getNomeCliente(calc.clienteId) }}</span>
-                  <span class="r-date">{{ formatData(calc.dataCalcolo) }} &bull; {{ calc.tdee }} kcal</span>
-                </div>
-                <div class="r-action">
-                  <fa-icon [icon]="faArrowRight"></fa-icon>
-                </div>
+            @for (calc of ultimiCalcoli.slice(0, 5); track calc.id) {
+            <div class="recent-item" (click)="vaiAInfoClienteDaStorico(calc.clienteId, calc.id!)">
+              <div class="r-avatar">
+                <fa-icon [icon]="faUser"></fa-icon>
               </div>
-
+              <div class="r-info">
+                <span class="r-name">{{ getNomeCliente(calc.clienteId) }}</span>
+                <span class="r-date">{{ formatData(calc.dataCalcolo) }} &bull; <strong>{{ calc.tdee }}
+                    kcal</strong></span>
+              </div>
+              <div class="r-action">
+                <fa-icon [icon]="faArrowRight"></fa-icon>
+              </div>
+            </div>
             }
           </div>
-        } @else {
+          } @else {
           <p class="loading-text" style="text-align: center; padding: 1rem 0;">Nessun calcolo registrato finora.</p>
-        }
-      </div>
-      </div>
+          }
+        </div>
 
-  </div>
+      </div>
+    </div>
+  </main>
 </div>
