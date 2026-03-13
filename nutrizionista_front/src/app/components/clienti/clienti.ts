@@ -28,6 +28,7 @@ import { SidebarService } from '../../services/navbar.service';
 export class ClienteComponent implements OnInit {
 
   clienti: ClienteDto[] = [];
+  tuttiIClienti: ClienteDto[] = [];
   clienteSelezionato: ClienteDto | null = null;
 
   modalAperta = false;
@@ -74,6 +75,7 @@ export class ClienteComponent implements OnInit {
 
   ngOnInit(): void {
     this.caricaClienti();
+    this.caricaTuttiIClienti();
   }
 
   caricaClienti(): void {
@@ -83,6 +85,14 @@ export class ClienteComponent implements OnInit {
         this.totalPages = response.totalePagine;
         this.totalElements = response.totaleElementi;
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  caricaTuttiIClienti(): void {
+    this.clienteService.listaCompleta().subscribe({
+      next: (res: ClienteDto[]) => {
+        this.tuttiIClienti = res || [];
       }
     });
   }
@@ -110,16 +120,20 @@ export class ClienteComponent implements OnInit {
   }
 
 
-  get clientiFiltrati(): ClienteDto[] {
+get clientiFiltrati(): ClienteDto[] {
     const q = (this.searchTerm || '').trim().toLowerCase();
+    
+    // Se non sto cercando nulla, mostro i clienti della pagina corrente
     if (!q) return this.clienti;
 
-
-    return this.clienti.filter(c =>
-      (c.nome || '').toLowerCase().startsWith(q)
+    // Se sto cercando, filtro su TUTTI i clienti del database
+    return this.tuttiIClienti.filter(c =>
+      (c.nome || '').toLowerCase().includes(q) ||
+      (c.cognome || '').toLowerCase().includes(q) ||
+      `${c.nome} ${c.cognome}`.toLowerCase().includes(q)
     );
   }
-
+  
   apriModalCreazione(): void {
     this.isEdit = false;
     this.nuovoCliente = this.resetNuovoCliente();
