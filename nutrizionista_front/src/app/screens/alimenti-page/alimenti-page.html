@@ -388,27 +388,48 @@
                     <span class="col-macro g">{{ getTemplateItemMacro(item, 'grassi') | number:'1.0-1' }}</span>
                     <span class="col-macro kcal">{{ getTemplateItemMacro(item, 'calorie') | number:'1.0-0' }}</span>
                     <span class="col-actions">
+                      <button class="icon-btn small" (click)="toggleTemplateAlternativeExpand(item.alimento.id ?? 0)"
+                        [title]="isTemplateAlternativeExpanded(item.alimento.id ?? 0) ? 'Chiudi aggiunta alternative' : 'Aggiungi alternativa'">
+                        <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                      </button>
                       <button class="icon-btn danger small" (click)="removeAlimentoFromPasto(i)" title="Rimuovi">
                         <fa-icon [icon]="icons.xmark"></fa-icon>
                       </button>
                     </span>
                   </div>
+                  @if (isTemplateAlternativeExpanded(item.alimento.id ?? 0)) {
+                  <div class="template-alternative-expand-panel">
+                    <div class="template-alternative-inline-header">
+                      <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                      Aggiungi alternativa per: <strong>{{ item.nomeVisualizzato || item.nomeCustom ||
+                        item.alimento.nome || 'Alimento' }}</strong>
+                    </div>
+                    <app-lista-alternative-template [mainAlimento]="item.alimento" [mainQuantita]="item.quantita"
+                      [alternatives]="item.alternative || []" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
+                      [showMode]="'search-only'" (alternativesChange)="updateAlternativePasto(i, $event)">
+                    </app-lista-alternative-template>
+                  </div>
+                  }
                   }
                 </div>
 
                 <div class="template-alternative-display-list">
                   @for (item of pasto.alimenti; track item.alimento.id; let i = $index) {
+                  @if (item.alternative && item.alternative.length > 0) {
                   <div class="template-alternative-display-section">
                     <div class="template-alternative-display-header">
                       <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
                       Alternative per: <strong>{{ item.nomeVisualizzato || item.nomeCustom || item.alimento.nome ||
                         'Alimento' }}</strong>
                     </div>
+                    @if (item.alternative && item.alternative.length > 0) {
                     <app-lista-alternative-template [mainAlimento]="item.alimento" [mainQuantita]="item.quantita"
                       [alternatives]="item.alternative || []" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
-                      (alternativesChange)="updateAlternativePasto(i, $event)">
+                      [showMode]="'display-only'" (alternativesChange)="updateAlternativePasto(i, $event)">
                     </app-lista-alternative-template>
+                    }
                   </div>
+                  }
                   }
                 </div>
                 }
@@ -485,28 +506,57 @@
          ╚══════════════════════════════════════╝ -->
     @if (activeTab === 'ricette') {
     <section class="section-ricette animate-in">
+
+      @if (loadingRicette) {
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <span class="loader-text">Caricamento ricette...</span>
+      </div>
+      } @else if (ricetteSuggerite.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.utensils" class="empty-icon"></fa-icon>
+        <h3>Nessuna ricetta disponibile</h3>
+        <p>Le ricette suggerite verranno caricate non appena saranno disponibili nel catalogo.</p>
+      </div>
+      } @else {
       <div class="ricette-grid">
         @for (ricetta of ricetteSuggerite; track ricetta.id) {
-        <div class="ricetta-card">
+        <div class="ricetta-card" [class.ricetta-imported]="ricettaImportSuccess === ricetta.id">
           <div class="ricetta-cat-badge">{{ ricetta.categoria }}</div>
           <h4 class="ricetta-titolo">{{ ricetta.titolo }}</h4>
           <p class="ricetta-desc">{{ ricetta.descrizione }}</p>
           <div class="ricetta-ingredienti">
-            @for (ing of ricetta.ingredienti; track ing) {
-            <span class="ingrediente-chip">{{ ing }}</span>
+            @for (ing of ricetta.ingredienti; track ing.id) {
+            <span class="ingrediente-chip">
+              {{ ing.nomeVisualizzato || ing.nomeCustom || ing.alimento?.nome || '—' }}
+              <span class="ing-quantita">{{ ing.quantita }}g</span>
+            </span>
             }
           </div>
           <div class="ricetta-macros">
-            <span class="macro kcal">{{ ricetta.macroTotali.calorie }} kcal</span>
-            <span class="macro p">{{ ricetta.macroTotali.proteine }}g P</span>
-            <span class="macro c">{{ ricetta.macroTotali.carboidrati }}g C</span>
-            <span class="macro g">{{ ricetta.macroTotali.grassi }}g G</span>
+            <span class="macro kcal">{{ ricetta.macroTotali.calorie | number:'1.0-0' }} kcal</span>
+            <span class="macro p">{{ ricetta.macroTotali.proteine | number:'1.0-1' }}g P</span>
+            <span class="macro c">{{ ricetta.macroTotali.carboidrati | number:'1.0-1' }}g C</span>
+            <span class="macro g">{{ ricetta.macroTotali.grassi | number:'1.0-1' }}g G</span>
           </div>
+          @if (ricettaImportSuccess === ricetta.id) {
+          <button class="btn-import btn-import-ok" disabled>
+            <fa-icon [icon]="icons.check"></fa-icon>
+            Template aggiunto!
+          </button>
+          } @else {
+          <button class="btn-import" (click)="importAsTemplate(ricetta)">
+            <fa-icon [icon]="icons.plus"></fa-icon>
+            Usa come Template
+          </button>
+          }
         </div>
         }
       </div>
+      }
     </section>
     }
+
 
 
 
@@ -738,8 +788,10 @@
 
   <!-- ═══════ MODAL DETTAGLIO ═══════ -->
   <app-modal-alimento [open]="modalOpen" [loading]="modalLoading" [alimento]="alimentoDettaglio"
+    [pastoTargetLabel]="modalPastoTargetLabel" [quantita]="modalQuantita" [warningMessage]="modalWarning"
     [isPreferito]="!!alimentoDettaglio && isPreferito(alimentoDettaglio)"
     [isDarkMode]="!!(themeService.isDarkMode$ | async)" (closed)="onModalClosed()"
+    (addRequested)="onModalAddRequested($event)"
     (togglePreferito)="alimentoDettaglio && togglePreferito(alimentoDettaglio)">
   </app-modal-alimento>
 

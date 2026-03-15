@@ -137,3 +137,5 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+nutrizionista_front/docs/read_docx.ps1
+nutrizionista_front/docs/todo.txt

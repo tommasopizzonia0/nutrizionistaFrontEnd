@@ -1,4 +1,5 @@
 <div class="alternative-section" [class.dark-mode]="isDarkMode">
+  @if (showMode === 'all' || showMode === 'search-only') {
   <div class="add-area">
     @if (editingSearch) {
     <div class="search-panel">
@@ -34,7 +35,9 @@
     </button>
     }
   </div>
+  }
 
+  @if (showMode === 'all' || showMode === 'display-only') {
   <div class="alternatives-grid">
     @for (alt of alternatives; track alt.id ?? alt.alimentoAlternativo.id) {
     @let idx = $index;
@@ -105,4 +108,5 @@
     </div>
     }
   </div>
+  }
 </div>

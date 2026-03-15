@@ -328,6 +328,17 @@
   font-weight: 800;
 }
 
+.footer-warning {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #b91c1c;
+}
+
+.modal.dark-mode .footer-warning {
+  color: #fca5a5;
+}
+
 .footer-right {
   display: flex;
   align-items: flex-end;
