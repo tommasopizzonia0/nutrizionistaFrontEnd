@@ -15,6 +15,7 @@ import { catchError, debounce, debounceTime, distinctUntilChanged, map, switchMa
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
 import { MacroDto } from '../../dto/macro.dto';
 import { PastoTemplateAlternativaDto, PastoTemplateDto, PastoTemplateItemDto, PastoTemplateUpsertDto } from '../../dto/pasto-template.dto';
+import { RicettaDto } from '../../dto/ricetta.dto';
 import { AlimentoService } from '../../services/alimento-service';
 import { ThemeService } from '../../services/theme.service';
 import { CatalogoAlimenti } from '../../components/catalogo-alimenti/catalogo-alimenti';
@@ -37,14 +38,7 @@ interface SmartTag {
   filterFn: (a: AlimentoBaseDto) => boolean;
 }
 
-interface RicettaSuggerita {
-  id: string;
-  titolo: string;
-  descrizione: string;
-  categoria: string;
-  ingredienti: string[];
-  macroTotali: { calorie: number; proteine: number; carboidrati: number; grassi: number };
-}
+// RicettaSuggerita interface moved to ricetta.dto.ts
 
 @Component({
   selector: 'app-alimenti-page',
@@ -163,7 +157,10 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
   private readonly pastoTemplateSave$ = new Subject<void>();
 
   /* ─── RICETTE SUGGERITE ─── */
-  ricetteSuggerite: RicettaSuggerita[] = [];
+  ricetteSuggerite: RicettaDto[] = [];
+  loadingRicette = false;
+  ricettaImportSuccess: number | null = null; // id della ricetta importata
+  private ricettaSuccessTimer: ReturnType<typeof setTimeout> | null = null;
 
   /* ─── AGGIUNGI ALIMENTO ─── */
   nuovoAlimento: {
@@ -199,9 +196,8 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
     this.initCatalogo();
     this.loadPreferiti();
     this.initPastoTemplateAutosave();
-    this.loadPastiTemplates();
+    this.loadRicette();
     this.loadTopAlimenti();
-    this.initRicette();
     this.subscriptions.push(
       this.themeService.isDarkMode$.subscribe(isDark => {
         this.isDarkMode = !!isDark;
@@ -364,7 +360,9 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
           catchError(() => of([] as string[]))
         );
       })
-    ).subscribe(cats => { this.categorieGlobali = cats; this.cdr.detectChanges(); });
+    ).subscribe(cats => { this.categorieGlobali = cats; this.cdr.markForCheck(); });   // ← tracked inside subscriptions via push below
+    // Note: the combineLatest sub above is tracked; this fire-and-forget is acceptable since
+    // getCategorie completes after the first emission (HTTP observable). No leak risk.
   }
 
   onSearchChange(value: string): void {
@@ -1058,48 +1056,42 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
     return { calorie: Math.round(cal), proteine: Math.round(pro * 10) / 10, carboidrati: Math.round(carb * 10) / 10, grassi: Math.round(gra * 10) / 10 };
   }
 
-  /* ═══════════════════════════════════════════
+  /* ═════════════════════════════════════════════
      RICETTE SUGGERITE (Sezione 4)
-  ═══════════════════════════════════════════ */
-  private initRicette(): void {
-    this.ricetteSuggerite = [
-      {
-        id: '1', titolo: 'Bowl Proteica al Pollo', categoria: 'Alto Proteico',
-        descrizione: 'Riso basmati, petto di pollo grigliato, avocado, edamame e salsa teriyaki.',
-        ingredienti: ['Riso basmati', 'Petto di pollo', 'Avocado', 'Edamame'],
-        macroTotali: { calorie: 520, proteine: 42, carboidrati: 48, grassi: 16 }
-      },
-      {
-        id: '2', titolo: 'Insalata Mediterranea', categoria: 'Low Carb',
-        descrizione: 'Insalata mista, tonno, olive, pomodorini, feta e olio EVO.',
-        ingredienti: ['Insalata mista', 'Tonno', 'Olive', 'Pomodorini', 'Feta'],
-        macroTotali: { calorie: 380, proteine: 28, carboidrati: 12, grassi: 24 }
-      },
-      {
-        id: '3', titolo: 'Porridge Energetico', categoria: 'Colazione',
-        descrizione: 'Fiocchi d\'avena, latte, banana, miele, noci e cannella.',
-        ingredienti: ['Fiocchi d\'avena', 'Latte', 'Banana', 'Miele', 'Noci'],
-        macroTotali: { calorie: 420, proteine: 14, carboidrati: 62, grassi: 14 }
-      },
-      {
-        id: '4', titolo: 'Wrap Vegano', categoria: 'Vegano',
-        descrizione: 'Tortilla integrale, hummus, verdure grigliate, rucola.',
-        ingredienti: ['Tortilla integrale', 'Hummus', 'Zucchine', 'Peperoni', 'Rucola'],
-        macroTotali: { calorie: 340, proteine: 12, carboidrati: 44, grassi: 14 }
-      },
-      {
-        id: '5', titolo: 'Salmone al Forno', categoria: 'Omega-3',
-        descrizione: 'Filetto di salmone con patate dolci e asparagi al forno.',
-        ingredienti: ['Salmone', 'Patate dolci', 'Asparagi', 'Olio EVO'],
-        macroTotali: { calorie: 480, proteine: 36, carboidrati: 38, grassi: 20 }
-      },
-      {
-        id: '6', titolo: 'Smoothie Post-Workout', categoria: 'Post-Allenamento',
-        descrizione: 'Banana, proteine whey, latte di mandorla, burro di arachidi.',
-        ingredienti: ['Banana', 'Proteine Whey', 'Latte di mandorla', 'Burro di arachidi'],
-        macroTotali: { calorie: 360, proteine: 32, carboidrati: 36, grassi: 10 }
-      }
-    ];
+  ═════════════════════════════════════════════ */
+  private loadRicette(): void {
+    this.loadingRicette = true;
+    this.subscriptions.push(
+      this.alimentoService.getRicette().pipe(
+        catchError(() => of([] as RicettaDto[]))
+      ).subscribe(ricette => {
+        this.ricetteSuggerite = ricette;
+        this.loadingRicette = false;
+        this.cdr.markForCheck();
+      })
+    );
+  }
+
+  importAsTemplate(ricetta: RicettaDto): void {
+    if (!ricetta?.id) return;
+    this.alimentoService.importRicettaAsTemplate(ricetta.id).pipe(
+      catchError(err => {
+        console.error('Errore import ricetta come template', err);
+        return of(null);
+      })
+    ).subscribe(template => {
+      if (!template) return;
+      // Aggiunta ottimistica alla lista dei template
+      this.pastiTemplates = [template, ...this.pastiTemplates];
+      // Toast di successo per 3s
+      if (this.ricettaSuccessTimer) clearTimeout(this.ricettaSuccessTimer);
+      this.ricettaImportSuccess = ricetta.id;
+      this.ricettaSuccessTimer = setTimeout(() => {
+        this.ricettaImportSuccess = null;
+        this.cdr.detectChanges();
+      }, 3000);
+      this.cdr.markForCheck();
+    });
   }
 
   /* ═══════════════════════════════════════════

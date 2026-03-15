@@ -506,28 +506,57 @@
          ╚══════════════════════════════════════╝ -->
     @if (activeTab === 'ricette') {
     <section class="section-ricette animate-in">
+
+      @if (loadingRicette) {
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <span class="loader-text">Caricamento ricette...</span>
+      </div>
+      } @else if (ricetteSuggerite.length === 0) {
+      <div class="empty-state">
+        <fa-icon [icon]="icons.utensils" class="empty-icon"></fa-icon>
+        <h3>Nessuna ricetta disponibile</h3>
+        <p>Le ricette suggerite verranno caricate non appena saranno disponibili nel catalogo.</p>
+      </div>
+      } @else {
       <div class="ricette-grid">
         @for (ricetta of ricetteSuggerite; track ricetta.id) {
-        <div class="ricetta-card">
+        <div class="ricetta-card" [class.ricetta-imported]="ricettaImportSuccess === ricetta.id">
           <div class="ricetta-cat-badge">{{ ricetta.categoria }}</div>
           <h4 class="ricetta-titolo">{{ ricetta.titolo }}</h4>
           <p class="ricetta-desc">{{ ricetta.descrizione }}</p>
           <div class="ricetta-ingredienti">
-            @for (ing of ricetta.ingredienti; track ing) {
-            <span class="ingrediente-chip">{{ ing }}</span>
+            @for (ing of ricetta.ingredienti; track ing.id) {
+            <span class="ingrediente-chip">
+              {{ ing.nomeVisualizzato || ing.nomeCustom || ing.alimento?.nome || '—' }}
+              <span class="ing-quantita">{{ ing.quantita }}g</span>
+            </span>
             }
           </div>
           <div class="ricetta-macros">
-            <span class="macro kcal">{{ ricetta.macroTotali.calorie }} kcal</span>
-            <span class="macro p">{{ ricetta.macroTotali.proteine }}g P</span>
-            <span class="macro c">{{ ricetta.macroTotali.carboidrati }}g C</span>
-            <span class="macro g">{{ ricetta.macroTotali.grassi }}g G</span>
+            <span class="macro kcal">{{ ricetta.macroTotali.calorie | number:'1.0-0' }} kcal</span>
+            <span class="macro p">{{ ricetta.macroTotali.proteine | number:'1.0-1' }}g P</span>
+            <span class="macro c">{{ ricetta.macroTotali.carboidrati | number:'1.0-1' }}g C</span>
+            <span class="macro g">{{ ricetta.macroTotali.grassi | number:'1.0-1' }}g G</span>
           </div>
+          @if (ricettaImportSuccess === ricetta.id) {
+          <button class="btn-import btn-import-ok" disabled>
+            <fa-icon [icon]="icons.check"></fa-icon>
+            Template aggiunto!
+          </button>
+          } @else {
+          <button class="btn-import" (click)="importAsTemplate(ricetta)">
+            <fa-icon [icon]="icons.plus"></fa-icon>
+            Usa come Template
+          </button>
+          }
         </div>
         }
       </div>
+      }
     </section>
     }
+
 
 
 

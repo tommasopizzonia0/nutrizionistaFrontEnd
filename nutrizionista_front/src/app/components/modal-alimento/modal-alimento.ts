@@ -90,7 +90,7 @@ export class ModalAlimento implements OnChanges, OnDestroy {
   }
 
   close(): void {
-    this.open = false;
+    // Do NOT mutate @Input() open — the parent controls state via (closed) binding.
     this.closed.emit();
   }
 

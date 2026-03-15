@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -15,9 +15,10 @@ type AlternativeMode = MacroType;
   standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './lista-alternative-template.html',
-  styleUrl: './lista-alternative-template.css'
+  styleUrl: './lista-alternative-template.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ListaAlternativeTemplateComponent {
+export class ListaAlternativeTemplateComponent implements OnDestroy {
   @Input() mainAlimento!: AlimentoBaseDto;
   @Input() mainQuantita = 100;
   @Input() alternatives: PastoTemplateAlternativaDto[] = [];
@@ -56,6 +57,11 @@ export class ListaAlternativeTemplateComponent {
   editingNomeIndex: number | null = null;
   editNomeValue = '';
 
+  ngOnDestroy(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    if (this.warningTimer) clearTimeout(this.warningTimer);
+  }
+
   openSearch(): void {
     if (this.showMode === 'display-only') return;
     this.editingSearch = true;
@@ -63,7 +69,7 @@ export class ListaAlternativeTemplateComponent {
     this.searchResults = [];
     this.searchLoading = false;
     this.warningMessage = '';
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   closeSearch(): void {
@@ -72,7 +78,7 @@ export class ListaAlternativeTemplateComponent {
     this.searchResults = [];
     this.searchLoading = false;
     this.warningMessage = '';
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onSearchInput(query: string): void {

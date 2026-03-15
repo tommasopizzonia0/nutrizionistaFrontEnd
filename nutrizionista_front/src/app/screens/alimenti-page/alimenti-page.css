@@ -2448,6 +2448,7 @@
   }
 }
 
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -2457,3 +2458,50 @@
     opacity: 1;
   }
 }
+
+/* ─── Ricette Suggerite – Import Button & Extras ─── */
+.btn-import {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.55rem 1rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-import:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-import.btn-import-ok {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  cursor: default;
+  opacity: 0.9;
+}
+
+.btn-import:disabled {
+  cursor: default;
+}
+
+.ing-quantita {
+  margin-left: 0.3rem;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  font-weight: 400;
+}
+
+.ricetta-imported {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), 0 4px 20px rgba(16, 185, 129, 0.15) !important;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
