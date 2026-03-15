@@ -142,6 +142,9 @@
                     Seleziona un pasto per aggiungere alimenti
                     }
                 </div>
+                @if (warningMessage) {
+                <div class="footer-warning">{{ warningMessage }}</div>
+                }
             </div>
             <div class="footer-right">
                 <div class="qty">

@@ -9,7 +9,7 @@ import {
   faStar, faTrash, faEdit, faTags, faLeaf, faSeedling, faBan,
   faBolt, faEye, faArrowUp, faArrowDown, faCheck, faUser
 } from '@fortawesome/free-solid-svg-icons';
-import { BehaviorSubject, Subject, Subscription, combineLatest, of, timer } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, combineLatest, of, timer, EMPTY } from 'rxjs';
 import { catchError, debounce, debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 
 import { AlimentoBaseDto } from '../../dto/alimento-base.dto';
@@ -142,6 +142,10 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
   modalOpen = false;
   modalLoading = false;
   alimentoDettaglio?: AlimentoBaseDto;
+  modalPastoTargetLabel?: string;
+  modalQuantita = 100;
+  modalWarning = '';
+  private modalWarningTimer: ReturnType<typeof setTimeout> | null = null;
 
   /* ─── PREFERITI ─── */
   preferiti: AlimentoBaseDto[] = [];
@@ -411,6 +415,9 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
     this.modalLoading = true;
     this.modalOpen = true;
     this.alimentoDettaglio = alimento;
+    this.modalPastoTargetLabel = this.pastoInModifica?.nome || undefined;
+    this.modalQuantita = 100;
+    this.modalWarning = '';
     if (alimento.id) {
       this.alimentoService.getDettaglio(alimento.id).pipe(
         catchError(() => of(alimento))
@@ -430,6 +437,46 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
   onModalClosed(): void {
     this.modalOpen = false;
     this.alimentoDettaglio = undefined;
+    this.modalPastoTargetLabel = undefined;
+    this.modalWarning = '';
+  }
+
+  onModalAddRequested(event: { alimento: AlimentoBaseDto; quantita: number }): void {
+    if (!this.pastoInModifica) return;
+    const alimento = event?.alimento;
+    if (!alimento?.id) return;
+
+    const exists = this.pastoInModifica.alimenti.some(a => a.alimento.id === alimento.id);
+    if (exists) {
+      this.setModalWarning('Alimento già presente nel template.');
+      return;
+    }
+
+    const q = Math.max(1, Math.round(Number(event?.quantita || 100)));
+    this.pastoInModifica.alimenti.push({
+      alimento: { ...alimento },
+      quantita: q,
+      nomeCustom: null,
+      nomeVisualizzato: alimento.nome,
+      alternative: []
+    });
+    this.pastoTemplateSave$.next();
+    this.updateTemplateMacroChart();
+    this.modalOpen = false;
+    this.alimentoDettaglio = undefined;
+    this.modalWarning = '';
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
+  }
+
+  private setModalWarning(message: string): void {
+    this.modalWarning = message;
+    if (this.modalWarningTimer) clearTimeout(this.modalWarningTimer);
+    this.modalWarningTimer = setTimeout(() => {
+      this.modalWarning = '';
+      this.cdr.detectChanges();
+    }, 2500);
+    this.cdr.detectChanges();
   }
 
   /* ═══════════════════════════════════════════
@@ -1111,6 +1158,26 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
     ).subscribe(result => {
       this.creatingAlimento = false;
       if (result) {
+        const created: AlimentoBaseDto = {
+          ...result,
+          personale: (result as any)?.personale ?? true
+        };
+
+        if (created.id) {
+          const idx = this.allAlimentiCache.findIndex(a => a.id === created.id);
+          if (idx >= 0) {
+            this.allAlimentiCache[idx] = created;
+          } else {
+            this.allAlimentiCache = [created, ...this.allAlimentiCache];
+          }
+          this.allAlimentiLoaded = true;
+          this.filterChanged$.next();
+        }
+
+        if (created.categoria && !this.categorieGlobali.includes(created.categoria)) {
+          this.categorieGlobali = [...this.categorieGlobali, created.categoria].sort((a, b) => a.localeCompare(b));
+        }
+
         this.creazioneSuccesso = true;
         this.nuovoAlimento = this.resetNuovoAlimento();
         setTimeout(() => { this.creazioneSuccesso = false; this.cdr.markForCheck(); this.cdr.detectChanges(); }, 3000);
@@ -1130,14 +1197,23 @@ export class AlimentiPageComponent implements OnInit, OnDestroy {
     this.alimentoService.deletePersonale(alimento.id).pipe(
       catchError(err => {
         console.error('Errore eliminazione:', err);
-        return of(null);
+        return EMPTY;
       })
     ).subscribe(() => {
-      // Invalida cache e ricarica
-      this.allAlimentiLoaded = false;
-      this.allAlimentiCache = [];
-      this.filterChanged$.next();
-      this.page$.next(this.currentPage);
+      const id = alimento.id!;
+      const hadInSearchResultsAll = this.searchResultsAll.some(a => a.id === id);
+      this.allAlimentiCache = this.allAlimentiCache.filter(a => a.id !== alimento.id);
+      this.preferiti = this.preferiti.filter(p => p.id !== alimento.id);
+      this.alimentiDisponibili = this.alimentiDisponibili.filter(a => a.id !== alimento.id);
+      this.searchResultsAll = this.searchResultsAll.filter(a => a.id !== alimento.id);
+
+      if ((this.hasActiveFilters || this.searchQuery?.trim()) && hadInSearchResultsAll) {
+        this.totalElements = Math.max(0, this.totalElements - 1);
+        this.totalPages = Math.max(1, Math.ceil(this.totalElements / this.pageSize));
+        this.currentPage = Math.max(0, Math.min(this.currentPage, this.totalPages - 1));
+      }
+      this.cdr.markForCheck();
+      this.cdr.detectChanges();
       // Ricarica categorie
       this.alimentoService.getCategorie().subscribe(cats => {
         this.categorieGlobali = cats || [];

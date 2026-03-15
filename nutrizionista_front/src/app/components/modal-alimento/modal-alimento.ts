@@ -32,6 +32,7 @@ export class ModalAlimento implements OnChanges, OnDestroy {
   @Input() quantita = 100;
   @Input() isDarkMode = false;
   @Input() isPreferito = false;
+  @Input() warningMessage?: string;
 
   @Output() closed = new EventEmitter<void>();
   @Output() addRequested = new EventEmitter<{ alimento: AlimentoBaseDto; quantita: number }>();

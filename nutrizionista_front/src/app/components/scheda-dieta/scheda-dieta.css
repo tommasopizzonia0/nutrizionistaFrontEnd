@@ -2673,6 +2673,13 @@
 .scheda-dieta-container.dark-mode select.time-input {
   color: #fff;
   color-scheme: dark;
+  background: #0f172a;
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.scheda-dieta-container.dark-mode select.time-input option {
+  background: #0f172a;
+  color: #e2e8f0;
 }
 
 .template-chip.add {

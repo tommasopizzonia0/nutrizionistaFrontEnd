@@ -388,27 +388,48 @@
                     <span class="col-macro g">{{ getTemplateItemMacro(item, 'grassi') | number:'1.0-1' }}</span>
                     <span class="col-macro kcal">{{ getTemplateItemMacro(item, 'calorie') | number:'1.0-0' }}</span>
                     <span class="col-actions">
+                      <button class="icon-btn small" (click)="toggleTemplateAlternativeExpand(item.alimento.id ?? 0)"
+                        [title]="isTemplateAlternativeExpanded(item.alimento.id ?? 0) ? 'Chiudi aggiunta alternative' : 'Aggiungi alternativa'">
+                        <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                      </button>
                       <button class="icon-btn danger small" (click)="removeAlimentoFromPasto(i)" title="Rimuovi">
                         <fa-icon [icon]="icons.xmark"></fa-icon>
                       </button>
                     </span>
                   </div>
+                  @if (isTemplateAlternativeExpanded(item.alimento.id ?? 0)) {
+                  <div class="template-alternative-expand-panel">
+                    <div class="template-alternative-inline-header">
+                      <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
+                      Aggiungi alternativa per: <strong>{{ item.nomeVisualizzato || item.nomeCustom ||
+                        item.alimento.nome || 'Alimento' }}</strong>
+                    </div>
+                    <app-lista-alternative-template [mainAlimento]="item.alimento" [mainQuantita]="item.quantita"
+                      [alternatives]="item.alternative || []" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
+                      [showMode]="'search-only'" (alternativesChange)="updateAlternativePasto(i, $event)">
+                    </app-lista-alternative-template>
+                  </div>
+                  }
                   }
                 </div>
 
                 <div class="template-alternative-display-list">
                   @for (item of pasto.alimenti; track item.alimento.id; let i = $index) {
+                  @if (item.alternative && item.alternative.length > 0) {
                   <div class="template-alternative-display-section">
                     <div class="template-alternative-display-header">
                       <fa-icon [icon]="icons.edit" size="xs"></fa-icon>
                       Alternative per: <strong>{{ item.nomeVisualizzato || item.nomeCustom || item.alimento.nome ||
                         'Alimento' }}</strong>
                     </div>
+                    @if (item.alternative && item.alternative.length > 0) {
                     <app-lista-alternative-template [mainAlimento]="item.alimento" [mainQuantita]="item.quantita"
                       [alternatives]="item.alternative || []" [isDarkMode]="!!(themeService.isDarkMode$ | async)"
-                      (alternativesChange)="updateAlternativePasto(i, $event)">
+                      [showMode]="'display-only'" (alternativesChange)="updateAlternativePasto(i, $event)">
                     </app-lista-alternative-template>
+                    }
                   </div>
+                  }
                   }
                 </div>
                 }
@@ -738,8 +759,10 @@
 
   <!-- ═══════ MODAL DETTAGLIO ═══════ -->
   <app-modal-alimento [open]="modalOpen" [loading]="modalLoading" [alimento]="alimentoDettaglio"
+    [pastoTargetLabel]="modalPastoTargetLabel" [quantita]="modalQuantita" [warningMessage]="modalWarning"
     [isPreferito]="!!alimentoDettaglio && isPreferito(alimentoDettaglio)"
     [isDarkMode]="!!(themeService.isDarkMode$ | async)" (closed)="onModalClosed()"
+    (addRequested)="onModalAddRequested($event)"
     (togglePreferito)="alimentoDettaglio && togglePreferito(alimentoDettaglio)">
   </app-modal-alimento>
 

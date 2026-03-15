@@ -22,6 +22,7 @@ export class ListaAlternativeTemplateComponent {
   @Input() mainQuantita = 100;
   @Input() alternatives: PastoTemplateAlternativaDto[] = [];
   @Input() isDarkMode = false;
+  @Input() showMode: 'all' | 'search-only' | 'display-only' = 'all';
 
   @Output() alternativesChange = new EventEmitter<PastoTemplateAlternativaDto[]>();
 
@@ -56,6 +57,7 @@ export class ListaAlternativeTemplateComponent {
   editNomeValue = '';
 
   openSearch(): void {
+    if (this.showMode === 'display-only') return;
     this.editingSearch = true;
     this.searchQuery = '';
     this.searchResults = [];

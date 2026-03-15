@@ -1442,6 +1442,27 @@
   background: rgba(16, 185, 129, 0.08);
 }
 
+.template-alternative-inline-header {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 2px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-alternative-inline-header strong {
+  color: #334155;
+}
+
+.dark-mode .template-alternative-inline-header {
+  color: #94a3b8;
+}
+
+.dark-mode .template-alternative-inline-header strong {
+  color: #e2e8f0;
+}
+
 .template-alternative-display-list {
   margin-top: 12px;
   display: flex;
